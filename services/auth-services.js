@@ -41,27 +41,6 @@ const authServices = {
     try {
       const { name, phone, email, password, confirmPassword } = req.body
 
-      // 檢查必要欄位
-      const errors = {};
-      
-      if (!name) errors.name = 'Name is required';
-      if (!phone) errors.phone = 'Phone number is required';
-      if (!email) errors.email = 'Email is required';
-      if (!password) errors.password = 'Password is required';
-      if (!confirmPassword) errors.confirmPassword = 'Confirm password is required';
-      
-      if (Object.keys(errors).length > 0) {
-        return cb({ 
-          message: 'Please fill in all required fields',
-          errors 
-        }, null);
-      }
-
-      // 檢查密碼是否一致
-      if (password !== confirmPassword) {
-        return cb({ message: 'Passwords do not match' }, null)
-      }
-
       // 檢查使用者是否已存在
       const existingUser = await User.findOne({ where: { phone } })
       if (existingUser) {
