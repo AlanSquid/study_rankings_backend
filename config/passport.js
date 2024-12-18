@@ -6,6 +6,8 @@ const ExtractJWT = passportJWT.ExtractJwt
 const bcrypt = require('bcryptjs')
 const { User } = require('../models')
 
+require('dotenv').config();
+
 module.exports = app => {
   app.use(passport.initialize());
 
@@ -44,7 +46,7 @@ module.exports = app => {
   passport.use(new JWTStrategy(
     {
       jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
-      secretOrKey: process.env.JWT_SECRET
+      secretOrKey: process.env.JWT_ACCESS_SECRET
     },
     async (jwtPayload, done) => {
       try {

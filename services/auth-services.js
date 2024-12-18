@@ -8,10 +8,39 @@ const authServices = {
     try {
       passport.authenticate('jwt', { session: false }, (err, user) => {
         if (err || !user) {
+          return cb({ status: 401, message: 'Unauthorized' }, null )
+        }
+        return cb(null, { user})
+      })(req)
+    } catch (err) {
+      cb(err, null);
+    }
+  },
+  refresh: async (req, cb) => {
+    try {
+      const refreshToken = req.cookies.refreshToken
+      if (!refreshToken) {
+        return cb({ status: 401, message: 'Unauthorized: Please login or token expired' }, null)
+      }
+
+      jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET, (err, user) => {
+        if (err) {
           return cb({ status: 401, message: 'Unauthorized: Please login or token expired' }, null)
         }
-        return cb(null, { user })
-      })(req)
+
+        // 產生新的 access token
+        const userData = {
+          id: user.id,
+          phone: user.phone,
+          name: user.name
+        }
+
+        const accessToken = jwt.sign(userData, process.env.JWT_ACCESS_SECRET, {
+          expiresIn: '15m'
+        })
+
+        return cb(null, { accessToken })
+      })
     } catch (err) {
       cb(err, null);
     }
@@ -29,10 +58,26 @@ const authServices = {
           phone: user.phone,
           name: user.name
         }
-        const token = jwt.sign(userData, process.env.JWT_SECRET, { expiresIn: '30d' })
 
-        return cb(null, { user, token })
+        // 產生 access token (較短期)
+        const accessToken = jwt.sign(userData, process.env.JWT_ACCESS_SECRET, {
+          expiresIn: '15m'
+        })
+
+        // 產生 refresh token (較長期)
+        const refreshToken = jwt.sign(userData, process.env.JWT_REFRESH_SECRET, {
+          expiresIn: '7d'
+        })
+
+        return cb(null, refreshToken, { user, accessToken })
       })(req)
+    } catch (err) {
+      cb(err, null);
+    }
+  },
+  logout: async (req, cb) => {
+    try {
+      return cb(null, { message: 'Logged out' })
     } catch (err) {
       cb(err, null);
     }
@@ -67,14 +112,18 @@ const authServices = {
         name: newUser.name
       }
 
-      // 產生 JWT token
-      const token = jwt.sign(userData, process.env.JWT_SECRET, { expiresIn: '30d' })
 
-      // 回傳結果
-      return cb(null, {
-        user: userData,
-        token
+      // 產生 access token (較短期)
+      const accessToken = jwt.sign(userData, process.env.JWT_ACCESS_SECRET, {
+        expiresIn: '15m'
       })
+
+      // 產生 refresh token (較長期)
+      const refreshToken = jwt.sign(userData, process.env.JWT_REFRESH_SECRET, {
+        expiresIn: '7d'
+      })
+
+      return cb(null, refreshToken, { userData, accessToken })
     } catch (err) {
       cb(err, null);
     }
