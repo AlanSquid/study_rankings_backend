@@ -8,7 +8,7 @@ const authServices = {
     try {
       passport.authenticate('jwt', { session: false }, (err, user) => {
         if (err || !user) {
-          return cb({ status: 401, message: '未登入或token過期' }, null)
+          return cb({ status: 401, message: 'Unauthorized: Please login or token expired' }, null)
         }
         return cb(null, { user })
       })(req)
@@ -20,7 +20,7 @@ const authServices = {
     try {
       passport.authenticate('local', { session: false }, (err, user) => {
         if (err || !user) {
-          return cb({ status: 401, message: '登入失敗' }, null)
+          return cb({ status: 401, message: 'Login failed' }, null)
         }
 
         // 產生 JWT token
@@ -42,8 +42,19 @@ const authServices = {
       const { name, phone, email, password, confirmPassword } = req.body
 
       // 檢查必要欄位
-      if (!name || !phone || !email || !password || !confirmPassword) {
-        return cb({ message: 'All fields are required' }, null)
+      const errors = {};
+      
+      if (!name) errors.name = 'Name is required';
+      if (!phone) errors.phone = 'Phone number is required';
+      if (!email) errors.email = 'Email is required';
+      if (!password) errors.password = 'Password is required';
+      if (!confirmPassword) errors.confirmPassword = 'Confirm password is required';
+      
+      if (Object.keys(errors).length > 0) {
+        return cb({ 
+          message: 'Please fill in all required fields',
+          errors 
+        }, null);
       }
 
       // 檢查密碼是否一致
