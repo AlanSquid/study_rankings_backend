@@ -5,12 +5,18 @@ const logger = require('morgan');
 const routes = require("./routes");
 const errorHandler = require('./middlewares/error-handler');
 const usePassport = require('./config/passport');
+const cors = require('cors');
 
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config()
 }
 
 const app = express();
+
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true
+}));
 
 app.use(logger('dev'));
 app.use(express.json());
