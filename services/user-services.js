@@ -6,7 +6,8 @@ const userServices = {
             const users = await User.findAll({
                 attributes: ['id', 'name', 'email', 'phone', 'isEmailVerified', 'isPhoneVerified']
             });
-            return cb(null, users);
+            const usersJSON = users.map(user => user.toJSON());
+            return cb(null, usersJSON);
 
         } catch (err) {
             cb(err, null);

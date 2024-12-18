@@ -9,12 +9,17 @@
     "fake-seeds": "npx sequelize db:seed:all --seeders-path seeders/fakes"
   },
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
     "dotenv": "^16.4.7",
     "express": "~4.16.1",
+    "jsonwebtoken": "^9.0.2",
     "morgan": "~1.9.1",
     "mysql2": "^3.11.5",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
+    "passport-local": "^1.0.0",
     "sequelize": "^6.37.5"
   },
   "devDependencies": {
