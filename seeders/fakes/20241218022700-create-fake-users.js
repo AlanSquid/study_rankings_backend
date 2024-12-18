@@ -8,7 +8,7 @@ module.exports = {
     const users = Array.from({ length: 10 }).map(() => ({
       name: faker.person.fullName(),
       email: faker.internet.email(),
-      phone: '0989889889',
+      phone: `09${faker.number.int({ min: 10000000, max: 99999999 })}`,
       password: bcrypt.hashSync('123456', 10),
       is_email_verified: true,
       is_phone_verified: true,
