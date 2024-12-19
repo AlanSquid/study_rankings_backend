@@ -1,6 +1,6 @@
 const { body } = require('express-validator');
 
-const authValidation = {
+const formRules = {
   register: [
     body('name').notEmpty().withMessage('Name is required'),
     body('phone')
@@ -27,4 +27,4 @@ const authValidation = {
   ]
 };
 
-module.exports = authValidation;
+module.exports = formRules;

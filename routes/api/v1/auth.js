@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const authController = require('../../../controllers/auth-controller');
-const authValidator = require('../../../middlewares/form-validator/auth-validator');
-const handleValidation = require('../../../middlewares/form-validator/handle-validation');
+const formRules = require('../../../middlewares/form-validator/form-rules');
+const validationHandler = require('../../../middlewares/form-validator/validation-handler');
 
-router.post('/login', authValidator.login, handleValidation, authController.login);
+router.post('/login', formRules.login, validationHandler, authController.login);
 router.post('/logout', authController.logout);
-router.post('/register', authValidator.register, handleValidation, authController.register);
+router.post('/register', formRules.register, validationHandler, authController.register);
 router.get('/verify', authController.verify);
 router.get('/refresh', authController.refresh);
 

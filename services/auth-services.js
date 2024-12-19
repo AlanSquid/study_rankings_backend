@@ -2,15 +2,16 @@ const { User } = require('../models')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
 const passport = require('passport')
+const { smsVerification } = require('../lib/verification')
 
 const authServices = {
   verify: async (req, cb) => {
     try {
       passport.authenticate('jwt', { session: false }, (err, user) => {
         if (err || !user) {
-          return cb({ status: 401, message: 'Unauthorized' }, null )
+          return cb({ status: 401, message: 'Unauthorized' }, null)
         }
-        return cb(null, { user})
+        return cb(null, { user })
       })(req)
     } catch (err) {
       cb(err, null);
@@ -84,7 +85,7 @@ const authServices = {
   },
   register: async (req, cb) => {
     try {
-      const { name, phone, email, password, confirmPassword } = req.body
+      const { name, phone, email, password, verificationCode } = req.body
 
       // 檢查使用者是否已存在
       const existingUser = await User.findOne({ where: { phone } })
@@ -104,6 +105,12 @@ const authServices = {
         is_phone_verified: false,
         is_email_verified: false
       })
+
+      // 驗證手機
+      const isPhoneVerified = await smsVerification.verifyCode(newUser.id, verificationCode)
+      if (!isPhoneVerified) {
+        return cb({ message: 'Phone Verification failed' }, null)
+      }
 
       // 移除密碼後準備回傳的使用者資料
       const userData = {
