@@ -1,6 +1,6 @@
-const { body, validationResult } = require('express-validator');
+const { validationResult } = require('express-validator');
 
-const handleValidation = (req, res, next) => {
+const validationHandler = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({
@@ -14,4 +14,4 @@ const handleValidation = (req, res, next) => {
   next();
 };
 
-module.exports = handleValidation;
+module.exports = validationHandler;
