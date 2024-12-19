@@ -16,7 +16,7 @@ const userServices = {
 	},
 	sendPhoneVerification: async (req, cb) => {
 		try {
-			const phone = req.body.phone;
+			const phone = req.query.phone;
 			let code = '';
 			if (process.env.NODE_ENV === 'production') {
 				code = await smsVerification.sendVerificationSMS(phone);
