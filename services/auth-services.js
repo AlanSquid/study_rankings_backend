@@ -1,4 +1,4 @@
-const { User } = require('../models')
+const { User, Verification } = require('../models')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
 const passport = require('passport')
@@ -9,7 +9,7 @@ const authServices = {
     try {
       passport.authenticate('jwt', { session: false }, (err, user) => {
         if (err || !user) {
-          return cb({ success: false, status: 401, message: 'Unauthorized' }, null)
+          return cb({ status: 401, message: 'Unauthorized' }, null)
         }
         return cb(null, { user })
       })(req)
@@ -21,22 +21,16 @@ const authServices = {
     try {
       const refreshToken = req.cookies.refreshToken
       if (!refreshToken) {
-        return cb({ success: false, status: 401, message: 'Unauthorized: Please login or token expired' }, null)
+        return cb({ status: 401, message: 'Unauthorized: Please login or token expired' }, null)
       }
 
       jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET, (err, user) => {
         if (err) {
-          return cb({ success: false, status: 401, message: 'Unauthorized: Please login or token expired' }, null)
+          return cb({ status: 401, message: 'Unauthorized: Please login or token expired' }, null)
         }
 
         // 產生新的 access token
-        const userData = {
-          id: user.id,
-          phone: user.phone,
-          name: user.name
-        }
-
-        const accessToken = jwt.sign(userData, process.env.JWT_ACCESS_SECRET, {
+        const accessToken = jwt.sign({ id: user.id }, process.env.JWT_ACCESS_SECRET, {
           expiresIn: '15m'
         })
 
@@ -50,23 +44,17 @@ const authServices = {
     try {
       passport.authenticate('local', { session: false }, (err, user) => {
         if (err || !user) {
-          return cb({ success: false, status: 401, message: 'Login failed' }, null)
+          return cb({ status: 401, message: 'Login failed' }, null)
         }
 
-        // 產生 JWT token
-        const userData = {
-          id: user.id,
-          phone: user.phone,
-          name: user.name
-        }
 
         // 產生 access token (較短期)
-        const accessToken = jwt.sign(userData, process.env.JWT_ACCESS_SECRET, {
+        const accessToken = jwt.sign({ id: user.id }, process.env.JWT_ACCESS_SECRET, {
           expiresIn: '15m'
         })
 
         // 產生 refresh token (較長期)
-        const refreshToken = jwt.sign(userData, process.env.JWT_REFRESH_SECRET, {
+        const refreshToken = jwt.sign({ id: user.id }, process.env.JWT_REFRESH_SECRET, {
           expiresIn: '7d'
         })
 
@@ -88,9 +76,20 @@ const authServices = {
       const { name, phone, email, password, verificationCode } = req.body
 
       // 檢查使用者是否已存在
-      const existingUser = await User.findOne({ where: { phone } })
+      const existingUser = await User.findOne({
+        where: {
+          phone,
+          isPhoneVerified: true
+        }
+      })
       if (existingUser) {
-        return cb({ message: 'Phone number already registered' }, null)
+        return cb({ status: 400, message: 'Phone number already registered' }, null)
+      }
+
+      // 驗證手機
+      const isPhoneVerified = await smsVerification.verifyCode(phone, verificationCode)
+      if (!isPhoneVerified) {
+        return cb({ status: 400, message: 'Phone Verification failed' }, null)
       }
 
       // 密碼雜湊
@@ -102,35 +101,39 @@ const authServices = {
         phone,
         email,
         password: hashedPassword,
-        is_phone_verified: false,
-        is_email_verified: false
+        isPhoneVerified: true,
+        isEmailVerified: false
       })
 
-      // 驗證手機
-      const isPhoneVerified = await smsVerification.verifyCode(newUser.id, verificationCode)
-      if (!isPhoneVerified) {
-        return cb({ message: 'Phone Verification failed' }, null)
-      }
+      await Verification.update(
+        { userId: newUser.id, },
+        {
+          where: {
+            target: phone,
+            type: 'phone',
+            isUsed: true
+          }
+        })
 
-      // 移除密碼後準備回傳的使用者資料
-      const userData = {
-        id: newUser.id,
-        phone: newUser.phone,
-        name: newUser.name
-      }
+        const user = {
+          id: newUser.id,
+          name: newUser.name,
+          phone: newUser.phone,
+          email: newUser.email,
+        }
 
 
       // 產生 access token (較短期)
-      const accessToken = jwt.sign(userData, process.env.JWT_ACCESS_SECRET, {
+      const accessToken = jwt.sign({ id: user.id }, process.env.JWT_ACCESS_SECRET, {
         expiresIn: '15m'
       })
 
       // 產生 refresh token (較長期)
-      const refreshToken = jwt.sign(userData, process.env.JWT_REFRESH_SECRET, {
+      const refreshToken = jwt.sign({ id: user.id }, process.env.JWT_REFRESH_SECRET, {
         expiresIn: '7d'
       })
 
-      return cb(null, refreshToken, { success: true, userData, accessToken })
+      return cb(null, refreshToken, { success: true, user, accessToken })
     } catch (err) {
       cb(err, null);
     }
