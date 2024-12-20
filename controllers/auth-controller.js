@@ -2,14 +2,14 @@ const { verify } = require('jsonwebtoken');
 const authServices = require('../services/auth-services');
 
 const authController = {
-    verify: (req, res, next) => {
-        authServices.verify(req, (err, data) => {
-            err ? next(err) : res.json({ success: true, data });
+    verifyJWT: (req, res, next) => {
+        authServices.verifyJWT(req, (err, data) => {
+            err ? next(err) : res.json({ data });
         });
     },
     refresh: (req, res, next) => {
         authServices.refresh(req, (err, data) => {
-            err ? next(err) : res.json({ success: true, data });
+            err ? next(err) : res.json({ data });
         });
     },
     login: (req, res, next) => {
@@ -22,14 +22,14 @@ const authController = {
                 sameSite: 'Lax',
                 maxAge: 7 * 24 * 60 * 60 * 1000 // 7天
             })
-            return res.json({ success: true, data });
+            return res.json({ data });
         });
     },
     logout: (req, res, next) => {
         authServices.logout(req, (err, data) => {
             if (err) return next(err);
             res.clearCookie('refreshToken');
-            return res.json({ success: true, data });
+            return res.json({ data });
         })
     },
     register: (req, res, next) => {
@@ -42,7 +42,7 @@ const authController = {
                 sameSite: 'Lax',
                 maxAge: 7 * 24 * 60 * 60 * 1000 // 7天
             })
-            return res.json({ success: true, data });
+            return res.json({ data });
         });
     }
 };
