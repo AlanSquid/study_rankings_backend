@@ -1,8 +1,8 @@
 const userServices = require('../services/user-services');
 
 const userController = {
-	getUsers: (req, res, next) => {
-		userServices.getUsers(req, (err, data) => {
+	getUser: (req, res, next) => {
+		userServices.getUser(req, (err, data) => {
 			err ? next(err) : res.json({ data });
 		});
 	},

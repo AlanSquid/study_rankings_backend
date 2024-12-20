@@ -1,15 +1,17 @@
 const { User } = require('../models')
-const { smsVerification, emailVerification } = require('../lib/verification')
+const { smsVerification, emailVerification } = require('../lib/verification');
 
 const userServices = {
-	getUsers: async (req, cb) => {
+	getUser: async (req, cb) => {
 		try {
-			const users = await User.findAll({
-				attributes: ['id', 'name', 'email', 'phone', 'isEmailVerified', 'isPhoneVerified']
+			const userId = req.params.id;
+			const user = await User.findOne({
+				where: { id: userId },
+				attributes: ['id', 'name', 'email', 'phone'],
+				raw: true
 			});
-			const usersJSON = users.map(user => user.toJSON());
-
-			return cb(null, { success: true, usersJSON });
+			
+			return cb(null, { success: true, user });
 
 		} catch (err) {
 			cb(err, null);
