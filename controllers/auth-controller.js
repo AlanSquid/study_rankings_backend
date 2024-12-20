@@ -22,7 +22,7 @@ const authController = {
                 sameSite: 'Lax',
                 maxAge: 7 * 24 * 60 * 60 * 1000 // 7天
             })
-            return res.json({ data });
+            return res.json(formatResponse(data));
         });
     },
     logout: (req, res, next) => {
