@@ -1,4 +1,5 @@
 const { body } = require('express-validator');
+const { smsVerification } = require('../../lib/verification');
 
 const formRules = {
   register: [
@@ -19,6 +20,15 @@ const formRules = {
           throw new Error('Passwords do not match');
         }
         return true;
+      }),
+    body('verificationCode')
+      .notEmpty().withMessage('Verification code is required')
+      .custom(async (value, { req }) => {
+        try {
+          await smsVerification.verifyCode(req.body.phone, value);
+        } catch (error) {
+          throw new Error('Verification code is invalid');
+        }
       })
   ],
   login: [

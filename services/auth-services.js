@@ -86,14 +86,6 @@ const authServices = {
         return cb({ status: 400, message: 'Phone number already registered' }, null)
       }
 
-      // 驗證手機
-      try {
-        await smsVerification.verifyCode(phone, verificationCode)
-      } catch (err) {
-        return cb({ status: 400, message: 'Phone verification failed' }, null)
-      }
-
-
       // 密碼雜湊
       const hashedPassword = await bcrypt.hash(password, 10)
 
