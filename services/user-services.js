@@ -10,8 +10,11 @@ const userServices = {
 				attributes: ['id', 'name', 'email', 'phone'],
 				raw: true
 			});
-			
-			return cb(null, { success: true, user });
+			if (!user) {
+				return cb({ status: 400, message: 'User not found' }, null);
+			}
+
+			cb(null, { success: true, user });
 
 		} catch (err) {
 			cb(err, null);
@@ -21,37 +24,39 @@ const userServices = {
 		try {
 			const phone = req.body.phone;
 			let code = '';
+
 			if (process.env.NODE_ENV === 'production') {
 				code = await smsVerification.sendVerificationSMS(phone);
 			} else {
 				code = await smsVerification.testSendVerificationSMS(phone);
 			}
-
-			if (code) {
-				return cb(null, { success: true, code });
+			if (!code) {
+				throw new Error('Failed to send verification SMS');
 			}
+
+			return cb(null, { success: true, code });
+
 		} catch (err) {
-			cb(err, null);
+			cb({ status: 400, message: err.message }, null);
 		}
 	},
 	sendEmailVerification: async (req, cb) => {
 		try {
 			const email = req.body.email;
 			const verificationUrl = await emailVerification.sendVerificationEmail(email);
+
 			return cb(null, { success: true, verificationUrl });
 		} catch (err) {
-			cb(err, null);
+			cb({ status: 400, message: err.message }, null);
 		}
 	},
 	verifyEmail: async (req, cb) => {
 		try {
 			const code = req.body.code;
-			const result = await emailVerification.verifyEmail(code);
-			if (result) {
-				return cb(null, { success: true, message: 'Email verified' });
-			}
+			await emailVerification.verifyEmail(code);
+
 		} catch (err) {
-			cb(err, null);
+			cb({ status: 400, message: err.message }, null);
 		}
 	}
 }

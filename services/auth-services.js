@@ -34,7 +34,7 @@ const authServices = {
           expiresIn: '15m'
         })
 
-        return cb(null, { success: true, accessToken })
+        cb(null, { success: true, accessToken })
       })
     } catch (err) {
       cb(err, null);
@@ -44,7 +44,7 @@ const authServices = {
     try {
       passport.authenticate('local', { session: false }, (err, user) => {
         if (err || !user) {
-          return cb({ status: 401, message: 'Login failed' }, null)
+          return cb({ status: 400, message: 'Login failed' }, null)
         }
 
 
@@ -87,10 +87,12 @@ const authServices = {
       }
 
       // 驗證手機
-      const isPhoneVerified = await smsVerification.verifyCode(phone, verificationCode)
-      if (!isPhoneVerified) {
-        return cb({ status: 400, message: 'Phone Verification failed' }, null)
+      try {
+        await smsVerification.verifyCode(phone, verificationCode)
+      } catch (err) {
+        return cb({ status: 400, message: 'Phone verification failed' }, null)
       }
+
 
       // 密碼雜湊
       const hashedPassword = await bcrypt.hash(password, 10)
@@ -115,12 +117,12 @@ const authServices = {
           }
         })
 
-        const user = {
-          id: newUser.id,
-          name: newUser.name,
-          phone: newUser.phone,
-          email: newUser.email,
-        }
+      const user = {
+        id: newUser.id,
+        name: newUser.name,
+        phone: newUser.phone,
+        email: newUser.email,
+      }
 
 
       // 產生 access token (較短期)
@@ -133,7 +135,7 @@ const authServices = {
         expiresIn: '7d'
       })
 
-      return cb(null, refreshToken, { success: true, user, accessToken })
+      cb(null, refreshToken, { success: true, user, accessToken })
     } catch (err) {
       cb(err, null);
     }
