@@ -5,11 +5,11 @@ const passport = require('passport')
 const { smsVerification } = require('../lib/verification')
 
 const authServices = {
-  verify: async (req, cb) => {
+  verifyJWT: async (req, cb) => {
     try {
       passport.authenticate('jwt', { session: false }, (err, user) => {
         if (err || !user) {
-          return cb({ status: 401, message: 'Unauthorized' }, null)
+          return cb({ success: false, status: 401, message: 'Unauthorized' }, null)
         }
         return cb(null, { user })
       })(req)
@@ -21,12 +21,12 @@ const authServices = {
     try {
       const refreshToken = req.cookies.refreshToken
       if (!refreshToken) {
-        return cb({ status: 401, message: 'Unauthorized: Please login or token expired' }, null)
+        return cb({ success: false, status: 401, message: 'Unauthorized: Please login or token expired' }, null)
       }
 
       jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET, (err, user) => {
         if (err) {
-          return cb({ status: 401, message: 'Unauthorized: Please login or token expired' }, null)
+          return cb({ success: false, status: 401, message: 'Unauthorized: Please login or token expired' }, null)
         }
 
         // 產生新的 access token
@@ -40,7 +40,7 @@ const authServices = {
           expiresIn: '15m'
         })
 
-        return cb(null, { accessToken })
+        return cb(null, { success: true, accessToken })
       })
     } catch (err) {
       cb(err, null);
@@ -50,7 +50,7 @@ const authServices = {
     try {
       passport.authenticate('local', { session: false }, (err, user) => {
         if (err || !user) {
-          return cb({ status: 401, message: 'Login failed' }, null)
+          return cb({ success: false, status: 401, message: 'Login failed' }, null)
         }
 
         // 產生 JWT token
@@ -70,7 +70,7 @@ const authServices = {
           expiresIn: '7d'
         })
 
-        return cb(null, refreshToken, { user, accessToken })
+        return cb(null, refreshToken, { success: true, user, accessToken })
       })(req)
     } catch (err) {
       cb(err, null);
@@ -78,7 +78,7 @@ const authServices = {
   },
   logout: async (req, cb) => {
     try {
-      return cb(null, { message: 'Logged out' })
+      return cb(null, { success: true, message: 'Logged out' })
     } catch (err) {
       cb(err, null);
     }
@@ -130,7 +130,7 @@ const authServices = {
         expiresIn: '7d'
       })
 
-      return cb(null, refreshToken, { userData, accessToken })
+      return cb(null, refreshToken, { success: true, userData, accessToken })
     } catch (err) {
       cb(err, null);
     }

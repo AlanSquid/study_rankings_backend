@@ -18,8 +18,8 @@ class EmailService {
         this.transporter = nodemailer.createTransport({
           service: 'Gmail',
           auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS
+            user: process.env.EMAIL,
+            pass: process.env.EMAIL_PASSWORD
           }
         });
       } else {
@@ -46,7 +46,13 @@ class EmailService {
       if (!this.transporter) {
         throw new Error('Transporter not initialized');
       }
-      return await this.transporter.sendMail(mailOptions);
+      const info = await this.transporter.sendMail(mailOptions);
+      
+      // 非生產環境下，印出預覽連結
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+      }
+      return info;
     } catch (error) {
       console.error('Email verification failed:', error);
       throw new Error('Failed to send verification email');

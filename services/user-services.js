@@ -1,4 +1,4 @@
-const { User, Verification } = require('../models')
+const { User } = require('../models')
 const { smsVerification, emailVerification } = require('../lib/verification')
 
 const userServices = {
@@ -8,7 +8,8 @@ const userServices = {
 				attributes: ['id', 'name', 'email', 'phone', 'isEmailVerified', 'isPhoneVerified']
 			});
 			const usersJSON = users.map(user => user.toJSON());
-			return cb(null, usersJSON);
+
+			return cb(null, { success: true, usersJSON });
 
 		} catch (err) {
 			cb(err, null);
@@ -25,7 +26,7 @@ const userServices = {
 			}
 
 			if (code) {
-				return cb(null, { code });
+				return cb(null, { success: true, code });
 			}
 		} catch (err) {
 			cb(err, null);
@@ -35,7 +36,7 @@ const userServices = {
 		try {
 			const email = req.body.email;
 			const verificationUrl = await emailVerification.sendVerificationEmail(email);
-			return cb(null, { verificationUrl });
+			return cb(null, { success: true, verificationUrl });
 		} catch (err) {
 			cb(err, null);
 		}
@@ -45,7 +46,7 @@ const userServices = {
 			const code = req.body.code;
 			const result = await emailVerification.verifyEmail(code);
 			if (result) {
-				return cb(null, { message: 'Email verified' });
+				return cb(null, { success: true, message: 'Email verified' });
 			}
 		} catch (err) {
 			cb(err, null);
