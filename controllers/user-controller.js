@@ -11,6 +11,11 @@ const userController = {
 			err ? next(err) : res.json({ success: true, data });
 		});
 	},
+	sendEmailVerification: (req, res, next) => {
+		userServices.sendEmailVerification(req, (err, data) => {
+			err ? next(err) : res.json({ success: true, data });
+		});
+	},
 	verifyEmail: (req, res, next) => {
 		userServices.verifyEmail(req, (err, data) => {
 			err ? next(err) : res.json({ success: true, data });
