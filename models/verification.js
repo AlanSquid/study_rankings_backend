@@ -10,23 +10,18 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      Verification.belongsTo(models.User, {
+        foreignKey: 'userId',
+        onDelete: 'SET NULL'
+      });
     }
   }
   Verification.init({
-    userId: {
-      type: DataTypes.INTEGER,
-      references: {
-        model: 'User',
-        key: 'id'
-      },
-      onDelete: 'CASCADE'
-    },
     target: DataTypes.STRING,
     type: DataTypes.ENUM('phone', 'email'),
     code: DataTypes.STRING,
+    userId: DataTypes.INTEGER,
     expiresAt: DataTypes.DATE,
-    isUsed: DataTypes.BOOLEAN
   }, {
     sequelize,
     modelName: 'Verification',

@@ -1,8 +1,6 @@
 /** @type {import('sequelize-cli').Migration} */
 'use strict';
 
-const { de } = require('@faker-js/faker');
-
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('Verifications', {
@@ -11,15 +9,6 @@ module.exports = {
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
-      },
-      user_id: {
-        type: Sequelize.INTEGER,
-        allowNull: true,
-        references: {
-          model: 'users',
-          key: 'id'
-        },
-        onDelete: 'CASCADE'
       },
       type: {
         type: Sequelize.ENUM('phone', 'email'),
@@ -34,13 +23,18 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
+      user_id: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        references: {
+          model: 'users',
+          key: 'id'
+        },
+        onDelete: 'SET NULL'
+      },
       expires_at: {
         type: Sequelize.DATE,
         allowNull: false
-      },
-      is_used: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: false
       },
       created_at: {
         allowNull: false,

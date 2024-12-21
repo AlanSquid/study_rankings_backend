@@ -1,5 +1,5 @@
 const userServices = require('../services/user-services');
-const { formatResponse } = require('../lib/format-response');
+const { formatResponse } = require('../lib/utils/format-response');
 
 const userController = {
 	getUser: (req, res, next) => {

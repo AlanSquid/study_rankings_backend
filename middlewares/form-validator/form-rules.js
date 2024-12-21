@@ -15,6 +15,7 @@ const formRules = {
       .isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
     body('confirmPassword')
       .notEmpty().withMessage('Confirm password is required')
+      // value就是confirmPassword
       .custom((value, { req }) => {
         if (value !== req.body.password) {
           throw new Error('Passwords do not match');
@@ -23,9 +24,10 @@ const formRules = {
       }),
     body('verificationCode')
       .notEmpty().withMessage('Verification code is required')
+      // value就是verificationCode
       .custom(async (value, { req }) => {
         try {
-          await smsVerification.verifyCode(req.body.phone, value);
+          await smsVerification.verifyPhone(req.body.phone, value);
         } catch (error) {
           throw new Error('Verification code is invalid');
         }

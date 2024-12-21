@@ -12,6 +12,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       User.hasMany(models.Verification, {
         foreignKey: 'userId',
+        onDelete: 'SET NULL'
       });
     }
   }

@@ -5,16 +5,18 @@ module.exports = {
     username: process.env.DB_USER || 'root',
     password: process.env.DB_PASSWORD || 'LusuCard',
     database: process.env.DB_NAME || 'study_rankings',
-    host: process.env.DB_HOST || '127.0.0.1',
+    host: process.env.DB_HOST || 'localhost',
     dialect: 'mysql',
+    timezone: '+08:00',
     logging: false
   },
   test: {
     username: process.env.DB_USER || 'root',
     password: process.env.DB_PASSWORD || null,
     database: process.env.DB_NAME_TEST || 'study_rankings_test',
-    host: process.env.DB_HOST || '127.0.0.1',
+    host: process.env.DB_HOST || 'localhost',
     dialect: 'mysql',
+    timezone: '+08:00',
     logging: false
   },
   production: {
@@ -23,6 +25,7 @@ module.exports = {
     database: process.env.DB_NAME,
     host: process.env.DB_HOST,
     dialect: 'mysql',
+    timezone: '+08:00',
     logging: false
   }
 };

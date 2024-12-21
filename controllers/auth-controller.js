@@ -1,5 +1,5 @@
 const authServices = require('../services/auth-services');
-const { formatResponse } = require('../lib/format-response');
+const { formatResponse } = require('../lib/utils/format-response');
 
 const authController = {
     verifyJWT: (req, res, next) => {
@@ -13,16 +13,18 @@ const authController = {
         });
     },
     login: (req, res, next) => {
-        authServices.login(req, (err, refreshToken, data) => {
+        authServices.login(req, (err, data) => {
             if (err) return next(err);
-            // 設定 refresh token 為 HTTP-only cookie
+            // 從data抽出refreshToken
+            const {refreshToken, ...restData} = data
+            // 設定 refreshToken 為 HTTP-only cookie
             res.cookie('refreshToken', refreshToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
                 sameSite: 'Lax',
                 maxAge: 7 * 24 * 60 * 60 * 1000 // 7天
             })
-            return res.json(formatResponse(data));
+            return res.json(formatResponse(restData));
         });
     },
     logout: (req, res, next) => {
@@ -33,16 +35,18 @@ const authController = {
         })
     },
     register: (req, res, next) => {
-        authServices.register(req, (err, refreshToken, data) => {
+        authServices.register(req, (err, data) => {
             if (err) return next(err);
+            // 從data抽出refreshToken
+            const {refreshToken, ...restData} = data
             // 設定 refresh token 為 HTTP-only cookie
-            res.cookie('refreshToken', refreshToken, {
+            res.cookie('refreshToken', data.refreshToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
                 sameSite: 'Lax',
                 maxAge: 7 * 24 * 60 * 60 * 1000 // 7天
             })
-            return res.json(formatResponse(data));
+            return res.json(formatResponse(restData));
         });
     }
 };

@@ -23,16 +23,7 @@ const userServices = {
 	sendPhoneVerification: async (req, cb) => {
 		try {
 			const phone = req.body.phone;
-			let code = '';
-
-			if (process.env.NODE_ENV === 'production') {
-				code = await smsVerification.sendVerificationSMS(phone);
-			} else {
-				code = await smsVerification.testSendVerificationSMS(phone);
-			}
-			if (!code) {
-				throw new Error('Failed to send verification SMS');
-			}
+			const code = await smsVerification.sendVerificationSMS(phone);
 
 			return cb(null, { success: true, code });
 
@@ -42,10 +33,12 @@ const userServices = {
 	},
 	sendEmailVerification: async (req, cb) => {
 		try {
+			const userId = req.user.id
 			const email = req.body.email;
-			const verificationUrl = await emailVerification.sendVerificationEmail(email);
+			const verificationUrl = await emailVerification.sendVerificationEmail(userId, email);
 
 			return cb(null, { success: true, verificationUrl });
+
 		} catch (err) {
 			cb({ status: 400, message: err.message }, null);
 		}
@@ -54,7 +47,7 @@ const userServices = {
 		try {
 			const code = req.body.code;
 			await emailVerification.verifyEmail(code);
-
+			cb(null, { success: true, message: 'Email verification successful' });
 		} catch (err) {
 			cb({ status: 400, message: err.message }, null);
 		}

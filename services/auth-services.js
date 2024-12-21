@@ -1,8 +1,7 @@
-const { User, Verification } = require('../models')
+const { User } = require('../models')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
 const passport = require('passport')
-const { smsVerification } = require('../lib/verification')
 
 const authServices = {
   verifyJWT: async (req, cb) => {
@@ -58,7 +57,8 @@ const authServices = {
           expiresIn: '7d'
         })
 
-        return cb(null, refreshToken, { success: true, user, accessToken })
+        // accessToken回傳json給前端，refreshToken回傳httpOnly cookie
+        return cb(null, { success: true, user, accessToken, refreshToken })
       })(req)
     } catch (err) {
       cb(err, null);
@@ -73,7 +73,7 @@ const authServices = {
   },
   register: async (req, cb) => {
     try {
-      const { name, phone, email, password, verificationCode } = req.body
+      const { name, phone, email, password } = req.body
 
       // 檢查使用者是否已存在
       const existingUser = await User.findOne({
@@ -99,16 +99,6 @@ const authServices = {
         isEmailVerified: false
       })
 
-      await Verification.update(
-        { userId: newUser.id, },
-        {
-          where: {
-            target: phone,
-            type: 'phone',
-            isUsed: true
-          }
-        })
-
       const user = {
         id: newUser.id,
         name: newUser.name,
@@ -127,7 +117,8 @@ const authServices = {
         expiresIn: '7d'
       })
 
-      cb(null, refreshToken, { success: true, user, accessToken })
+      // accessToken回傳json給前端，refreshToken回傳httpOnly cookie
+      cb(null, { success: true, user, accessToken, refreshToken })
     } catch (err) {
       cb(err, null);
     }
