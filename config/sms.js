@@ -1,4 +1,5 @@
 const axios = require("axios").default;
+const createError = require('http-errors')
 
 module.exports = {
   postSMS: async function (phone, code) {
@@ -14,7 +15,7 @@ module.exports = {
       return await axios.get(process.env.SMS_URL, { params: payload });
     } catch (error) {
       console.error('SMS sending failed:', error.message);
-      throw new Error('SMS service error occurred');
+      throw createError(502, 'SMS service error occurred');
     }
   }
 }

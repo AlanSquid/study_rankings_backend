@@ -24,7 +24,7 @@ module.exports = app => {
       try {
         const userData = await User.findOne({ where: { phone } })
         if (!userData) {
-          return done(null, false, { message: 'User not found' })
+          return done(null, false, { message: 'Incorrect phone or password' })
         }
 
         const isPasswordValid = await bcrypt.compare(password, userData.password)

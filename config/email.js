@@ -1,4 +1,5 @@
 const nodemailer = require('nodemailer');
+const createError = require('http-errors')
 
 class EmailService {
   static instance = null;
@@ -35,16 +36,16 @@ class EmailService {
         });
       }
     } catch (error) {
-      console.error('Email service initialization failed:', error);
-      throw error;
+      console.error(error);
+      throw createError(502, 'Email service initialization failed');;
     }
   }
 
-  async sendmail(mailOptions) {
+  async sendMail(mailOptions) {
     try {
       await this.initPromise;
       if (!this.transporter) {
-        throw new Error('Transporter not initialized');
+        throw createError(502, 'Email transporter not initialized');
       }
       const info = await this.transporter.sendMail(mailOptions);
       
@@ -54,8 +55,8 @@ class EmailService {
       }
       return info;
     } catch (error) {
-      console.error('Email verification failed:', error);
-      throw new Error('Failed to send verification email');
+      console.error(error);
+      throw createError(502, 'Failed to send verification email');
     }
   }
 }

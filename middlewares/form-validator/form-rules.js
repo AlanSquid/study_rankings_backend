@@ -36,6 +36,16 @@ const formRules = {
   login: [
     body('phone').notEmpty().withMessage('Phone number is required'),
     body('password').notEmpty().withMessage('Password is required')
+  ],
+  sendSMS: [
+    body('phone')
+      .notEmpty().withMessage('Phone number is required')
+      .matches(/^09\d{8}$/).withMessage('Please enter a valid phone number'),
+  ],
+  sendEmail: [
+    body('email')
+      .notEmpty().withMessage('Email is required')
+      .isEmail().withMessage('Please enter a valid email'),
   ]
 };
 

@@ -1,56 +1,36 @@
 const { User } = require('../models')
 const { smsVerification, emailVerification } = require('../lib/verification');
+const createError = require('http-errors')
 
 const userServices = {
-	getUser: async (req, cb) => {
-		try {
-			const userId = req.params.id;
-			const user = await User.findOne({
-				where: { id: userId },
-				attributes: ['id', 'name', 'email', 'phone'],
-				raw: true
-			});
-			if (!user) {
-				return cb({ status: 400, message: 'User not found' }, null);
-			}
-
-			cb(null, { success: true, user });
-
-		} catch (err) {
-			cb(err, null);
+	getUser: async (req) => {
+		const userId = req.params.id;
+		const user = await User.findOne({
+			where: { id: userId },
+			attributes: ['id', 'name', 'email', 'phone'],
+			raw: true
+		});
+		if (!user) {
+			throw createError(404, 'User not found')
 		}
+
+		return { success: true, user };
 	},
-	sendPhoneVerification: async (req, cb) => {
-		try {
-			const phone = req.body.phone;
-			const code = await smsVerification.sendVerificationSMS(phone);
-
-			return cb(null, { success: true, code });
-
-		} catch (err) {
-			cb({ status: 400, message: err.message }, null);
-		}
+	sendPhoneVerification: async (req) => {
+		const phone = req.body.phone;
+		const code = await smsVerification.sendVerificationSMS(phone);
+		return { success: true, code };
 	},
-	sendEmailVerification: async (req, cb) => {
-		try {
-			const userId = req.user.id
-			const email = req.body.email;
-			const verificationUrl = await emailVerification.sendVerificationEmail(userId, email);
-
-			return cb(null, { success: true, verificationUrl });
-
-		} catch (err) {
-			cb({ status: 400, message: err.message }, null);
-		}
+	sendEmailVerification: async (req) => {
+		const userId = req.user.id
+		const email = req.body.email;
+		const verificationUrl = await emailVerification.sendVerificationEmail(userId, email);
+		return { success: true, verificationUrl };
 	},
-	verifyEmail: async (req, cb) => {
-		try {
-			const code = req.body.code;
-			await emailVerification.verifyEmail(code);
-			cb(null, { success: true, message: 'Email verification successful' });
-		} catch (err) {
-			cb({ status: 400, message: err.message }, null);
-		}
+	verifyEmail: async (req) => {
+		const code = req.body.code;
+		await emailVerification.verifyEmail(code);
+		return { success: true, message: 'Email verification successful' };
 	}
 }
 

@@ -2,25 +2,38 @@ const userServices = require('../services/user-services');
 const { formatResponse } = require('../lib/utils/format-response');
 
 const userController = {
-	getUser: (req, res, next) => {
-		userServices.getUser(req, (err, data) => {
-			err ? next(err) : res.json(formatResponse(data));
-		});
+	getUser: async (req, res, next) => {
+		try {
+			const data = await userServices.getUser(req)
+			res.json(formatResponse(data))
+		} catch (err) {
+			next(err)
+		}
 	},
-	sendPhoneVerification: (req, res, next) => {
-		userServices.sendPhoneVerification(req, (err, data) => {
-			err ? next(err) : res.json(formatResponse(data));
-		});
+	sendPhoneVerification: async (req, res, next) => {
+		try {
+			const data = await userServices.sendPhoneVerification(req)
+			res.json(formatResponse(data))
+		} catch (err) {
+			next(err)
+		}
+
 	},
-	sendEmailVerification: (req, res, next) => {
-		userServices.sendEmailVerification(req, (err, data) => {
-			err ? next(err) : res.json(formatResponse(data));
-		});
+	sendEmailVerification: async (req, res, next) => {
+		try {
+			const data = await userServices.sendEmailVerification(req)
+			res.json(formatResponse(data))
+		} catch (err) {
+			next(err)
+		}
 	},
-	verifyEmail: (req, res, next) => {
-		userServices.verifyEmail(req, (err, data) => {
-			err ? next(err) : res.json(formatResponse(data));
-		});
+	verifyEmail: async (req, res, next) => {
+		try {
+			const data = await userServices.verifyEmail(req)
+			res.json(formatResponse(data))
+		} catch (err) {
+			next(err)
+		}
 	}
 }
 

@@ -3,6 +3,7 @@ const router = express.Router();
 const authController = require('../../../controllers/auth-controller');
 const formRules = require('../../../middlewares/form-validator/form-rules');
 const validationHandler = require('../../../middlewares/form-validator/validation-handler');
+const {authenticated} = require('../../../middlewares/auth-middleware')
 
 // 登入
 router.post('/login', formRules.login, validationHandler, authController.login);
@@ -10,9 +11,9 @@ router.post('/login', formRules.login, validationHandler, authController.login);
 router.post('/logout', authController.logout);
 // 註冊
 router.post('/register', formRules.register, validationHandler, authController.register);
-// 驗證token
-router.get('/verify-jwt', authController.verifyJWT);
+// 驗證jwt
+router.get('/verify-jwt', authenticated, authController.verifyJWT);
 // 更新access token
-router.get('/refresh', authController.refresh);
+router.post('/refresh', authController.refresh);
 
 module.exports = router;
