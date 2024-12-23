@@ -23,6 +23,10 @@ router.post('/email',
   verificationController.sendEmailVerification
 )
 // 驗證email
-router.post('/email/verify', verificationController.verifyEmail)
+router.post('/email/verify',
+  formRules.verifyEmail,
+  validationHandler,
+  verificationController.verifyEmail
+)
 
 module.exports = router;
