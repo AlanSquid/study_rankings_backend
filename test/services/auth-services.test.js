@@ -1,7 +1,7 @@
 const { expect } = require('chai');
 const sinon = require('sinon');
-const { User } = require('../models');
-const authServices = require('../services/auth-services');
+const { User } = require('../../models');
+const authServices = require('../../services/auth-services');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const passport = require('passport');

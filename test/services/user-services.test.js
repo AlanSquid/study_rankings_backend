@@ -1,7 +1,7 @@
 const { expect } = require('chai');
 const sinon = require('sinon');
-const { User } = require('../models');
-const userServices = require('../services/user-services');
+const { User } = require('../../models');
+const userServices = require('../../services/user-services');
 const bcrypt = require('bcryptjs');
 
 describe('user-services Unit Test', () => {

@@ -1,8 +1,8 @@
 
 const { expect } = require('chai');
 const sinon = require('sinon');
-const { smsVerification, emailVerification } = require('../lib/verification');
-const verificationServices = require('../services/verification-services');
+const { smsVerification, emailVerification } = require('../../lib/verification');
+const verificationServices = require('../../services/verification-services');
 
 describe('verification-services Unit Test', () => {
   describe('sendPhoneVerification', () => {
