@@ -30,8 +30,19 @@ const smsLimiterMax = rateLimit({
   }
 });
 
+const loginLimiter = rateLimit({
+  windowMs: 30 * 60 * 1000, // 每 30 分鐘
+  max: 5, // 只允許 5 次請求
+  message: {
+    success: false,
+    status: 429,
+    message: "Too many login attempts, please try again later.",
+  }
+});
+
 module.exports = {
   emailLimiter,
   smsLimiter,
-  smsLimiterMax
+  smsLimiterMax,
+  loginLimiter
 }
