@@ -49,6 +49,7 @@ const authController = {
 			const data = await authServices.register(req)
 			// 從data抽出refreshToken
 			const { refreshToken, ...restData } = data
+			console.log('restData', restData)
 			// 設定 refresh token 為 HTTP-only cookie
 			res.cookie('refreshToken', refreshToken, {
 				httpOnly: true,
