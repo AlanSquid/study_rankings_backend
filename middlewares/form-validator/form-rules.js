@@ -3,18 +3,24 @@ const { smsVerification } = require('../../lib/verification');
 
 const formRules = {
   register: [
-    body('name').notEmpty().withMessage('Name is required'),
+    body('name')
+      .notEmpty().withMessage('Name is required')
+      .isLength({ max: 50 }).withMessage('Name must not exceed 50 characters'),
     body('phone')
       .notEmpty().withMessage('Phone number is required')
-      .matches(/^09\d{8}$/).withMessage('Please enter a valid phone number'),
+      .matches(/^09\d{8}$/).withMessage('Please enter a valid phone number')
+      .isLength({ max: 10 }).withMessage('Phone number must not exceed 10 characters'),
     body('email')
       .notEmpty().withMessage('Email is required')
-      .isEmail().withMessage('Please enter a valid email'),
+      .isEmail().withMessage('Please enter a valid email')
+      .isLength({ max: 50 }).withMessage('Email must not exceed 50 characters'),
     body('password')
       .notEmpty().withMessage('Password is required')
-      .isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+      .isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
+      .isLength({ max: 50 }).withMessage('Password must not exceed 50 characters'),
     body('confirmPassword')
       .notEmpty().withMessage('Confirm password is required')
+      .isLength({ max: 50 }).withMessage('confirmPassword must not exceed 50 characters')
       // value就是confirmPassword
       .custom((value, { req }) => {
         if (value !== req.body.password) {
@@ -24,6 +30,7 @@ const formRules = {
       }),
     body('verificationCode')
       .notEmpty().withMessage('Verification code is required')
+      .isLength({ max: 50 }).withMessage('verificationCode must not exceed 50 characters')
       // value就是verificationCode
       .custom(async (value, { req }) => {
         try {
@@ -34,18 +41,25 @@ const formRules = {
       })
   ],
   login: [
-    body('phone').notEmpty().withMessage('Phone number is required'),
-    body('password').notEmpty().withMessage('Password is required')
+    body('phone')
+    .notEmpty().withMessage('Phone number is required')
+    .isLength({ max: 10 }).withMessage('Phone number must not exceed 10 characters'),
+    body('password')
+      .notEmpty().withMessage('Password is required')
+      .isLength({ max: 50 }).withMessage('Password must not exceed 50 characters')
   ],
   sendSMS: [
     body('phone')
       .notEmpty().withMessage('Phone number is required')
-      .matches(/^09\d{8}$/).withMessage('Please enter a valid phone number'),
+      .matches(/^09\d{8}$/).withMessage('Please enter a valid phone number')
+      .isLength({ max: 10 }).withMessage('Phone number must not exceed 10 characters')
   ],
   sendEmail: [
     body('email')
       .notEmpty().withMessage('Email is required')
-      .isEmail().withMessage('Please enter a valid email'),
+      .isEmail().withMessage('Please enter a valid email')
+      .isLength({ max: 50 }).withMessage('Email must not exceed 50 characters'),
+
   ]
 };
 
