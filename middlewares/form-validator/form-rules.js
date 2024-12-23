@@ -1,4 +1,5 @@
 const { body } = require('express-validator');
+const { User } = require('../../models');
 const { smsVerification } = require('../../lib/verification');
 
 const formRules = {
@@ -78,6 +79,14 @@ const formRules = {
       .notEmpty().withMessage('Phone number is required')
       .matches(/^09\d{8}$/).withMessage('Please enter a valid phone number')
       .isLength({ max: 10 }).withMessage('Phone number must not exceed 10 characters')
+      // value就是phone
+      .custom(async (value) => {
+        const user = await User.findOne({ where: { phone: value } });
+        if (user) {
+          throw new Error('Phone number is already registered');
+        }
+        return true;
+      }),
   ],
   sendEmail: [
     body('email')
