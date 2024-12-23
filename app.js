@@ -7,6 +7,9 @@ const errorHandler = require('./middlewares/error-handler');
 const usePassport = require('./lib/passport');
 const cors = require('cors');
 
+// 排程套件
+require('./lib/scheduler');
+
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config()
 }
