@@ -7,7 +7,7 @@ const userServices = {
 		const userId = req.user.id;
 		const user = await User.findOne({
 			where: { id: userId },
-			attributes: ['id', 'name', 'email', 'phone'],
+			attributes: ['id', 'name', 'email', 'phone', 'isPhoneVerified', 'isEmailVerified'],
 			raw: true
 		});
 		if (!user) {

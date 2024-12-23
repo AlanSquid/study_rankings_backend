@@ -1,6 +1,5 @@
 const { body } = require('express-validator');
 const { smsVerification } = require('../../lib/verification');
-const { updatePassword } = require('../../services/user-services');
 
 const formRules = {
   register: [
