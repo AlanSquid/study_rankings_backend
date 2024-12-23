@@ -4,7 +4,7 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const routes = require("./routes");
 const errorHandler = require('./middlewares/error-handler');
-const usePassport = require('./config/passport');
+const usePassport = require('./lib/passport');
 const cors = require('cors');
 
 if (process.env.NODE_ENV !== 'production') {
