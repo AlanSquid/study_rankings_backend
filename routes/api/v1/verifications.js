@@ -8,18 +8,18 @@ const { authenticated } = require('../../../middlewares/auth-middleware')
 
 // 發送手機驗證碼
 router.post('/phone',
-  smsLimiter,
-  smsLimiterMax,
   formRules.sendSMS,
   validationHandler,
+  smsLimiter,
+  smsLimiterMax,
   verificationController.sendPhoneVerification
 )
 // 發送驗證email
 router.post('/email',
   authenticated,
-  emailLimiter,
   formRules.sendEmail,
   validationHandler,
+  emailLimiter,
   verificationController.sendEmailVerification
 )
 // 驗證email
