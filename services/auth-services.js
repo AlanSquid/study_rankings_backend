@@ -29,11 +29,6 @@ const authServices = {
     })
   },
   login: async (req) => {
-    // passport.authenticate('local', { session: false }, (err, user) => {
-    //   if (err || !user) {
-    //     throw createError(400, 'Login failed')
-    //   }
-    // })(req)
     const user = await new Promise((resolve, reject) => {
       passport.authenticate('local', { session: false }, (err, user, info) => {
         if (err) {
@@ -97,15 +92,15 @@ const authServices = {
     }
 
 
-    // 產生 access token (較短期)
-    const accessToken = jwt.sign({ id: user.id }, process.env.JWT_ACCESS_SECRET, {
-      expiresIn: '15m'
-    })
-
-    // 產生 refresh token (較長期)
-    const refreshToken = jwt.sign({ id: user.id }, process.env.JWT_REFRESH_SECRET, {
-      expiresIn: '7d'
-    })
+    // 產生 tokens
+    const [accessToken, refreshToken] = await Promise.all([
+      jwt.sign({ id: user.id }, process.env.JWT_ACCESS_SECRET, {
+        expiresIn: '15m'
+      }),
+      jwt.sign({ id: user.id }, process.env.JWT_REFRESH_SECRET, {
+        expiresIn: '7d'
+      })
+    ])
 
     // accessToken回傳json給前端，refreshToken回傳httpOnly cookie
     return { success: true, user, accessToken, refreshToken }
