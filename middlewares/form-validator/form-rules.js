@@ -17,7 +17,7 @@ const formRules = {
       .isLength({ max: 50 }).withMessage('Email must not exceed 50 characters'),
     body('password')
       .notEmpty().withMessage('Password is required')
-      .isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
+      .isLength({ min: 8 }).withMessage('Password must be at least 8 characters')
       .isLength({ max: 50 }).withMessage('Password must not exceed 50 characters'),
     body('confirmPassword')
       .notEmpty().withMessage('Confirm password is required')
@@ -55,7 +55,7 @@ const formRules = {
       .isLength({ max: 50 }).withMessage('Password must not exceed 50 characters'),
     body('newPassword')
       .notEmpty().withMessage('New password is required')
-      .isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
+      .isLength({ min: 8 }).withMessage('Password must be at least 8 characters')
       .isLength({ max: 50 }).withMessage('Password must not exceed 50 characters')
       .custom((value, { req }) => {
         if (value === req.body.oldPassword) {
