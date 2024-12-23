@@ -9,6 +9,14 @@ const userController = {
 		} catch (err) {
 			next(err)
 		}
+	},
+	updatePassword: async (req, res, next) => {
+		try {
+			const data = await userServices.updatePassword(req)
+			res.json(formatResponse(data))
+		} catch (err) {
+			next(err)
+		}
 	}
 }
 

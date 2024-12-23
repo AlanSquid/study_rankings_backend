@@ -15,18 +15,21 @@ const authServices = {
       throw createError(401, 'Unauthorized: Please login or token expired')
     }
 
-    jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET, (err, user) => {
-      if (err) {
-        throw createError(401, 'Unauthorized: Please login or token expired')
-      }
-
-      // 產生新的 access token
-      const accessToken = jwt.sign({ id: user.id }, process.env.JWT_ACCESS_SECRET, {
-        expiresIn: '15m'
+    const user = await new Promise((resolve, reject) => {
+      jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET, (err, user) => {
+        if (err) {
+          return reject(createError(401, 'Unauthorized: Please login or token expired'))
+        }
+        resolve(user)
       })
-
-      return { success: true, accessToken }
     })
+
+    // 產生新的 access token
+    const accessToken = jwt.sign({ id: user.id }, process.env.JWT_ACCESS_SECRET, {
+      expiresIn: '15m'
+    })
+
+    return { success: true, accessToken }
   },
   login: async (req) => {
     const user = await new Promise((resolve, reject) => {

@@ -1,5 +1,6 @@
 const { body } = require('express-validator');
 const { smsVerification } = require('../../lib/verification');
+const { updatePassword } = require('../../services/user-services');
 
 const formRules = {
   register: [
@@ -20,7 +21,7 @@ const formRules = {
       .isLength({ max: 50 }).withMessage('Password must not exceed 50 characters'),
     body('confirmPassword')
       .notEmpty().withMessage('Confirm password is required')
-      .isLength({ max: 50 }).withMessage('confirmPassword must not exceed 50 characters')
+      .isLength({ max: 50 }).withMessage('Confirm password must not exceed 50 characters')
       // value就是confirmPassword
       .custom((value, { req }) => {
         if (value !== req.body.password) {
@@ -30,7 +31,7 @@ const formRules = {
       }),
     body('verificationCode')
       .notEmpty().withMessage('Verification code is required')
-      .isLength({ max: 50 }).withMessage('verificationCode must not exceed 50 characters')
+      .isLength({ max: 50 }).withMessage('Verification code must not exceed 50 characters')
       // value就是verificationCode
       .custom(async (value, { req }) => {
         try {
@@ -42,11 +43,36 @@ const formRules = {
   ],
   login: [
     body('phone')
-    .notEmpty().withMessage('Phone number is required')
-    .isLength({ max: 10 }).withMessage('Phone number must not exceed 10 characters'),
+      .notEmpty().withMessage('Phone number is required')
+      .isLength({ max: 10 }).withMessage('Phone number must not exceed 10 characters'),
     body('password')
       .notEmpty().withMessage('Password is required')
       .isLength({ max: 50 }).withMessage('Password must not exceed 50 characters')
+  ],
+  updatePassword: [
+    body('oldPassword')
+      .notEmpty().withMessage('Old password is required')
+      .isLength({ max: 50 }).withMessage('Password must not exceed 50 characters'),
+    body('newPassword')
+      .notEmpty().withMessage('New password is required')
+      .isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
+      .isLength({ max: 50 }).withMessage('Password must not exceed 50 characters')
+      .custom((value, { req }) => {
+        if (value === req.body.oldPassword) {
+          throw new Error('New password must be different from old password');
+        }
+        return true;
+      }),
+    body('confirmPassword')
+      .notEmpty().withMessage('Confirm password is required')
+      .isLength({ max: 50 }).withMessage('Confirm password must not exceed 50 characters')
+      // value就是confirmPassword
+      .custom((value, { req }) => {
+        if (value !== req.body.newPassword) {
+          throw new Error('Passwords do not match');
+        }
+        return true;
+      }),
   ],
   sendSMS: [
     body('phone')
