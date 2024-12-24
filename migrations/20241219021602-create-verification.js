@@ -20,7 +20,7 @@ module.exports = {
         allowNull: false
       },
       code: {
-        type: Sequelize.STRING(100),
+        type: Sequelize.STRING,
         allowNull: false
       },
       // 驗證email時會需要記錄使用者id
