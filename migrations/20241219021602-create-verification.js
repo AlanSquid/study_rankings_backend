@@ -11,10 +11,10 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       type: {
-        type: Sequelize.ENUM('phone', 'email'),
+        type: Sequelize.ENUM('phone', 'email', 'reset_pwd'),
         allowNull: false
       },
-      // 驗證目標 (手機號碼或 email)
+      // 驗證目標 (手機號碼或email)
       target: {
         type: Sequelize.STRING(50),
         allowNull: false
