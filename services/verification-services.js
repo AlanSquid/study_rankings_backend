@@ -3,8 +3,8 @@ const { smsVerification, emailVerification } = require('../lib/verification');
 const verificationServices = {
   sendPhoneVerification: async (req) => {
 		const phone = req.body.phone;
-		const code = await smsVerification.sendVerificationSMS(phone);
-		return { success: true, code };
+		await smsVerification.sendVerificationSMS(phone);
+		return { success: true,  message: 'Verification SMS sent' };
 	},
 	sendEmailVerification: async (req) => {
 		const userId = req.user.id
