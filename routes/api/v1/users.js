@@ -11,6 +11,8 @@ router.get('/profile', authenticated, userController.getUser)
 // 修改密碼
 router.patch('/profile/password', authenticated, userController.updatePassword)
 // 重置密碼
-router.patch('/profile/password/reset',formRules.resetPassword, validationHandler, userController.resetPassword)
+router.patch('/profile/password/reset', formRules.resetPassword, validationHandler, userController.resetPassword)
+// 修改email
+router.patch('/profile/email', authenticated, userController.updateEmail)
 
 module.exports = router;

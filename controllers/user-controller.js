@@ -25,6 +25,14 @@ const userController = {
 		} catch (err) {
 			next(err)
 		}
+	},
+	updateEmail: async (req, res, next) => {
+		try {
+			const data = await userServices.updateEmail(req)
+			res.json(formatResponse(data))
+		} catch (err) {
+			next(err)
+		}
 	}
 }
 
