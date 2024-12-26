@@ -28,5 +28,17 @@ router.post('/email/verify',
   validationHandler,
   verificationController.verifyEmail
 )
+// 發送重置密碼email
+router.post('/reset-pwd/',
+  formRules.sendResetPasswordEmail,
+  validationHandler,
+  verificationController.sendResetPasswordEmail
+)
+// 驗證重置密碼email
+router.post('/reset-pwd/verify',
+  formRules.verifyResetPassword,
+  validationHandler,
+  verificationController.verifyResetPassword
+)
 
 module.exports = router;

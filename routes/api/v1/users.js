@@ -10,10 +10,6 @@ const { authenticated } = require('../../../middlewares/auth-middleware')
 router.get('/profile', authenticated, userController.getUser)
 // 修改密碼
 router.patch('/profile/password', authenticated, userController.updatePassword)
-// 發送重置密碼email
-router.post('/profile/password/reset', userController.sendResetPasswordEmail)
-// 驗證重置密碼email
-router.post('/profile/password/verify', userController.verifyResetPassword)
 // 重置密碼
 router.patch('/profile/password/reset',formRules.resetPassword, validationHandler, userController.resetPassword)
 

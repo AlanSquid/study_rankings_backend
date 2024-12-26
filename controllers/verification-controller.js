@@ -26,7 +26,23 @@ const verificationController = {
 		} catch (err) {
 			next(err)
 		}
-	}
+	},
+	sendResetPasswordEmail: async (req, res, next) => {
+		try {
+			const data = await verificationServices.sendResetPasswordEmail(req)
+			res.json(formatResponse(data))
+		} catch (err) {
+			next(err)
+		}
+	},
+	verifyResetPassword: async (req, res, next) => {
+		try {
+			const data = await verificationServices.verifyResetPassword(req)
+			res.json(formatResponse(data))
+		} catch (err) {
+			next(err)
+		}
+	},
 }
 
 module.exports = verificationController;

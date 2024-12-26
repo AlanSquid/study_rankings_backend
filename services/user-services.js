@@ -2,7 +2,6 @@ const { User, Verification } = require('../models')
 const { Op } = require('sequelize')	
 const createError = require('http-errors')
 const bcrypt = require('bcryptjs');
-const { resetPwdEmailVerification } = require('../lib/verification');
 
 const userServices = {
 	getUser: async (req) => {
@@ -39,18 +38,6 @@ const userServices = {
 		await user.save();
 
 		return { success: true, message: 'Password updated' };
-	},
-	sendResetPasswordEmail: async (req) => {
-		const { phone, email } = req.body;
-
-		// 寄送重置密碼email
-		await resetPwdEmailVerification.sendResetPasswordEmail(phone, email);
-		return { success: true, message: 'Reset password email sent' };
-	},
-	verifyResetPassword: async (req) => {
-		const { code } = req.body;
-		await resetPwdEmailVerification.verifyResetPassword(code);
-		return { success: true, message: 'verification successful' };
 	},
 	resetPassword: async (req) => {
 		const { newPassword, code } = req.body

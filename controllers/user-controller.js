@@ -18,22 +18,6 @@ const userController = {
 			next(err)
 		}
 	},
-	sendResetPasswordEmail: async (req, res, next) => {
-		try {
-			const data = await userServices.sendResetPasswordEmail(req)
-			res.json(formatResponse(data))
-		} catch (err) {
-			next(err)
-		}
-	},
-	verifyResetPassword: async (req, res, next) => {
-		try {
-			const data = await userServices.verifyResetPassword(req)
-			res.json(formatResponse(data))
-		} catch (err) {
-			next(err)
-		}
-	},
 	resetPassword: async (req, res, next) => {
 		try {
 			const data = await userServices.resetPassword(req)

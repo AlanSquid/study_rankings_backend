@@ -1,6 +1,7 @@
 const { body } = require('express-validator');
 const { User } = require('../../models');
 const { smsVerification } = require('../../lib/verification');
+const { verify } = require('jsonwebtoken');
 
 const formRules = {
   register: [
@@ -106,6 +107,21 @@ const formRules = {
 
   ],
   verifyEmail: [
+    body('code')
+      .notEmpty().withMessage('Verification code is required')
+      .isLength({ max: 100 }).withMessage('Verification code must not exceed 100 characters')
+  ],
+  sendResetPasswordEmail: [
+    body('phone')
+      .notEmpty().withMessage('Phone number is required')
+      .matches(/^09\d{8}$/).withMessage('Please enter a valid phone number')
+      .matches(/^.{10}$/).withMessage('Phone number must be exactly 10 characters'),
+    body('email')
+      .notEmpty().withMessage('Email is required')
+      .isEmail().withMessage('Please enter a valid email')
+      .isLength({ max: 50 }).withMessage('Email must not exceed 50 characters')
+  ],
+  verifyResetPassword: [
     body('code')
       .notEmpty().withMessage('Verification code is required')
       .isLength({ max: 100 }).withMessage('Verification code must not exceed 100 characters')
