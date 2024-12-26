@@ -15,6 +15,6 @@ router.post('/profile/password/reset', userController.sendResetPasswordEmail)
 // 驗證重置密碼email
 router.post('/profile/password/verify', userController.verifyResetPassword)
 // 重置密碼
-router.patch('/profile/password/reset', userController.resetPassword)
+router.patch('/profile/password/reset',formRules.resetPassword, validationHandler, userController.resetPassword)
 
 module.exports = router;

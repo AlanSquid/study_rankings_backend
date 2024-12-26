@@ -109,6 +109,24 @@ const formRules = {
     body('code')
       .notEmpty().withMessage('Verification code is required')
       .isLength({ max: 100 }).withMessage('Verification code must not exceed 100 characters')
+  ],
+  resetPassword: [
+    body('newPassword')
+    .notEmpty().withMessage('Password is required')
+      .isLength({ min: 8 }).withMessage('Password must be at least 8 characters')
+      .isLength({ max: 50 }).withMessage('Password must not exceed 50 characters')
+      .matches(/^[A-Za-z\d@$!%*?&]+$/).withMessage('Password can only contain letters, numbers and special characters')
+      .not().matches(/\s/).withMessage('Password cannot contain blank'),
+    body('confirmNewPassword')
+    .notEmpty().withMessage('Confirm password is required')
+      .isLength({ max: 50 }).withMessage('Password must not exceed 50 characters')
+      // value就是confirmPassword
+      .custom((value, { req }) => {
+        if (value !== req.body.password) {
+          throw new Error('Passwords do not match');
+        }
+        return true;
+      }),
   ]
 };
 
