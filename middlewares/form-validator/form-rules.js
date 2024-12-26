@@ -1,7 +1,6 @@
 const { body } = require('express-validator');
 const { User } = require('../../models');
 const { smsVerification } = require('../../lib/verification');
-const { verify } = require('jsonwebtoken');
 
 const formRules = {
   register: [
@@ -143,7 +142,18 @@ const formRules = {
         }
         return true;
       }),
-  ]
+  ],
+  updateEmail: [
+    body('newEmail')
+      .notEmpty().withMessage('Email is required')
+      .isEmail().withMessage('Please enter a valid email')
+      .isLength({ max: 50 }).withMessage('Email must not exceed 50 characters')
+  ],
+  updateName: [
+    body('newName')
+      .notEmpty().withMessage('Name is required')
+      .isLength({ max: 50 }).withMessage('Name must not exceed 50 characters')
+  ],
 };
 
 module.exports = formRules;

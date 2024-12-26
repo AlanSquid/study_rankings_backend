@@ -72,13 +72,28 @@ const userServices = {
 			throw createError(404, 'User not found')
 		}
 		if (user.email === newEmail) {
-			throw createError(400, 'Email update failed: New email cannot be the same as current email');
+			throw createError(400, 'New email cannot be the same as current email');
 		}
 		user.email = newEmail;
 		user.isEmailVerified = false;
 		await user.save();
 
 		return { success: true, message: 'Email updated. Please verify your new email' };
+	},
+	updateName: async (req) => {
+		const userId = req.user.id;
+		const { newName } = req.body;
+
+		const user = await User.findOne({
+			where: { id: userId, }
+		});
+		if (!user) {
+			throw createError(404, 'User not found')
+		}
+		user.name = newName;
+		await user.save();
+
+		return { success: true, message: 'Name updated' };
 	}
 }
 

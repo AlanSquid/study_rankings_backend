@@ -282,8 +282,56 @@ describe('user-services Unit Test', () => {
         expect.fail('預期應拋出400錯誤，但沒有拋出任何錯誤');
       } catch (error) {
         expect(error.status).to.equal(400);
-        expect(error.message).to.equal('Email update failed: New email cannot be the same as current email');
+        expect(error.message).to.equal('New email cannot be the same as current email');
       }
     });
-});
+  });
+
+  describe('updateName', () => {
+    afterEach(() => {
+      sinon.restore();
+    });
+
+    it('正常情境：name更新成功', async () => {
+      const req = {
+        user: { id: 1 },
+        body: { newName: 'newName' }
+      };
+
+      const mockUser = {
+        id: 1,
+        name: 'oldName',
+        save: sinon.stub().resolves()
+      };
+
+      sinon.stub(User, 'findOne').resolves(mockUser);
+
+      const data = await userServices.updateName(req);
+
+      expect(data.success).to.be.true;
+      expect(data.message).to.equal('Name updated');
+      expect(User.findOne.calledWith({
+        where: { id: req.user.id }
+      })).to.be.true;
+      expect(mockUser.name).to.equal('newName');
+      expect(mockUser.save.called).to.be.true;
+    });
+
+    it('異常情境：使用者不存在時應拋出404錯誤', async () => {
+      const req = {
+        user: { id: 999 },
+        body: { newName: 'newName' }
+      };
+
+      sinon.stub(User, 'findOne').resolves(null);
+
+      try {
+        await userServices.updateName(req);
+        expect.fail('預期應拋出404錯誤，但沒有拋出任何錯誤');
+      } catch (error) {
+        expect(error.status).to.equal(404);
+        expect(error.message).to.equal('User not found');
+      }
+    });
+  });
 });

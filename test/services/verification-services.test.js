@@ -102,7 +102,7 @@ describe('verification-services Unit Test', () => {
         expect.fail('預期應拋出400錯誤，但沒有拋出任何錯誤');
       } catch (error) {
         expect(error.status).to.equal(400);
-        expect(error.message).to.equal('Email verification failed: The provided email does not match the registered email address');
+        expect(error.message).to.equal('The provided email does not match the registered email address');
       }
     });
 
