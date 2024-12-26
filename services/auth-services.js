@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
 const passport = require('passport')
 const createError = require('http-errors')
+const { emailVerification } = require('../lib/verification')
 
 const authServices = {
   verifyJWT: async (req) => {
@@ -105,8 +106,11 @@ const authServices = {
       })
     ])
 
+    // 註冊成功寄送email驗證信
+    const verificationLink = await emailVerification.sendVerificationEmail(user.id, email)
+
     // accessToken回傳json給前端，refreshToken回傳httpOnly cookie
-    return { success: true, user, accessToken, refreshToken }
+    return { success: true, user, verificationLink, accessToken, refreshToken }
   }
 }
 

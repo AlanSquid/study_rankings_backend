@@ -2,6 +2,7 @@ const { expect } = require('chai');
 const sinon = require('sinon');
 const { User } = require('../../models');
 const authServices = require('../../services/auth-services');
+const { emailVerification } = require('../../lib/verification');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
@@ -28,7 +29,7 @@ describe('auth-services Unit Test', () => {
 
   describe('refresh', () => {
     afterEach(() => {
-      sinon.restore(); 
+      sinon.restore();
     });
 
     it('正常情境：應回傳新的access token', async () => {
@@ -98,12 +99,12 @@ describe('auth-services Unit Test', () => {
     afterEach(() => {
       sinon.restore();
     });
-  
+
     it('正常情境：登入成功應回傳tokens和使用者資料', async () => {
       const mockUser = {
         id: 1,
         name: 'test',
-        email: 'test@example.com' 
+        email: 'test@example.com'
       };
       const mockAccessToken = 'access.token';
       const mockRefreshToken = 'refresh.token';
@@ -113,17 +114,17 @@ describe('auth-services Unit Test', () => {
           password: 'password123'
         }
       };
-  
+
       sinon.stub(passport, 'authenticate').callsFake((strategy, options, callback) => {
         return () => callback(null, mockUser);
       });
-  
+
       sinon.stub(jwt, 'sign')
         .onFirstCall().returns(mockAccessToken)
         .onSecondCall().returns(mockRefreshToken);
-  
+
       const data = await authServices.login(req);
-  
+
       expect(data.success).to.be.true;
       expect(data.user).to.deep.equal(mockUser);
       expect(data.accessToken).to.equal(mockAccessToken);
@@ -134,24 +135,24 @@ describe('auth-services Unit Test', () => {
         { expiresIn: '15m' }
       )).to.be.true;
       expect(jwt.sign.calledWith(
-        { id: mockUser.id }, 
+        { id: mockUser.id },
         process.env.JWT_REFRESH_SECRET,
         { expiresIn: '7d' }
       )).to.be.true;
     });
-  
+
     it('異常情境：登入失敗應拋出401錯誤', async () => {
       const req = {
         body: {
           phone: 'wrongPhone',
-          password: 'wrongPassword'  
+          password: 'wrongPassword'
         }
       };
-  
+
       sinon.stub(passport, 'authenticate').callsFake((strategy, options, callback) => {
         return () => callback(null, false, { message: 'Login failed' });
       });
-  
+
       try {
         await authServices.login(req);
         expect.fail('預期應拋出401錯誤，但沒有拋出任何錯誤');
@@ -160,7 +161,7 @@ describe('auth-services Unit Test', () => {
         expect(error.message).to.equal('Login failed');
       }
     });
-  
+
     it('異常情境：驗證出現錯誤應拋出500錯誤', async () => {
       const req = {
         body: {
@@ -168,31 +169,31 @@ describe('auth-services Unit Test', () => {
           password: 'password123'
         }
       };
-  
+
       sinon.stub(passport, 'authenticate').callsFake((strategy, options, callback) => {
         return () => callback(new Error('Authentication error'));
       });
-  
+
       try {
         await authServices.login(req);
         expect.fail('預期應拋出500錯誤，但沒有拋出任何錯誤');
       } catch (error) {
-        expect(error.status).to.equal(500); 
+        expect(error.status).to.equal(500);
         expect(error.message).to.equal('Authentication error');
       }
     });
   });
-  
+
   describe('logout', () => {
     afterEach(() => {
       sinon.restore();
     });
-  
+
     it('正常情境：登出成功', async () => {
       const req = {};
-      
+
       const data = await authServices.logout(req);
-  
+
       expect(data.success).to.be.true;
       expect(data.message).to.equal('Logged out');
     });
@@ -216,6 +217,7 @@ describe('auth-services Unit Test', () => {
       const mockHashedPassword = 'hashedPassword123';
       const mockAccessToken = 'access.token';
       const mockRefreshToken = 'refresh.token';
+      const mockVerificationLink = 'http://www.example.com/verify-email/code=code123';
 
       // 模擬找不到已存在用戶
       sinon.stub(User, 'findOne').resolves(null);
@@ -229,6 +231,10 @@ describe('auth-services Unit Test', () => {
         email: mockReq.body.email,
         password: mockHashedPassword
       });
+      // 模擬發送驗證郵件
+      sinon.stub(emailVerification, 'sendVerificationEmail')
+        .resolves(mockVerificationLink);
+
       // 模擬產生 token
       sinon.stub(jwt, 'sign')
         .onFirstCall().returns(mockAccessToken)
@@ -243,6 +249,7 @@ describe('auth-services Unit Test', () => {
         phone: mockReq.body.phone,
         email: mockReq.body.email
       });
+      expect(data.verificationLink).to.equal(mockVerificationLink);
       expect(data.accessToken).to.equal(mockAccessToken);
       expect(data.refreshToken).to.equal(mockRefreshToken);
       expect(User.findOne.calledWith({
@@ -313,6 +320,37 @@ describe('auth-services Unit Test', () => {
         expect.fail('預期應拋出錯誤，但沒有拋出任何錯誤');
       } catch (error) {
         expect(error.message).to.equal('Hash failed');
+      }
+    });
+
+    it('異常情境：寄送驗證信失敗應拋出錯誤', async () => {
+      const mockReq = {
+        body: {
+          name: 'test',
+          phone: '0912345678',
+          email: 'test@example.com',
+          password: 'password123'
+        }
+      };
+
+      sinon.stub(User, 'findOne').resolves(null);
+      sinon.stub(bcrypt, 'hash').resolves('hashedPassword');
+      sinon.stub(User, 'create').resolves({
+        id: 1,
+        name: mockReq.body.name,
+        phone: mockReq.body.phone,
+        email: mockReq.body.email
+      });
+      sinon.stub(jwt, 'sign').returns('token');
+      // 模擬發送驗證郵件
+      sinon.stub(emailVerification, 'sendVerificationEmail')
+        .rejects(new Error('Failed to send verification email'));
+
+      try {
+        await authServices.register(mockReq);
+        expect.fail('預期應拋出錯誤，但沒有拋出任何錯誤');
+      } catch (error) {
+        expect(error.message).to.equal('Failed to send verification email');
       }
     });
   });
