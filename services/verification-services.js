@@ -1,4 +1,6 @@
 const { smsVerification, emailVerification, resetPwdEmailVerification } = require('../lib/verification');
+const {User} = require('../models')
+const createError = require('http-errors')
 
 const verificationServices = {
 	sendPhoneVerification: async (req) => {
@@ -9,6 +11,9 @@ const verificationServices = {
 	sendEmailVerification: async (req) => {
 		const userId = req.user.id
 		const email = req.body.email;
+		const user = await User.findByPk(userId)
+		if (!user) throw createError(404, 'User not found')
+		if (email !== user.email) throw createError(400, 'Email verification failed: The provided email does not match the registered email address')
 		const verificationUrl = await emailVerification.sendVerificationEmail(userId, email);
 		return { success: true, verificationUrl };
 	},

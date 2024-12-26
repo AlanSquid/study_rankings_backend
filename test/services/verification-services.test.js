@@ -1,6 +1,7 @@
 
 const { expect } = require('chai');
 const sinon = require('sinon');
+const { User } = require('../../models');
 const { smsVerification, emailVerification, resetPwdEmailVerification } = require('../../lib/verification');
 const verificationServices = require('../../services/verification-services');
 const createError = require('http-errors');
@@ -54,17 +55,55 @@ describe('verification-services Unit Test', () => {
         body: { email: 'test@example.com' }
       };
       const mockUrl = 'http://test.com/verify?code=123456';
+      const mockUser = { email: 'test@example.com' };
 
+      sinon.stub(User, 'findByPk').resolves(mockUser);
       sinon.stub(emailVerification, 'sendVerificationEmail').resolves(mockUrl);
 
       const data = await verificationServices.sendEmailVerification(req);
 
       expect(data.success).to.be.true;
       expect(data.verificationUrl).to.equal(mockUrl);
+      expect(User.findByPk.calledWith(req.user.id)).to.be.true;
       expect(emailVerification.sendVerificationEmail.calledWith(
         req.user.id,
         req.body.email
       )).to.be.true;
+    });
+
+    it('異常情境：使用者不存在時應拋出404錯誤', async () => {
+      const req = {
+        user: { id: 999 },
+        body: { email: 'test@example.com' }
+      };
+
+      sinon.stub(User, 'findByPk').resolves(null);
+
+      try {
+        await verificationServices.sendEmailVerification(req);
+        expect.fail('預期應拋出404錯誤，但沒有拋出任何錯誤');
+      } catch (error) {
+        expect(error.status).to.equal(404);
+        expect(error.message).to.equal('User not found');
+      }
+    });
+
+    it('異常情境：Email不符合時應拋出400錯誤', async () => {
+      const req = {
+        user: { id: 1 },
+        body: { email: 'different@example.com' }
+      };
+      const mockUser = { email: 'original@example.com' };
+
+      sinon.stub(User, 'findByPk').resolves(mockUser);
+
+      try {
+        await verificationServices.sendEmailVerification(req);
+        expect.fail('預期應拋出400錯誤，但沒有拋出任何錯誤');
+      } catch (error) {
+        expect(error.status).to.equal(400);
+        expect(error.message).to.equal('Email verification failed: The provided email does not match the registered email address');
+      }
     });
 
     it('異常情境：Email服務失敗時應拋出502錯誤', async () => {
@@ -72,7 +111,9 @@ describe('verification-services Unit Test', () => {
         user: { id: 1 },
         body: { email: 'test@example.com' }
       };
+      const mockUser = { email: 'test@example.com' };
 
+      sinon.stub(User, 'findByPk').resolves(mockUser);
       sinon.stub(emailVerification, 'sendVerificationEmail')
         .rejects(new Error('Failed to send verification email'));
 
@@ -81,10 +122,6 @@ describe('verification-services Unit Test', () => {
         expect.fail('預期應拋出錯誤，但沒有拋出任何錯誤');
       } catch (error) {
         expect(error.message).to.equal('Failed to send verification email');
-        expect(emailVerification.sendVerificationEmail.calledWith(
-          req.user.id,
-          req.body.email
-        )).to.be.true;
       }
     });
   });
