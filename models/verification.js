@@ -17,8 +17,8 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Verification.init({
-    target: DataTypes.STRING,
-    type: DataTypes.ENUM('phone', 'email'),
+    target: DataTypes.STRING(50),
+    type: DataTypes.ENUM('phone', 'email', 'reset_pwd'),
     code: DataTypes.STRING,
     userId: DataTypes.INTEGER,
     expiresAt: DataTypes.DATE,

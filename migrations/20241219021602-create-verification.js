@@ -11,18 +11,19 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       type: {
-        type: Sequelize.ENUM('phone', 'email'),
+        type: Sequelize.ENUM('phone', 'email', 'reset_pwd'),
         allowNull: false
       },
-      // 驗證目標 (手機號碼或 email)
+      // 驗證目標 (手機號碼或email)
       target: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(50),
         allowNull: false
       },
       code: {
         type: Sequelize.STRING,
         allowNull: false
       },
+      // 驗證email時會需要記錄使用者id
       user_id: {
         type: Sequelize.INTEGER,
         allowNull: true,

@@ -17,9 +17,9 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   User.init({
-    name: DataTypes.STRING,
-    email: DataTypes.STRING,
-    phone: DataTypes.STRING,
+    name: DataTypes.STRING(50),
+    email: DataTypes.STRING(50),
+    phone: DataTypes.STRING(10),
     isEmailVerified: DataTypes.BOOLEAN,
     isPhoneVerified: DataTypes.BOOLEAN,
     password: DataTypes.STRING

@@ -50,7 +50,7 @@ const authController = {
 			// 從data抽出refreshToken
 			const { refreshToken, ...restData } = data
 			// 設定 refresh token 為 HTTP-only cookie
-			res.cookie('refreshToken', data.refreshToken, {
+			res.cookie('refreshToken', refreshToken, {
 				httpOnly: true,
 				secure: process.env.NODE_ENV === 'production',
 				sameSite: 'Lax',

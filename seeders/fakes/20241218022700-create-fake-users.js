@@ -9,7 +9,7 @@ module.exports = {
       name: faker.person.fullName(),
       email: faker.internet.email(),
       phone: `09${faker.number.int({ min: 10000000, max: 99999999 })}`,
-      password: bcrypt.hashSync('123456', 10),
+      password: bcrypt.hashSync('12345678', 10),
       is_email_verified: true,
       is_phone_verified: true,
       created_at: new Date(),

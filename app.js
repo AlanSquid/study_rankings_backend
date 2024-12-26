@@ -7,6 +7,9 @@ const errorHandler = require('./middlewares/error-handler');
 const usePassport = require('./lib/passport');
 const cors = require('cors');
 
+// 排程套件
+require('./lib/scheduler');
+
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config()
 }
@@ -14,7 +17,7 @@ if (process.env.NODE_ENV !== 'production') {
 const app = express();
 
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: process.env.FRONTEND_URL,
   credentials: true
 }));
 

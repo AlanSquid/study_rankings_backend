@@ -5,6 +5,7 @@
   "scripts": {
     "start": "node ./bin/www",
     "dev": "nodemon ./bin/www",
+    "test": "npx cross-env NODE_ENV=test mocha --exit --recursive --timeout 10000",
     "db-init": "npx sequelize db:migrate:undo:all && npx sequelize db:migrate",
     "fake-seeds": "npx sequelize db:seed:all --seeders-path seeders/fakes"
   },
@@ -23,6 +24,7 @@
     "jsonwebtoken": "^9.0.2",
     "morgan": "~1.9.1",
     "mysql2": "^3.11.5",
+    "node-cron": "^3.0.3",
     "nodemailer": "^6.9.16",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
@@ -31,6 +33,11 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^9.3.0",
-    "sequelize-cli": "^6.6.2"
+    "chai": "^4.5.0",
+    "cross-env": "^7.0.3",
+    "mocha": "^11.0.1",
+    "sequelize-cli": "^6.6.2",
+    "sinon": "^19.0.2",
+    "supertest": "^7.0.0"
   }
 }
