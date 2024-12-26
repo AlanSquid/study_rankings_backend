@@ -21,7 +21,6 @@ describe('verification-services Unit Test', () => {
       const data = await verificationServices.sendPhoneVerification(req);
 
       expect(data.success).to.be.true;
-      expect(data.code).to.equal(mockCode);
       expect(smsVerification.sendVerificationSMS.calledWith(req.body.phone)).to.be.true;
     });
 

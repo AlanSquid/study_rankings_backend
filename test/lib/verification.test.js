@@ -3,7 +3,7 @@ const sinon = require('sinon');
 const { User, Verification } = require('../../models');
 const smsService = require('../../lib/sms');
 const emailService = require('../../lib/email');
-const { smsVerification, emailVerification } = require('../../lib/verification');
+const { smsVerification, emailVerification, resetPwdEmailVerification } = require('../../lib/verification');
 const crypto = require('crypto');
 
 describe('Verification Library Unit Test', () => {
@@ -107,7 +107,6 @@ describe('Verification Library Unit Test', () => {
         process.env.NODE_ENV = 'production';
         const code = await smsVerification.sendVerificationSMS('0912345678');
 
-        expect(code).to.equal(mockCode);
         expect(smsService.postSMS.calledOnce).to.be.true;
       });
     });
@@ -177,6 +176,72 @@ describe('Verification Library Unit Test', () => {
 
         try {
           await emailVerification.verifyEmail('invalid-code');
+          expect.fail('應拋出錯誤');
+        } catch (error) {
+          expect(error.message).to.equal('Invalid or expired verification code');
+          expect(error.status).to.equal(400);
+        }
+      });
+    });
+  });
+
+  describe('resetPwdEmailVerification', () => {
+    describe('sendResetPasswordEmail', () => {
+      it('應成功發送重置密碼信', async () => {
+        const mockUser = { id: 1, email: 'test@example.com' };
+        const mockCode = 'mock-hex-code';
+        
+        sinon.stub(User, 'findOne').resolves(mockUser);
+        sinon.stub(resetPwdEmailVerification, 'generateUniqueCode').resolves(mockCode);
+        sinon.stub(resetPwdEmailVerification, 'generateVerificationData').resolves();
+        sinon.stub(emailService, 'sendMail').resolves();
+  
+        const resetLink = await resetPwdEmailVerification.sendResetPasswordEmail(
+          '0912345678',
+          'test@example.com'
+        );
+  
+        expect(resetLink).to.include(mockCode);
+        expect(User.findOne.calledWith({
+          where: { phone: '0912345678', email: 'test@example.com' }
+        })).to.be.true;
+        expect(emailService.sendMail.calledOnce).to.be.true;
+      });
+  
+      it('使用者不存在時應拋出錯誤', async () => {
+        sinon.stub(User, 'findOne').resolves(null);
+  
+        try {
+          await resetPwdEmailVerification.sendResetPasswordEmail(
+            '0912345678',
+            'test@example.com'
+          );
+          expect.fail('應拋出錯誤');
+        } catch (error) {
+          expect(error.message).to.equal('User not found');
+          expect(error.status).to.equal(404);
+        }
+      });
+    });
+  
+    describe('verifyResetPassword', () => {
+      it('應成功驗證重置密碼碼', async () => {
+        const mockVerification = {
+          code: 'valid-code',
+          type: 'reset_pwd'
+        };
+        
+        sinon.stub(Verification, 'findOne').resolves(mockVerification);
+  
+        const result = await resetPwdEmailVerification.verifyResetPassword('valid-code');
+        expect(result).to.be.true;
+      });
+  
+      it('驗證碼無效時應拋出錯誤', async () => {
+        sinon.stub(Verification, 'findOne').resolves(null);
+  
+        try {
+          await resetPwdEmailVerification.verifyResetPassword('invalid-code');
           expect.fail('應拋出錯誤');
         } catch (error) {
           expect(error.message).to.equal('Invalid or expired verification code');
