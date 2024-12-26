@@ -60,6 +60,40 @@ const userServices = {
 		await verification.destroy()
 
 		return { success: true, message: 'Password updated' };
+	},
+	updateEmail: async (req) => {
+		const userId = req.user.id;
+		const { newEmail } = req.body;
+
+		const user = await User.findOne({
+			where: { id: userId, }
+		});
+		if (!user) {
+			throw createError(404, 'User not found')
+		}
+		if (user.email === newEmail) {
+			throw createError(400, 'New email cannot be the same as current email');
+		}
+		user.email = newEmail;
+		user.isEmailVerified = false;
+		await user.save();
+
+		return { success: true, message: 'Email updated. Please verify your new email' };
+	},
+	updateName: async (req) => {
+		const userId = req.user.id;
+		const { newName } = req.body;
+
+		const user = await User.findOne({
+			where: { id: userId, }
+		});
+		if (!user) {
+			throw createError(404, 'User not found')
+		}
+		user.name = newName;
+		await user.save();
+
+		return { success: true, message: 'Name updated' };
 	}
 }
 

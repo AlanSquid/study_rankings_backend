@@ -42,7 +42,7 @@ describe('auth-services Unit Test', () => {
     });
 
     it('正常情境：應回傳新的access token', async () => {
-      const mockUser = { id: 1 };
+      const mockUser = { id: 1, name: 'test' };
       const mockRefreshToken = 'valid.refresh.token';
       const mockAccessToken = 'new.access.token';
 
@@ -64,7 +64,7 @@ describe('auth-services Unit Test', () => {
       expect(data.accessToken).to.equal(mockAccessToken);
       expect(jwt.verify.calledWith(mockRefreshToken, process.env.JWT_REFRESH_SECRET)).to.be.true;
       expect(jwt.sign.calledWith(
-        { id: mockUser.id },
+        { id: mockUser.id, name: mockUser.name },
         process.env.JWT_ACCESS_SECRET,
         { expiresIn: '15m' }
       )).to.be.true;
@@ -146,12 +146,12 @@ describe('auth-services Unit Test', () => {
       expect(loginAttemptManager.isLocked.calledWith(req.ip, req.body.phone)).to.be.true;
       expect(loginAttemptManager.reset.calledWith(req.ip, req.body.phone)).to.be.true;
       expect(jwt.sign.calledWith(
-        { id: mockUser.id },
+        { id: mockUser.id, name: mockUser.name },
         process.env.JWT_ACCESS_SECRET,
         { expiresIn: '15m' }
       )).to.be.true;
       expect(jwt.sign.calledWith(
-        { id: mockUser.id },
+        { id: mockUser.id, name: mockUser.name },
         process.env.JWT_REFRESH_SECRET,
         { expiresIn: '7d' }
       )).to.be.true;
@@ -339,12 +339,12 @@ describe('auth-services Unit Test', () => {
       })).to.be.true;
       expect(bcrypt.hash.calledWith(mockReq.body.password, 10)).to.be.true;
       expect(jwt.sign.calledWith(
-        { id: 1 },
+        { id: 1, name: mockReq.body.name },
         process.env.JWT_ACCESS_SECRET,
         { expiresIn: '15m' }
       )).to.be.true;
       expect(jwt.sign.calledWith(
-        { id: 1 },
+        { id: 1, name: mockReq.body.name },
         process.env.JWT_REFRESH_SECRET,
         { expiresIn: '7d' }
       )).to.be.true;

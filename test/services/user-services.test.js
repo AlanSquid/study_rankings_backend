@@ -2,11 +2,8 @@ const { expect } = require('chai');
 const sinon = require('sinon');
 const { User, Verification } = require('../../models');
 const userServices = require('../../services/user-services');
-const verificationServices = require('../../services/verification-services');
 const bcrypt = require('bcryptjs');
-const { resetPwdEmailVerification } = require('../../lib/verification');
 const loginAttemptManager = require('../../lib/login-attempt');
-const createError = require('http-errors');
 
 describe('user-services Unit Test', () => {
   describe('getUser', () => {
@@ -216,6 +213,124 @@ describe('user-services Unit Test', () => {
         expect(error.status).to.equal(400);
         expect(error.message).to.equal('Invalid or expired verification code');
         expect(loginAttemptManager.reset.called).to.be.false;
+      }
+    });
+  });
+
+  describe('updateEmail', () => {
+    afterEach(() => {
+      sinon.restore();
+    });
+
+    it('正常情境：email更新成功', async () => {
+      const req = {
+        user: { id: 1 },
+        body: { newEmail: 'new@example.com' }
+      };
+
+      const mockUser = {
+        id: 1,
+        email: 'old@example.com',
+        save: sinon.stub().resolves()
+      };
+
+      sinon.stub(User, 'findOne').resolves(mockUser);
+
+      const data = await userServices.updateEmail(req);
+
+      expect(data.success).to.be.true;
+      expect(data.message).to.equal('Email updated. Please verify your new email');
+      expect(User.findOne.calledWith({
+        where: { id: req.user.id }
+      })).to.be.true;
+      expect(mockUser.isEmailVerified).to.be.false;
+      expect(mockUser.save.called).to.be.true;
+    });
+
+    it('異常情境：使用者不存在時應拋出404錯誤', async () => {
+      const req = {
+        user: { id: 999 },
+        body: { newEmail: 'new@example.com' }
+      };
+
+      sinon.stub(User, 'findOne').resolves(null);
+
+      try {
+        await userServices.updateEmail(req);
+        expect.fail('預期應拋出404錯誤，但沒有拋出任何錯誤');
+      } catch (error) {
+        expect(error.status).to.equal(404);
+        expect(error.message).to.equal('User not found');
+      }
+    });
+
+    it('異常情境：新舊email相同時應拋出400錯誤', async () => {
+      const req = {
+        user: { id: 1 },
+        body: { newEmail: 'same@example.com' }
+      };
+
+      const mockUser = {
+        id: 1,
+        email: 'same@example.com'
+      };
+
+      sinon.stub(User, 'findOne').resolves(mockUser);
+
+      try {
+        await userServices.updateEmail(req);
+        expect.fail('預期應拋出400錯誤，但沒有拋出任何錯誤');
+      } catch (error) {
+        expect(error.status).to.equal(400);
+        expect(error.message).to.equal('New email cannot be the same as current email');
+      }
+    });
+  });
+
+  describe('updateName', () => {
+    afterEach(() => {
+      sinon.restore();
+    });
+
+    it('正常情境：name更新成功', async () => {
+      const req = {
+        user: { id: 1 },
+        body: { newName: 'newName' }
+      };
+
+      const mockUser = {
+        id: 1,
+        name: 'oldName',
+        save: sinon.stub().resolves()
+      };
+
+      sinon.stub(User, 'findOne').resolves(mockUser);
+
+      const data = await userServices.updateName(req);
+
+      expect(data.success).to.be.true;
+      expect(data.message).to.equal('Name updated');
+      expect(User.findOne.calledWith({
+        where: { id: req.user.id }
+      })).to.be.true;
+      expect(mockUser.name).to.equal('newName');
+      expect(mockUser.save.called).to.be.true;
+    });
+
+    it('異常情境：使用者不存在時應拋出404錯誤', async () => {
+      const req = {
+        user: { id: 999 },
+        body: { newName: 'newName' }
+      };
+
+      sinon.stub(User, 'findOne').resolves(null);
+
+      try {
+        await userServices.updateName(req);
+        expect.fail('預期應拋出404錯誤，但沒有拋出任何錯誤');
+      } catch (error) {
+        expect(error.status).to.equal(404);
+        expect(error.message).to.equal('User not found');
       }
     });
   });

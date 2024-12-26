@@ -1,10 +1,19 @@
 const { expect } = require('chai');
 const sinon = require('sinon');
 const { User, Verification } = require('../../models');
+const { Op } = require('sequelize');
 const smsService = require('../../lib/sms');
 const emailService = require('../../lib/email');
 const { smsVerification, emailVerification, resetPwdEmailVerification } = require('../../lib/verification');
 const crypto = require('crypto');
+
+const dayjs = require('dayjs');
+const utc = require('dayjs/plugin/utc');
+const timezone = require('dayjs/plugin/timezone');
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.tz.setDefault('Asia/Taipei');
 
 describe('Verification Library Unit Test', () => {
   afterEach(() => {
@@ -79,6 +88,36 @@ describe('Verification Library Unit Test', () => {
 
         expect(Verification.destroy.calledOnce).to.be.true;
         expect(Verification.create.calledOnce).to.be.true;
+      });
+    });
+
+    describe('clearExpiredVerifications', () => {
+      it('應成功清理過期的驗證記錄', async () => {
+        const mockDeletedCount = 5;
+        const destroyStub = sinon.stub(Verification, 'destroy').resolves(mockDeletedCount);
+        
+        await smsVerification.clearExpiredVerifications();
+        
+        expect(destroyStub.calledOnce).to.be.true;
+        expect(destroyStub.firstCall.args[0]).to.deep.include({
+          where: {
+            expiresAt: {
+              [Op.lt]: dayjs().format()
+            }
+          }
+        });
+      });
+  
+      it('清理失敗時應拋出錯誤', async () => {
+        const mockError = new Error('Database error');
+        sinon.stub(Verification, 'destroy').rejects(mockError);
+  
+        try {
+          await smsVerification.clearExpiredVerifications();
+          expect.fail('應拋出錯誤');
+        } catch (error) {
+          expect(error).to.equal(mockError);
+        }
       });
     });
 
