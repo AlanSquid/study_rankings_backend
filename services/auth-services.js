@@ -34,7 +34,7 @@ const authServices = {
     })
 
     // 產生新的 access token
-    const accessToken = jwt.sign({ id: user.id }, process.env.JWT_ACCESS_SECRET, {
+    const accessToken = jwt.sign({ id: user.id, name: user.name }, process.env.JWT_ACCESS_SECRET, {
       expiresIn: '15m'
     })
 
@@ -69,10 +69,10 @@ const authServices = {
 
     // 產生 tokens
     const [accessToken, refreshToken] = await Promise.all([
-      jwt.sign({ id: user.id }, process.env.JWT_ACCESS_SECRET, {
+      jwt.sign({ id: user.id, name: user.name }, process.env.JWT_ACCESS_SECRET, {
         expiresIn: '15m'
       }),
-      jwt.sign({ id: user.id }, process.env.JWT_REFRESH_SECRET, {
+      jwt.sign({ id: user.id, name: user.name }, process.env.JWT_REFRESH_SECRET, {
         expiresIn: '7d'
       })
     ])
@@ -120,10 +120,10 @@ const authServices = {
 
     // 產生 tokens
     const [accessToken, refreshToken] = await Promise.all([
-      jwt.sign({ id: user.id }, process.env.JWT_ACCESS_SECRET, {
+      jwt.sign({ id: user.id, name: user.name }, process.env.JWT_ACCESS_SECRET, {
         expiresIn: '15m'
       }),
-      jwt.sign({ id: user.id }, process.env.JWT_REFRESH_SECRET, {
+      jwt.sign({ id: user.id, name: user.name }, process.env.JWT_REFRESH_SECRET, {
         expiresIn: '7d'
       })
     ])
