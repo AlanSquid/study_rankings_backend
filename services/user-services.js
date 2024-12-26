@@ -2,6 +2,7 @@ const { User, Verification } = require('../models')
 const { Op } = require('sequelize')	
 const createError = require('http-errors')
 const bcrypt = require('bcryptjs');
+const loginAttemptManager = require('../lib/login-attempt');
 
 const userServices = {
 	getUser: async (req) => {
@@ -51,7 +52,13 @@ const userServices = {
 		}, {
 			where: { id: verification.userId }
 		})
+		
+		// 重置登入嘗試記錄
+		loginAttemptManager.reset(req.ip, verification.phone);
+
+		// 成功重置密碼後刪除驗證紀錄
 		await verification.destroy()
+
 		return { success: true, message: 'Password updated' };
 	}
 }

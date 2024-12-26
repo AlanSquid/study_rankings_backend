@@ -138,7 +138,7 @@ const formRules = {
       .isLength({ max: 50 }).withMessage('Password must not exceed 50 characters')
       // value就是confirmPassword
       .custom((value, { req }) => {
-        if (value !== req.body.password) {
+        if (value !== req.body.newPassword) {
           throw new Error('Passwords do not match');
         }
         return true;

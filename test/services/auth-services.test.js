@@ -3,9 +3,18 @@ const sinon = require('sinon');
 const { User } = require('../../models');
 const authServices = require('../../services/auth-services');
 const { emailVerification } = require('../../lib/verification');
+const loginAttemptManager = require('../../lib/login-attempt');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
+
+const dayjs = require('dayjs');
+const utc = require('dayjs/plugin/utc');
+const timezone = require('dayjs/plugin/timezone');
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.tz.setDefault('Asia/Taipei');
 
 describe('auth-services Unit Test', () => {
   describe('verifyJWT', () => {
@@ -109,11 +118,16 @@ describe('auth-services Unit Test', () => {
       const mockAccessToken = 'access.token';
       const mockRefreshToken = 'refresh.token';
       const req = {
+        ip: '127.0.0.1',
         body: {
           phone: '0912345678',
           password: 'password123'
         }
       };
+
+      // 模擬 loginAttemptManager
+      sinon.stub(loginAttemptManager, 'isLocked').returns(false);
+      sinon.stub(loginAttemptManager, 'reset');
 
       sinon.stub(passport, 'authenticate').callsFake((strategy, options, callback) => {
         return () => callback(null, mockUser);
@@ -129,6 +143,8 @@ describe('auth-services Unit Test', () => {
       expect(data.user).to.deep.equal(mockUser);
       expect(data.accessToken).to.equal(mockAccessToken);
       expect(data.refreshToken).to.equal(mockRefreshToken);
+      expect(loginAttemptManager.isLocked.calledWith(req.ip, req.body.phone)).to.be.true;
+      expect(loginAttemptManager.reset.calledWith(req.ip, req.body.phone)).to.be.true;
       expect(jwt.sign.calledWith(
         { id: mockUser.id },
         process.env.JWT_ACCESS_SECRET,
@@ -141,16 +157,47 @@ describe('auth-services Unit Test', () => {
       )).to.be.true;
     });
 
-    it('異常情境：登入失敗應拋出401錯誤', async () => {
+    it('異常情境：帳號被鎖定時應拋出429錯誤', async () => {
       const req = {
+        ip: '127.0.0.1',
         body: {
-          phone: 'wrongPhone',
+          phone: '0912345678',
+          password: 'password123'
+        }
+      };
+
+      const mockLockUntil = dayjs().add(5, 'minutes');
+      sinon.stub(loginAttemptManager, 'isLocked').returns(true);
+      sinon.stub(loginAttemptManager, 'getAttemptInfo').returns({ lockUntil: mockLockUntil });
+
+      try {
+        await authServices.login(req);
+        expect.fail('預期應拋出429錯誤，但沒有拋出任何錯誤');
+      } catch (error) {
+        expect(error.status).to.equal(429);
+        expect(error.message).to.include('Account is locked');
+        expect(loginAttemptManager.isLocked.calledWith(req.ip, req.body.phone)).to.be.true;
+        expect(loginAttemptManager.getAttemptInfo.calledWith(req.ip, req.body.phone)).to.be.true;
+      }
+    });
+
+    it('異常情境：登入失敗應記錄失敗次數並拋出401錯誤', async () => {
+      const req = {
+        ip: '127.0.0.1',
+        body: {
+          phone: '0912345678',
           password: 'wrongPassword'
         }
       };
 
+      sinon.stub(loginAttemptManager, 'isLocked').returns(false);
+      sinon.stub(loginAttemptManager, 'recordFailedAttempt').returns({
+        remainingAttempts: 2,
+        lockMinutes: 0
+      });
+
       sinon.stub(passport, 'authenticate').callsFake((strategy, options, callback) => {
-        return () => callback(null, false, { message: 'Login failed' });
+        return () => callback(null, false);
       });
 
       try {
@@ -158,18 +205,50 @@ describe('auth-services Unit Test', () => {
         expect.fail('預期應拋出401錯誤，但沒有拋出任何錯誤');
       } catch (error) {
         expect(error.status).to.equal(401);
-        expect(error.message).to.equal('Login failed');
+        expect(error.message).to.equal('Login failed. 2 attempts remaining');
+        expect(loginAttemptManager.recordFailedAttempt.calledWith(req.ip, req.body.phone)).to.be.true;
+      }
+    });
+
+    it('異常情境：登入失敗且需要鎖定時應拋出401錯誤', async () => {
+      const req = {
+        ip: '127.0.0.1',
+        body: {
+          phone: '0912345678',
+          password: 'wrongPassword'
+        }
+      };
+
+      sinon.stub(loginAttemptManager, 'isLocked').returns(false);
+      sinon.stub(loginAttemptManager, 'recordFailedAttempt').returns({
+        remainingAttempts: 0,
+        lockMinutes: 30
+      });
+
+      sinon.stub(passport, 'authenticate').callsFake((strategy, options, callback) => {
+        return () => callback(null, false);
+      });
+
+      try {
+        await authServices.login(req);
+        expect.fail('預期應拋出401錯誤，但沒有拋出任何錯誤');
+      } catch (error) {
+        expect(error.status).to.equal(401);
+        expect(error.message).to.equal('Login failed. Account locked for 30 minutes');
+        expect(loginAttemptManager.recordFailedAttempt.calledWith(req.ip, req.body.phone)).to.be.true;
       }
     });
 
     it('異常情境：驗證出現錯誤應拋出500錯誤', async () => {
       const req = {
+        ip: '127.0.0.1',
         body: {
           phone: '0912345678',
           password: 'password123'
         }
       };
 
+      sinon.stub(loginAttemptManager, 'isLocked').returns(false);
       sinon.stub(passport, 'authenticate').callsFake((strategy, options, callback) => {
         return () => callback(new Error('Authentication error'));
       });

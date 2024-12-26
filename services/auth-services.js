@@ -4,6 +4,14 @@ const bcrypt = require('bcryptjs')
 const passport = require('passport')
 const createError = require('http-errors')
 const { emailVerification } = require('../lib/verification')
+const loginAttemptManager = require('../lib/login-attempt');
+const dayjs = require('dayjs');
+const utc = require('dayjs/plugin/utc');
+const timezone = require('dayjs/plugin/timezone');
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.tz.setDefault('Asia/Taipei');
 
 const authServices = {
   verifyJWT: async (req) => {
@@ -33,14 +41,28 @@ const authServices = {
     return { success: true, accessToken }
   },
   login: async (req) => {
+    const { phone } = req.body
+    
+    // 登入嘗試管理
+    if (loginAttemptManager.isLocked(req.ip, phone)) {
+      const { lockUntil } = loginAttemptManager.getAttemptInfo(req.ip, phone);
+      const lockMinutes = Math.ceil(dayjs(lockUntil).diff(dayjs(), 'minute', true));
+      throw createError(429, `Account is locked. Please try again after ${lockMinutes} ${lockMinutes <= 1 ? 'minute' : 'minutes'}`);
+    }
+
     const user = await new Promise((resolve, reject) => {
       passport.authenticate('local', { session: false }, (err, user, info) => {
         if (err) {
           return reject(createError(500, err.message))
         }
         if (!user) {
-          return reject(createError(401, info?.message || 'Login failed'))
+          const { remainingAttempts, lockMinutes } = loginAttemptManager.recordFailedAttempt(req.ip, phone);
+            const message = lockMinutes > 0 
+              ? `Login failed. Account locked for ${lockMinutes} minutes`
+              : `Login failed. ${remainingAttempts} attempts remaining`;
+            return reject(createError(401, message));
         }
+        loginAttemptManager.reset(req.ip, phone);
         resolve(user)
       })(req)
     })

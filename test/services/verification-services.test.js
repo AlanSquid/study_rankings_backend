@@ -1,8 +1,9 @@
 
 const { expect } = require('chai');
 const sinon = require('sinon');
-const { smsVerification, emailVerification } = require('../../lib/verification');
+const { smsVerification, emailVerification, resetPwdEmailVerification } = require('../../lib/verification');
 const verificationServices = require('../../services/verification-services');
+const createError = require('http-errors');
 
 describe('verification-services Unit Test', () => {
   describe('sendPhoneVerification', () => {
@@ -15,7 +16,7 @@ describe('verification-services Unit Test', () => {
         body: { phone: '0912345678' }
       };
       const mockCode = '123456';
-      
+
       sinon.stub(smsVerification, 'sendVerificationSMS').resolves(mockCode);
 
       const data = await verificationServices.sendPhoneVerification(req);
@@ -28,7 +29,7 @@ describe('verification-services Unit Test', () => {
       const req = {
         body: { phone: '0912345678' }
       };
-      
+
       sinon.stub(smsVerification, 'sendVerificationSMS')
         .rejects(new Error('SMS service error occurred'));
 
@@ -86,33 +87,6 @@ describe('verification-services Unit Test', () => {
         )).to.be.true;
       }
     });
-
-      // it('異常情境：缺少使用者ID時應拋出錯誤', async () => {
-      //   const req = {
-      //     body: { email: 'test@example.com' }
-      //   };
-  
-      //   try {
-      //     await verificationServices.sendEmailVerification(req);
-      //     expect.fail('預期應拋出錯誤，但沒有拋出任何錯誤');
-      //   } catch (error) {
-      //     expect(error.message).to.equal('User ID is required');
-      //   }
-      // });
-  
-      // it('異常情境：缺少email時應拋出錯誤', async () => {
-      //   const req = {
-      //     user: { id: 1 },
-      //     body: {}
-      //   };
-  
-      //   try {
-      //     await verificationServices.sendEmailVerification(req);
-      //     expect.fail('預期應拋出錯誤，但沒有拋出任何錯誤');
-      //   } catch (error) {
-      //     expect(error.message).to.equal('Email is required');
-      //   }
-      // });
   });
 
   describe('verifyEmail', () => {
@@ -149,18 +123,91 @@ describe('verification-services Unit Test', () => {
         expect(emailVerification.verifyEmail.calledWith(req.body.code)).to.be.true;
       }
     });
+  });
 
-    // it('異常情境：缺少驗證碼時應拋出錯誤', async () => {
-    //   const req = {
-    //     body: {}
-    //   };
+  describe('sendResetPasswordEmail', () => {
+    afterEach(() => {
+      sinon.restore();
+    });
 
-    //   try {
-    //     await verificationServices.verifyEmail(req);
-    //     expect.fail('預期應拋出錯誤，但沒有拋出任何錯誤');
-    //   } catch (error) {
-    //     expect(error.message).to.equal('Verification code is required');
-    //   }
-    // });
+    it('正常情境：成功發送重置密碼郵件', async () => {
+      const req = {
+        body: {
+          phone: '0912345678',
+          email: 'test@example.com'
+        }
+      };
+
+      sinon.stub(resetPwdEmailVerification, 'sendResetPasswordEmail').resolves();
+
+      const data = await verificationServices.sendResetPasswordEmail(req);
+
+      expect(data.success).to.be.true;
+      expect(data.message).to.equal('Reset password email sent');
+      expect(resetPwdEmailVerification.sendResetPasswordEmail.calledWith(
+        req.body.phone,
+        req.body.email
+      )).to.be.true;
+    });
+
+    it('異常情境：寄送重置密碼郵件失敗時應拋出錯誤', async () => {
+      const req = {
+        body: {
+          phone: '0912345678',
+          email: 'test@example.com'
+        }
+      };
+
+      sinon.stub(resetPwdEmailVerification, 'sendResetPasswordEmail')
+        .rejects(new Error('Failed to send email'));
+
+      try {
+        await verificationServices.sendResetPasswordEmail(req);
+        expect.fail('預期應拋出錯誤，但沒有拋出任何錯誤');
+      } catch (error) {
+        expect(error.message).to.equal('Failed to send email');
+      }
+    });
+  });
+
+  describe('verifyResetPassword', () => {
+    afterEach(() => {
+      sinon.restore();
+    });
+
+    it('正常情境：驗證碼驗證成功', async () => {
+      const req = {
+        body: {
+          code: 'valid-code'
+        }
+      };
+
+      sinon.stub(resetPwdEmailVerification, 'verifyResetPassword').resolves(true);
+
+      const result = await verificationServices.verifyResetPassword(req);
+
+      expect(result.success).to.be.true;
+      expect(result.message).to.equal('Reset password verification successful');
+      expect(resetPwdEmailVerification.verifyResetPassword.calledWith(req.body.code)).to.be.true;
+    });
+
+    it('異常情境：無效的驗證碼應拋出400錯誤', async () => {
+      const req = {
+        body: {
+          code: 'invalid-code'
+        }
+      };
+
+      sinon.stub(resetPwdEmailVerification, 'verifyResetPassword')
+        .rejects(createError(400, 'Invalid or expired verification code'));
+
+      try {
+        await verificationServices.verifyResetPassword(req);
+        expect.fail('預期應拋出 400 錯誤，但沒有拋出任何錯誤');
+      } catch (error) {
+        expect(error.status).to.equal(400);
+        expect(error.message).to.equal('Invalid or expired verification code');
+      }
+    });
   });
 });

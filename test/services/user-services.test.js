@@ -2,8 +2,10 @@ const { expect } = require('chai');
 const sinon = require('sinon');
 const { User, Verification } = require('../../models');
 const userServices = require('../../services/user-services');
+const verificationServices = require('../../services/verification-services');
 const bcrypt = require('bcryptjs');
 const { resetPwdEmailVerification } = require('../../lib/verification');
+const loginAttemptManager = require('../../lib/login-attempt');
 const createError = require('http-errors');
 
 describe('user-services Unit Test', () => {
@@ -153,116 +155,33 @@ describe('user-services Unit Test', () => {
       }
     });
   });
-  describe('sendResetPasswordEmail', () => {
-    afterEach(() => {
-      sinon.restore();
-    });
-  
-    it('正常情境：成功發送重置密碼郵件', async () => {
-      const req = {
-        body: {
-          phone: '0912345678',
-          email: 'test@example.com'
-        }
-      };
-  
-      sinon.stub(resetPwdEmailVerification, 'sendResetPasswordEmail').resolves();
-  
-      const data = await userServices.sendResetPasswordEmail(req);
-  
-      expect(data.success).to.be.true;
-      expect(data.message).to.equal('Reset password email sent');
-      expect(resetPwdEmailVerification.sendResetPasswordEmail.calledWith(
-        req.body.phone,
-        req.body.email
-      )).to.be.true;
-    });
-  
-    it('異常情境：寄送重置密碼郵件失敗時應拋出錯誤', async () => {
-      const req = {
-        body: {
-          phone: '0912345678',
-          email: 'test@example.com'
-        }
-      };
-  
-      sinon.stub(resetPwdEmailVerification, 'sendResetPasswordEmail')
-        .rejects(new Error('Failed to send email'));
-  
-      try {
-        await userServices.sendResetPasswordEmail(req);
-        expect.fail('預期應拋出錯誤，但沒有拋出任何錯誤');
-      } catch (error) {
-        expect(error.message).to.equal('Failed to send email');
-      }
-    });
-  });
-  
-  describe('verifyResetPassword', () => {
-    afterEach(() => {
-      sinon.restore();
-    });
-  
-    it('正常情境：驗證碼驗證成功', async () => {
-      const req = {
-        body: {
-          code: 'valid-code'
-        }
-      };
-  
-      sinon.stub(resetPwdEmailVerification, 'verifyResetPassword').resolves(true);
-  
-      const result = await userServices.verifyResetPassword(req);
-  
-      expect(result.success).to.be.true;
-      expect(result.message).to.equal('verification successful');
-      expect(resetPwdEmailVerification.verifyResetPassword.calledWith(req.body.code)).to.be.true;
-    });
-  
-    it('異常情境：無效的驗證碼應拋出400錯誤', async () => {
-      const req = {
-        body: {
-          code: 'invalid-code'
-        }
-      };
-  
-      sinon.stub(resetPwdEmailVerification, 'verifyResetPassword')
-        .rejects(createError(400, 'Invalid or expired verification code'));
-  
-      try {
-        await userServices.verifyResetPassword(req);
-        expect.fail('預期應拋出 400 錯誤，但沒有拋出任何錯誤');
-      } catch (error) {
-        expect(error.status).to.equal(400);
-        expect(error.message).to.equal('Invalid or expired verification code');
-      }
-    });
-  });
-  
+
   describe('resetPassword', () => {
     afterEach(() => {
       sinon.restore();
     });
-  
+
     it('正常情境：密碼重置成功', async () => {
       const req = {
+        ip: '127.0.0.1',
         body: {
           newPassword: 'newPassword123',
           code: 'valid-code'
         }
       };
-  
+
       const mockVerification = {
         userId: 1,
         destroy: sinon.stub().resolves()
       };
-  
+
       sinon.stub(bcrypt, 'hash').resolves('hashedNewPassword');
       sinon.stub(Verification, 'findOne').resolves(mockVerification);
       sinon.stub(User, 'update').resolves();
-  
+      sinon.stub(loginAttemptManager, 'reset').resolves();
+
       const result = await userServices.resetPassword(req);
-  
+
       expect(result.success).to.be.true;
       expect(result.message).to.equal('Password updated');
       expect(bcrypt.hash.calledWith(req.body.newPassword, 10)).to.be.true;
@@ -270,26 +189,33 @@ describe('user-services Unit Test', () => {
         { password: 'hashedNewPassword' },
         { where: { id: mockVerification.userId } }
       )).to.be.true;
+      expect(loginAttemptManager.reset.calledWith(
+        req.ip,
+        mockVerification.phone
+      )).to.be.true;
       expect(mockVerification.destroy.called).to.be.true;
     });
-  
+
     it('異常情境：無效或過期的驗證碼應拋出400錯誤', async () => {
       const req = {
+        ip: '127.0.0.1',
         body: {
           newPassword: 'newPassword123',
           code: 'invalid-code'
         }
       };
-  
+
       sinon.stub(bcrypt, 'hash').resolves('hashedNewPassword');
       sinon.stub(Verification, 'findOne').resolves(null);
-  
+      sinon.stub(loginAttemptManager, 'reset').resolves();
+
       try {
         await userServices.resetPassword(req);
         expect.fail('預期應拋出 400 錯誤，但沒有拋出任何錯誤');
       } catch (error) {
         expect(error.status).to.equal(400);
         expect(error.message).to.equal('Invalid or expired verification code');
+        expect(loginAttemptManager.reset.called).to.be.false;
       }
     });
   });
