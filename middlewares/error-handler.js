@@ -1,4 +1,4 @@
-const errorHandler = (err, req, res, next) => {
+const errorHandler = (err, req, res) => {
   // 設定預設狀態碼和訊息
   const statusCode = err.statusCode || err.status || 500;
   const message = err.message || 'Internal Server Error';

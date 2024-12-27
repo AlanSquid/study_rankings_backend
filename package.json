@@ -6,6 +6,8 @@
     "start": "node ./bin/www",
     "dev": "nodemon ./bin/www",
     "test": "npx cross-env NODE_ENV=test mocha --exit --recursive --timeout 10000",
+    "lint": "npx eslint .",
+    "lint:fix": "npx eslint . --fix",
     "db-init": "npx sequelize db:migrate:undo:all && npx sequelize db:migrate",
     "fake-seeds": "npx sequelize db:seed:all --seeders-path seeders/fakes"
   },
@@ -32,9 +34,12 @@
     "sequelize": "^6.37.5"
   },
   "devDependencies": {
+    "@eslint/js": "^9.17.0",
     "@faker-js/faker": "^9.3.0",
     "chai": "^4.5.0",
     "cross-env": "^7.0.3",
+    "eslint": "^9.17.0",
+    "globals": "^15.14.0",
     "mocha": "^11.0.1",
     "sequelize-cli": "^6.6.2",
     "sinon": "^19.0.2",

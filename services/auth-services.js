@@ -51,7 +51,7 @@ const authServices = {
     }
 
     const user = await new Promise((resolve, reject) => {
-      passport.authenticate('local', { session: false }, (err, user, info) => {
+      passport.authenticate('local', { session: false }, (err, user) => {
         if (err) {
           return reject(createError(500, err.message))
         }
@@ -80,7 +80,7 @@ const authServices = {
     // accessToken回傳json給前端，refreshToken回傳httpOnly cookie
     return { success: true, user, accessToken, refreshToken }
   },
-  logout: async (req) => {
+  logout: async () => {
     return { success: true, message: 'Logged out' }
   },
   register: async (req) => {
