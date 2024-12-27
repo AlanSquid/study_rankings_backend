@@ -39,6 +39,7 @@ const formRules = {
         try {
           await smsVerification.verifyPhone(req.body.phone, value);
         } catch (error) {
+          console.error(error);
           throw new Error('Verification code is invalid');
         }
       })
