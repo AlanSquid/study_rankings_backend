@@ -25,7 +25,7 @@ module.exports = {
           currency_id: 1,
           min_tuition_fees: Math.floor(Math.random() * 20000) + 30000,
           max_tuition_fees: Math.random() < 0.8 ? null : 50000,
-          eng_req: 'IELTS 6.5',
+          eng_req: `IELTS ${Math.floor(Math.random() * 3) + 5}.${Math.random() < 0.5 ? '0' : '5'}`,
           duration: `${Math.floor(Math.random() * 4) + 1} years`,
           location: 'Campus',
           course_url: 'http://example.com/course',
