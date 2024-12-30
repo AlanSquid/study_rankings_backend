@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
       University.belongsTo(models.UniversityGroup, {
         foreignKey: 'universityGroupId'
       });
-      University.hasMany(models.UniversityRank, {
+      University.hasOne(models.UniversityRank, {
         foreignKey: 'universityId'
       });
     }
