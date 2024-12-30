@@ -18,7 +18,8 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: 'Currency',
-      tableName: 'currencies'
+      tableName: 'currencies',
+      timestamps: false
     }
   );
   return Currency;

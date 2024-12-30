@@ -18,7 +18,8 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: 'DegreeLevel',
-      tableName: 'degree_levels'
+      tableName: 'degree_levels',
+      timestamps: false
     }
   );
   return DegreeLevel;

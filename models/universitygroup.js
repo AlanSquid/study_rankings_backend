@@ -20,7 +20,8 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: 'UniversityGroup',
-      tableName: 'university_groups'
+      tableName: 'university_groups',
+      timestamps: false
     }
   );
   return UniversityGroup;
