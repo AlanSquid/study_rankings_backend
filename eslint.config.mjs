@@ -14,7 +14,7 @@ export default [
 
   {
     rules: {
-      'no-unused-vars': 'error',
+      'no-unused-vars': ['error', { args: 'none' }],
       'no-undef': 'off',
       'no-var': 'error',
       'prefer-const': 'error',

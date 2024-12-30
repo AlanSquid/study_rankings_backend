@@ -87,7 +87,7 @@ const authServices = {
     // accessToken回傳json給前端，refreshToken回傳httpOnly cookie
     return { success: true, user, accessToken, refreshToken };
   },
-  logout: async () => {
+  logout: async (req) => {
     return { success: true, message: 'Logged out' };
   },
   register: async (req) => {
