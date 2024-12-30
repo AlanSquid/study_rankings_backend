@@ -2,7 +2,7 @@ const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
-const routes = require("./routes");
+const routes = require('./routes');
 const errorHandler = require('./middlewares/error-handler');
 const usePassport = require('./lib/passport');
 const cors = require('cors');
@@ -11,15 +11,17 @@ const cors = require('cors');
 require('./lib/scheduler');
 
 if (process.env.NODE_ENV !== 'production') {
-  require('dotenv').config()
+  require('dotenv').config();
 }
 
 const app = express();
 
-app.use(cors({
-  origin: process.env.FRONTEND_URL,
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL,
+    credentials: true
+  })
+);
 
 app.use(logger('dev'));
 app.use(express.json());

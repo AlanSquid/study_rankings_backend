@@ -31,12 +31,14 @@ describe('user-services Unit Test', () => {
 
       expect(data.success).to.be.true;
       expect(data.user).to.deep.equal(mockUser);
-      expect(User.findOne.calledWith({
-        where: { id: 1 },
-        attributes: ['id', 'name', 'email', 'phone', 'isPhoneVerified', 'isEmailVerified'],
-        raw: true
-      })).to.be.true;
-    })
+      expect(
+        User.findOne.calledWith({
+          where: { id: 1 },
+          attributes: ['id', 'name', 'email', 'phone', 'isPhoneVerified', 'isEmailVerified'],
+          raw: true
+        })
+      ).to.be.true;
+    });
 
     it('異常情境：使用者不存在時應拋出404錯誤', async () => {
       // 模擬req，傳入不存在的使用者id
@@ -51,14 +53,16 @@ describe('user-services Unit Test', () => {
       } catch (error) {
         expect(error.status).to.equal(404);
         expect(error.message).to.equal('User not found');
-        expect(User.findOne.calledWith({
-          where: { id: req.user.id },
-          attributes: ['id', 'name', 'email', 'phone', 'isPhoneVerified', 'isEmailVerified'],
-          raw: true
-        })).to.be.true;
+        expect(
+          User.findOne.calledWith({
+            where: { id: req.user.id },
+            attributes: ['id', 'name', 'email', 'phone', 'isPhoneVerified', 'isEmailVerified'],
+            raw: true
+          })
+        ).to.be.true;
       }
     });
-  })
+  });
 
   describe('updatePassword', () => {
     afterEach(() => {
@@ -94,9 +98,11 @@ describe('user-services Unit Test', () => {
 
       expect(data.success).to.be.true;
       expect(data.message).to.equal('Password updated');
-      expect(User.findOne.calledWith({
-        where: { id: req.user.id }
-      })).to.be.true;
+      expect(
+        User.findOne.calledWith({
+          where: { id: req.user.id }
+        })
+      ).to.be.true;
 
       expect(bcrypt.compare.calledOnce).to.be.true;
       expect(bcrypt.compare.firstCall.args[0]).to.equal('oldPassword');
@@ -182,14 +188,13 @@ describe('user-services Unit Test', () => {
       expect(result.success).to.be.true;
       expect(result.message).to.equal('Password updated');
       expect(bcrypt.hash.calledWith(req.body.newPassword, 10)).to.be.true;
-      expect(User.update.calledWith(
-        { password: 'hashedNewPassword' },
-        { where: { id: mockVerification.userId } }
-      )).to.be.true;
-      expect(loginAttemptManager.reset.calledWith(
-        req.ip,
-        mockVerification.phone
-      )).to.be.true;
+      expect(
+        User.update.calledWith(
+          { password: 'hashedNewPassword' },
+          { where: { id: mockVerification.userId } }
+        )
+      ).to.be.true;
+      expect(loginAttemptManager.reset.calledWith(req.ip, mockVerification.phone)).to.be.true;
       expect(mockVerification.destroy.called).to.be.true;
     });
 
@@ -240,9 +245,11 @@ describe('user-services Unit Test', () => {
 
       expect(data.success).to.be.true;
       expect(data.message).to.equal('Email updated. Please verify your new email');
-      expect(User.findOne.calledWith({
-        where: { id: req.user.id }
-      })).to.be.true;
+      expect(
+        User.findOne.calledWith({
+          where: { id: req.user.id }
+        })
+      ).to.be.true;
       expect(mockUser.isEmailVerified).to.be.false;
       expect(mockUser.save.called).to.be.true;
     });
@@ -310,9 +317,11 @@ describe('user-services Unit Test', () => {
 
       expect(data.success).to.be.true;
       expect(data.message).to.equal('Name updated');
-      expect(User.findOne.calledWith({
-        where: { id: req.user.id }
-      })).to.be.true;
+      expect(
+        User.findOne.calledWith({
+          where: { id: req.user.id }
+        })
+      ).to.be.true;
       expect(mockUser.name).to.equal('newName');
       expect(mockUser.save.called).to.be.true;
     });

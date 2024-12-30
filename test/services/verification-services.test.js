@@ -1,8 +1,11 @@
-
 const { expect } = require('chai');
 const sinon = require('sinon');
 const { User } = require('../../models');
-const { smsVerification, emailVerification, resetPwdEmailVerification } = require('../../lib/verification');
+const {
+  smsVerification,
+  emailVerification,
+  resetPwdEmailVerification
+} = require('../../lib/verification');
 const verificationServices = require('../../services/verification-services');
 const createError = require('http-errors');
 
@@ -31,7 +34,8 @@ describe('verification-services Unit Test', () => {
         body: { phone: '0912345678' }
       };
 
-      sinon.stub(smsVerification, 'sendVerificationSMS')
+      sinon
+        .stub(smsVerification, 'sendVerificationSMS')
         .rejects(new Error('SMS service error occurred'));
 
       try {
@@ -65,10 +69,8 @@ describe('verification-services Unit Test', () => {
       expect(data.success).to.be.true;
       expect(data.verificationUrl).to.equal(mockUrl);
       expect(User.findByPk.calledWith(req.user.id)).to.be.true;
-      expect(emailVerification.sendVerificationEmail.calledWith(
-        req.user.id,
-        req.body.email
-      )).to.be.true;
+      expect(emailVerification.sendVerificationEmail.calledWith(req.user.id, req.body.email)).to.be
+        .true;
     });
 
     it('異常情境：使用者不存在時應拋出404錯誤', async () => {
@@ -102,7 +104,9 @@ describe('verification-services Unit Test', () => {
         expect.fail('預期應拋出400錯誤，但沒有拋出任何錯誤');
       } catch (error) {
         expect(error.status).to.equal(400);
-        expect(error.message).to.equal('The provided email does not match the registered email address');
+        expect(error.message).to.equal(
+          'The provided email does not match the registered email address'
+        );
       }
     });
 
@@ -114,7 +118,8 @@ describe('verification-services Unit Test', () => {
       const mockUser = { email: 'test@example.com' };
 
       sinon.stub(User, 'findByPk').resolves(mockUser);
-      sinon.stub(emailVerification, 'sendVerificationEmail')
+      sinon
+        .stub(emailVerification, 'sendVerificationEmail')
         .rejects(new Error('Failed to send verification email'));
 
       try {
@@ -150,7 +155,9 @@ describe('verification-services Unit Test', () => {
         body: { code: 'invalid-code' }
       };
 
-      sinon.stub(emailVerification, 'verifyEmail').rejects(new Error('Invalid or expired verification code'));
+      sinon
+        .stub(emailVerification, 'verifyEmail')
+        .rejects(new Error('Invalid or expired verification code'));
 
       try {
         await verificationServices.verifyEmail(req);
@@ -181,10 +188,9 @@ describe('verification-services Unit Test', () => {
 
       expect(data.success).to.be.true;
       expect(data.message).to.equal('Reset password email sent');
-      expect(resetPwdEmailVerification.sendResetPasswordEmail.calledWith(
-        req.body.phone,
-        req.body.email
-      )).to.be.true;
+      expect(
+        resetPwdEmailVerification.sendResetPasswordEmail.calledWith(req.body.phone, req.body.email)
+      ).to.be.true;
     });
 
     it('異常情境：寄送重置密碼郵件失敗時應拋出錯誤', async () => {
@@ -195,7 +201,8 @@ describe('verification-services Unit Test', () => {
         }
       };
 
-      sinon.stub(resetPwdEmailVerification, 'sendResetPasswordEmail')
+      sinon
+        .stub(resetPwdEmailVerification, 'sendResetPasswordEmail')
         .rejects(new Error('Failed to send email'));
 
       try {
@@ -235,7 +242,8 @@ describe('verification-services Unit Test', () => {
         }
       };
 
-      sinon.stub(resetPwdEmailVerification, 'verifyResetPassword')
+      sinon
+        .stub(resetPwdEmailVerification, 'verifyResetPassword')
         .rejects(createError(400, 'Invalid or expired verification code'));
 
       try {

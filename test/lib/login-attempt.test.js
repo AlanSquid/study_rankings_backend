@@ -30,13 +30,13 @@ describe('LoginAttemptManager', () => {
     it('應該重置過期的嘗試記錄（24小時後）', () => {
       const ip = '127.0.0.1';
       const phone = '0912345678';
-      
+
       // 設置初始嘗試
       LoginAttemptManager.recordFailedAttempt(ip, phone);
-      
+
       // 前進25小時
       clock.tick(25 * 60 * 60 * 1000);
-      
+
       const info = LoginAttemptManager.getAttemptInfo(ip, phone);
       expect(info.count).to.equal(0);
     });
@@ -71,7 +71,7 @@ describe('LoginAttemptManager', () => {
 
       let result = LoginAttemptManager.recordFailedAttempt(ip, phone);
       expect(result.remainingAttempts).to.equal(4);
-      
+
       result = LoginAttemptManager.recordFailedAttempt(ip, phone);
       expect(result.remainingAttempts).to.equal(3);
     });
@@ -120,12 +120,12 @@ describe('LoginAttemptManager', () => {
       const phone = '0912345678';
 
       LoginAttemptManager.recordFailedAttempt(ip, phone);
-      
+
       // 前進25小時
       clock.tick(25 * 60 * 60 * 1000);
-      
+
       LoginAttemptManager.cleanup();
-      
+
       const info = LoginAttemptManager.getAttemptInfo(ip, phone);
       expect(info.count).to.equal(0);
     });
@@ -141,9 +141,9 @@ describe('LoginAttemptManager', () => {
 
       // 前進31分鐘
       clock.tick(31 * 60 * 1000);
-      
+
       LoginAttemptManager.cleanup();
-      
+
       const info = LoginAttemptManager.getAttemptInfo(ip, phone);
       expect(info.count).to.equal(0);
     });

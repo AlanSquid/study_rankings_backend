@@ -1,7 +1,5 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     /**
@@ -16,18 +14,21 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
   }
-  User.init({
-    name: DataTypes.STRING(50),
-    email: DataTypes.STRING(50),
-    phone: DataTypes.STRING(10),
-    isEmailVerified: DataTypes.BOOLEAN,
-    isPhoneVerified: DataTypes.BOOLEAN,
-    password: DataTypes.STRING
-  }, {
-    sequelize,
-    modelName: 'User',
-    tableName: 'users',
-    underscored: true,
-  });
+  User.init(
+    {
+      name: DataTypes.STRING(50),
+      email: DataTypes.STRING(50),
+      phone: DataTypes.STRING(10),
+      isEmailVerified: DataTypes.BOOLEAN,
+      isPhoneVerified: DataTypes.BOOLEAN,
+      password: DataTypes.STRING
+    },
+    {
+      sequelize,
+      modelName: 'User',
+      tableName: 'users',
+      underscored: true
+    }
+  );
   return User;
 };
