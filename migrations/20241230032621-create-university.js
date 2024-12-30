@@ -25,6 +25,14 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: true
       },
+      state_territory_id: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'states_territories',
+          key: 'id'
+        }
+      },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE

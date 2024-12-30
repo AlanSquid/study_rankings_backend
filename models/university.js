@@ -11,6 +11,7 @@ module.exports = (sequelize, DataTypes) => {
       University.belongsTo(models.UniversityGroup, { foreignKey: 'universityGroupId' });
       University.hasOne(models.UniversityRank, { foreignKey: 'universityId' });
       University.hasMany(models.UniversityCourse, { foreignKey: 'universityId' });
+      University.belongsTo(models.StateTerritory, { foreignKey: 'stateTerritoryId' });
     }
   }
   University.init(
@@ -18,7 +19,8 @@ module.exports = (sequelize, DataTypes) => {
       name: DataTypes.STRING(50),
       chName: DataTypes.STRING(20),
       emblemPic: DataTypes.STRING,
-      universityGroupId: DataTypes.INTEGER
+      universityGroupId: DataTypes.INTEGER,
+      stateTerritoryId: DataTypes.INTEGER
     },
     {
       sequelize,
