@@ -10,7 +10,7 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       rank: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING(20)
       },
       university_id: {
         type: Sequelize.INTEGER
