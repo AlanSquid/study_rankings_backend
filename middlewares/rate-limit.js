@@ -6,7 +6,7 @@ const emailLimiter = rateLimit({
   message: {
     success: false,
     status: 429,
-    message: 'Too many requests, please try again later.',
+    message: 'Too many requests, please try again later.'
   }
 });
 
@@ -16,7 +16,7 @@ const smsLimiter = rateLimit({
   message: {
     success: false,
     status: 429,
-    message: 'Too many requests, please try again later.',
+    message: 'Too many requests, please try again later.'
   }
 });
 
@@ -26,12 +26,12 @@ const smsLimiterMax = rateLimit({
   message: {
     success: false,
     status: 429,
-    message: 'Too many requests, please try again later.',
+    message: 'Too many requests, please try again later.'
   }
 });
 
 module.exports = {
   emailLimiter,
   smsLimiter,
-  smsLimiterMax,
-}
+  smsLimiterMax
+};

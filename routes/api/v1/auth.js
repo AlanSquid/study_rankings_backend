@@ -3,7 +3,7 @@ const router = express.Router();
 const authController = require('../../../controllers/auth-controller');
 const formRules = require('../../../middlewares/form-validator/form-rules');
 const validationHandler = require('../../../middlewares/form-validator/validation-handler');
-const {authenticated} = require('../../../middlewares/auth-middleware')
+const { authenticated } = require('../../../middlewares/auth-middleware');
 
 // 登入
 router.post('/login', formRules.login, validationHandler, authController.login);

@@ -4,7 +4,11 @@ const { User, Verification } = require('../../models');
 const { Op } = require('sequelize');
 const smsService = require('../../lib/sms');
 const emailService = require('../../lib/email');
-const { smsVerification, emailVerification, resetPwdEmailVerification } = require('../../lib/verification');
+const {
+  smsVerification,
+  emailVerification,
+  resetPwdEmailVerification
+} = require('../../lib/verification');
 const crypto = require('crypto');
 
 const dayjs = require('dayjs');
@@ -30,7 +34,7 @@ describe('Verification Library Unit Test', () => {
         sinon.stub(Verification, 'findOne').resolves(null);
 
         const code = await smsVerification.generateUniqueCode('email', 'test@example.com');
-        
+
         expect(code).to.equal(mockHex);
         expect(Verification.findOne.calledOnce).to.be.true;
       });
@@ -41,7 +45,7 @@ describe('Verification Library Unit Test', () => {
         sinon.stub(Verification, 'findOne').resolves(null);
 
         const code = await smsVerification.generateUniqueCode('phone', '0912345678');
-        
+
         expect(code).to.equal(mockCode);
         expect(Verification.findOne.calledOnce).to.be.true;
       });
@@ -52,13 +56,13 @@ describe('Verification Library Unit Test', () => {
         const randomInt = sinon.stub(crypto, 'randomInt');
         randomInt.onFirstCall().returns(mockCode1);
         randomInt.onSecondCall().returns(mockCode2);
-        
+
         const findOne = sinon.stub(Verification, 'findOne');
         findOne.onFirstCall().resolves({ code: mockCode1 });
         findOne.onSecondCall().resolves(null);
 
         const code = await smsVerification.generateUniqueCode('phone', '0912345678');
-        
+
         expect(code).to.equal(mockCode2);
         expect(Verification.findOne.calledTwice).to.be.true;
       });
@@ -79,12 +83,7 @@ describe('Verification Library Unit Test', () => {
         sinon.stub(Verification, 'destroy').resolves();
         sinon.stub(Verification, 'create').resolves();
 
-        await smsVerification.generateVerificationData(
-          'phone', 
-          '0912345678',
-          '123456',
-          1
-        );
+        await smsVerification.generateVerificationData('phone', '0912345678', '123456', 1);
 
         expect(Verification.destroy.calledOnce).to.be.true;
         expect(Verification.create.calledOnce).to.be.true;
@@ -95,9 +94,9 @@ describe('Verification Library Unit Test', () => {
       it('應成功清理過期的驗證記錄', async () => {
         const mockDeletedCount = 5;
         const destroyStub = sinon.stub(Verification, 'destroy').resolves(mockDeletedCount);
-        
+
         await smsVerification.clearExpiredVerifications();
-        
+
         expect(destroyStub.calledOnce).to.be.true;
         expect(destroyStub.firstCall.args[0]).to.deep.include({
           where: {
@@ -107,11 +106,11 @@ describe('Verification Library Unit Test', () => {
           }
         });
       });
-  
+
       it('清理失敗時應拋出錯誤', async () => {
         const mockError = new Error('Database error');
         sinon.stub(Verification, 'destroy').rejects(mockError);
-  
+
         try {
           await smsVerification.clearExpiredVerifications();
           expect.fail('應拋出錯誤');
@@ -127,10 +126,7 @@ describe('Verification Library Unit Test', () => {
 
         await smsVerification.updateUserVerificationStatus(1, 'phone');
 
-        expect(User.update.calledWith(
-          { isPhoneVerified: true },
-          { where: { id: 1 } }
-        )).to.be.true;
+        expect(User.update.calledWith({ isPhoneVerified: true }, { where: { id: 1 } })).to.be.true;
       });
     });
   });
@@ -229,32 +225,31 @@ describe('Verification Library Unit Test', () => {
       it('應成功發送重置密碼信', async () => {
         const mockUser = { id: 1, email: 'test@example.com' };
         const mockCode = 'mock-hex-code';
-        
+
         sinon.stub(User, 'findOne').resolves(mockUser);
         sinon.stub(resetPwdEmailVerification, 'generateUniqueCode').resolves(mockCode);
         sinon.stub(resetPwdEmailVerification, 'generateVerificationData').resolves();
         sinon.stub(emailService, 'sendMail').resolves();
-  
+
         const resetLink = await resetPwdEmailVerification.sendResetPasswordEmail(
           '0912345678',
           'test@example.com'
         );
-  
+
         expect(resetLink).to.include(mockCode);
-        expect(User.findOne.calledWith({
-          where: { phone: '0912345678', email: 'test@example.com' }
-        })).to.be.true;
+        expect(
+          User.findOne.calledWith({
+            where: { phone: '0912345678', email: 'test@example.com' }
+          })
+        ).to.be.true;
         expect(emailService.sendMail.calledOnce).to.be.true;
       });
-  
+
       it('使用者不存在時應拋出錯誤', async () => {
         sinon.stub(User, 'findOne').resolves(null);
-  
+
         try {
-          await resetPwdEmailVerification.sendResetPasswordEmail(
-            '0912345678',
-            'test@example.com'
-          );
+          await resetPwdEmailVerification.sendResetPasswordEmail('0912345678', 'test@example.com');
           expect.fail('應拋出錯誤');
         } catch (error) {
           expect(error.message).to.equal('User not found');
@@ -262,23 +257,23 @@ describe('Verification Library Unit Test', () => {
         }
       });
     });
-  
+
     describe('verifyResetPassword', () => {
       it('應成功驗證重置密碼碼', async () => {
         const mockVerification = {
           code: 'valid-code',
           type: 'reset_pwd'
         };
-        
+
         sinon.stub(Verification, 'findOne').resolves(mockVerification);
-  
+
         const result = await resetPwdEmailVerification.verifyResetPassword('valid-code');
         expect(result).to.be.true;
       });
-  
+
       it('驗證碼無效時應拋出錯誤', async () => {
         sinon.stub(Verification, 'findOne').resolves(null);
-  
+
         try {
           await resetPwdEmailVerification.verifyResetPassword('invalid-code');
           expect.fail('應拋出錯誤');
