@@ -9,7 +9,7 @@
     "prettier": "npx prettier --write .",
     "lint": "npx prettier --write . && npx eslint .",
     "lint:fix": "npx eslint . --fix",
-    "db-init": "npx sequelize db:migrate:undo:all && npx sequelize db:migrate",
+    "db-init": "npx sequelize db:migrate:undo:all && npx sequelize db:migrate && npx sequelize db:seed:all --seeders-path seeders/constants",
     "fake-seeds": "npx sequelize db:seed:all --seeders-path seeders/fakes",
     "prepare": "husky"
   },
