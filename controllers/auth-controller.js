@@ -2,14 +2,6 @@ const authServices = require('../services/auth-services');
 const { formatResponse } = require('../lib/utils/format-response');
 
 const authController = {
-  verifyJWT: async (req, res, next) => {
-    try {
-      const data = await authServices.verifyJWT(req);
-      res.json(formatResponse(data));
-    } catch (err) {
-      next(err);
-    }
-  },
   refresh: async (req, res, next) => {
     try {
       const data = await authServices.refresh(req);

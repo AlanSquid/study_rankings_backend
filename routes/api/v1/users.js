@@ -3,12 +3,12 @@ const router = express.Router();
 const userController = require('../../../controllers/user-controller');
 const formRules = require('../../../middlewares/form-validator/form-rules');
 const validationHandler = require('../../../middlewares/form-validator/validation-handler');
-const { authenticated } = require('../../../middlewares/auth-middleware');
+const { authenticator } = require('../../../middlewares/auth-middleware');
 
 // 取得使用者資料
-router.get('/profile', authenticated, userController.getUser);
+router.get('/profile', authenticator, userController.getUser);
 // 修改密碼
-router.patch('/profile/password', authenticated, userController.updatePassword);
+router.patch('/profile/password', authenticator, userController.updatePassword);
 // 重置密碼
 router.patch(
   '/profile/password/reset',
@@ -19,7 +19,7 @@ router.patch(
 // 修改email
 router.patch(
   '/profile/email',
-  authenticated,
+  authenticator,
   formRules.updateEmail,
   validationHandler,
   userController.updateEmail
@@ -27,7 +27,7 @@ router.patch(
 // 修改姓名
 router.patch(
   '/profile/name',
-  authenticated,
+  authenticator,
   formRules.updateName,
   validationHandler,
   userController.updateName

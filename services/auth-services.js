@@ -5,6 +5,7 @@ const passport = require('passport');
 const createError = require('http-errors');
 const { emailVerification } = require('../lib/verification');
 const loginAttemptManager = require('../lib/login-attempt');
+const getJWT = require('../lib/get-jwt');
 const dayjs = require('dayjs');
 const utc = require('dayjs/plugin/utc');
 const timezone = require('dayjs/plugin/timezone');
@@ -14,10 +15,6 @@ dayjs.extend(timezone);
 dayjs.tz.setDefault('Asia/Taipei');
 
 const authServices = {
-  verifyJWT: async (req) => {
-    const user = req.user;
-    return { success: true, user };
-  },
   refresh: async (req) => {
     const refreshToken = req.cookies.refreshToken;
     if (!refreshToken) {
@@ -32,11 +29,8 @@ const authServices = {
         resolve(user);
       });
     });
-
     // 產生新的 access token
-    const accessToken = jwt.sign({ id: user.id, name: user.name }, process.env.JWT_ACCESS_SECRET, {
-      expiresIn: '15m'
-    });
+    const accessToken = await getJWT.accessJwtSign(user);
 
     return { success: true, accessToken };
   },
@@ -75,19 +69,18 @@ const authServices = {
     });
 
     // 產生 tokens
-    const [accessToken, refreshToken] = await Promise.all([
-      jwt.sign({ id: user.id, name: user.name }, process.env.JWT_ACCESS_SECRET, {
-        expiresIn: '15m'
-      }),
-      jwt.sign({ id: user.id, name: user.name }, process.env.JWT_REFRESH_SECRET, {
-        expiresIn: '7d'
-      })
-    ]);
+    // const [accessToken, refreshToken] = await Promise.all([
+    //   getJWT.accessJwtSign(user),
+    //   getJWT.refreshJwtSign(user)
+    // ]);
+
+    const accessToken = await getJWT.accessJwtSign(user);
+    const refreshToken = getJWT.refreshJwtSign(user);
 
     // accessToken回傳json給前端，refreshToken回傳httpOnly cookie
     return { success: true, user, accessToken, refreshToken };
   },
-  logout: async () => {
+  logout: async (req) => {
     return { success: true, message: 'Logged out' };
   },
   register: async (req) => {
@@ -125,14 +118,13 @@ const authServices = {
     };
 
     // 產生 tokens
-    const [accessToken, refreshToken] = await Promise.all([
-      jwt.sign({ id: user.id, name: user.name }, process.env.JWT_ACCESS_SECRET, {
-        expiresIn: '15m'
-      }),
-      jwt.sign({ id: user.id, name: user.name }, process.env.JWT_REFRESH_SECRET, {
-        expiresIn: '7d'
-      })
-    ]);
+    // const [accessToken, refreshToken] = await Promise.all([
+    //   getJWT.accessJwtSign(user),
+    //   getJWT.refreshJwtSign(user)
+    // ]);
+
+    const accessToken = await getJWT.accessJwtSign(user);
+    const refreshToken = getJWT.refreshJwtSign(user);
 
     // 註冊成功寄送email驗證信
     const verificationLink = await emailVerification.sendVerificationEmail(user.id, email);

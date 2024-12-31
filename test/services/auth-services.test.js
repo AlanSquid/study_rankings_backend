@@ -4,6 +4,7 @@ const { User } = require('../../models');
 const authServices = require('../../services/auth-services');
 const { emailVerification } = require('../../lib/verification');
 const loginAttemptManager = require('../../lib/login-attempt');
+const getJWT = require('../../lib/get-jwt');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
@@ -17,25 +18,6 @@ dayjs.extend(timezone);
 dayjs.tz.setDefault('Asia/Taipei');
 
 describe('auth-services Unit Test', () => {
-  describe('verifyJWT', () => {
-    afterEach(() => {
-      sinon.restore();
-    });
-
-    it('正常情境：應回傳使用者資料', async () => {
-      const mockUser = {
-        id: 1,
-        name: 'test'
-      };
-      const req = { user: mockUser };
-
-      const data = await authServices.verifyJWT(req);
-
-      expect(data.success).to.be.true;
-      expect(data.user).to.deep.equal(mockUser);
-    });
-  });
-
   describe('refresh', () => {
     afterEach(() => {
       sinon.restore();
@@ -56,20 +38,14 @@ describe('auth-services Unit Test', () => {
         callback(null, mockUser);
       });
 
-      sinon.stub(jwt, 'sign').returns(mockAccessToken);
+      sinon.stub(getJWT, 'accessJwtSign').resolves(mockAccessToken);
 
       const data = await authServices.refresh(req);
 
       expect(data.success).to.be.true;
       expect(data.accessToken).to.equal(mockAccessToken);
       expect(jwt.verify.calledWith(mockRefreshToken, process.env.JWT_REFRESH_SECRET)).to.be.true;
-      expect(
-        jwt.sign.calledWith(
-          { id: mockUser.id, name: mockUser.name },
-          process.env.JWT_ACCESS_SECRET,
-          { expiresIn: '15m' }
-        )
-      ).to.be.true;
+      expect(getJWT.accessJwtSign.calledOnce).to.be.true;
     });
 
     it('異常情境：未提供refresh token應拋出401錯誤', async () => {
@@ -136,12 +112,8 @@ describe('auth-services Unit Test', () => {
         return () => callback(null, mockUser);
       });
 
-      sinon
-        .stub(jwt, 'sign')
-        .onFirstCall()
-        .returns(mockAccessToken)
-        .onSecondCall()
-        .returns(mockRefreshToken);
+      sinon.stub(getJWT, 'accessJwtSign').resolves(mockAccessToken);
+      sinon.stub(getJWT, 'refreshJwtSign').returns(mockRefreshToken);
 
       const data = await authServices.login(req);
 
@@ -151,20 +123,8 @@ describe('auth-services Unit Test', () => {
       expect(data.refreshToken).to.equal(mockRefreshToken);
       expect(loginAttemptManager.isLocked.calledWith(req.ip, req.body.phone)).to.be.true;
       expect(loginAttemptManager.reset.calledWith(req.ip, req.body.phone)).to.be.true;
-      expect(
-        jwt.sign.calledWith(
-          { id: mockUser.id, name: mockUser.name },
-          process.env.JWT_ACCESS_SECRET,
-          { expiresIn: '15m' }
-        )
-      ).to.be.true;
-      expect(
-        jwt.sign.calledWith(
-          { id: mockUser.id, name: mockUser.name },
-          process.env.JWT_REFRESH_SECRET,
-          { expiresIn: '7d' }
-        )
-      ).to.be.true;
+      expect(getJWT.accessJwtSign.calledWith(mockUser)).to.be.true;
+      expect(getJWT.refreshJwtSign.calledWith(mockUser)).to.be.true;
     });
 
     it('異常情境：帳號被鎖定時應拋出429錯誤', async () => {
@@ -326,12 +286,8 @@ describe('auth-services Unit Test', () => {
       sinon.stub(emailVerification, 'sendVerificationEmail').resolves(mockVerificationLink);
 
       // 模擬產生 token
-      sinon
-        .stub(jwt, 'sign')
-        .onFirstCall()
-        .returns(mockAccessToken)
-        .onSecondCall()
-        .returns(mockRefreshToken);
+      sinon.stub(getJWT, 'accessJwtSign').resolves(mockAccessToken);
+      sinon.stub(getJWT, 'refreshJwtSign').returns(mockRefreshToken);
 
       const data = await authServices.register(mockReq);
 
@@ -354,16 +310,8 @@ describe('auth-services Unit Test', () => {
         })
       ).to.be.true;
       expect(bcrypt.hash.calledWith(mockReq.body.password, 10)).to.be.true;
-      expect(
-        jwt.sign.calledWith({ id: 1, name: mockReq.body.name }, process.env.JWT_ACCESS_SECRET, {
-          expiresIn: '15m'
-        })
-      ).to.be.true;
-      expect(
-        jwt.sign.calledWith({ id: 1, name: mockReq.body.name }, process.env.JWT_REFRESH_SECRET, {
-          expiresIn: '7d'
-        })
-      ).to.be.true;
+      expect(getJWT.accessJwtSign.calledOnce).to.be.true;
+      expect(getJWT.refreshJwtSign.calledOnce).to.be.true;
     });
 
     it('異常情境：手機號碼已註冊應拋出409錯誤', async () => {
@@ -438,7 +386,7 @@ describe('auth-services Unit Test', () => {
         phone: mockReq.body.phone,
         email: mockReq.body.email
       });
-      sinon.stub(jwt, 'sign').returns('token');
+      sinon.stub(getJWT, 'accessJwtSign').resolves('token');
       // 模擬發送驗證郵件
       sinon
         .stub(emailVerification, 'sendVerificationEmail')
