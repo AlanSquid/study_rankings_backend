@@ -12,6 +12,7 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'userId',
         onDelete: 'SET NULL'
       });
+      User.hasMany(models.CourseComparison, { foreignKey: 'userId' });
     }
   }
   User.init(
