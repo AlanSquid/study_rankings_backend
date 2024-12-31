@@ -29,9 +29,8 @@ const authServices = {
         resolve(user);
       });
     });
-
     // 產生新的 access token
-    const accessToken = getJWT.accessJwtSign(user);
+    const accessToken = await getJWT.accessJwtSign(user);
 
     return { success: true, accessToken };
   },
@@ -70,10 +69,13 @@ const authServices = {
     });
 
     // 產生 tokens
-    const [accessToken, refreshToken] = await Promise.all([
-      getJWT.accessJwtSign(user),
-      getJWT.refreshJwtSign(user)
-    ]);
+    // const [accessToken, refreshToken] = await Promise.all([
+    //   getJWT.accessJwtSign(user),
+    //   getJWT.refreshJwtSign(user)
+    // ]);
+
+    const accessToken = await getJWT.accessJwtSign(user);
+    const refreshToken = getJWT.refreshJwtSign(user);
 
     // accessToken回傳json給前端，refreshToken回傳httpOnly cookie
     return { success: true, user, accessToken, refreshToken };
@@ -116,10 +118,13 @@ const authServices = {
     };
 
     // 產生 tokens
-    const [accessToken, refreshToken] = await Promise.all([
-      getJWT.accessJwtSign(user),
-      getJWT.refreshJwtSign(user)
-    ]);
+    // const [accessToken, refreshToken] = await Promise.all([
+    //   getJWT.accessJwtSign(user),
+    //   getJWT.refreshJwtSign(user)
+    // ]);
+
+    const accessToken = await getJWT.accessJwtSign(user);
+    const refreshToken = getJWT.refreshJwtSign(user);
 
     // 註冊成功寄送email驗證信
     const verificationLink = await emailVerification.sendVerificationEmail(user.id, email);

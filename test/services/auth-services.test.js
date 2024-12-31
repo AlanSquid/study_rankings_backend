@@ -38,7 +38,7 @@ describe('auth-services Unit Test', () => {
         callback(null, mockUser);
       });
 
-      sinon.stub(getJWT, 'accessJwtSign').returns(mockAccessToken);
+      sinon.stub(getJWT, 'accessJwtSign').resolves(mockAccessToken);
 
       const data = await authServices.refresh(req);
 
@@ -112,7 +112,7 @@ describe('auth-services Unit Test', () => {
         return () => callback(null, mockUser);
       });
 
-      sinon.stub(getJWT, 'accessJwtSign').returns(mockAccessToken);
+      sinon.stub(getJWT, 'accessJwtSign').resolves(mockAccessToken);
       sinon.stub(getJWT, 'refreshJwtSign').returns(mockRefreshToken);
 
       const data = await authServices.login(req);
@@ -286,7 +286,7 @@ describe('auth-services Unit Test', () => {
       sinon.stub(emailVerification, 'sendVerificationEmail').resolves(mockVerificationLink);
 
       // 模擬產生 token
-      sinon.stub(getJWT, 'accessJwtSign').returns(mockAccessToken);
+      sinon.stub(getJWT, 'accessJwtSign').resolves(mockAccessToken);
       sinon.stub(getJWT, 'refreshJwtSign').returns(mockRefreshToken);
 
       const data = await authServices.register(mockReq);
@@ -386,7 +386,7 @@ describe('auth-services Unit Test', () => {
         phone: mockReq.body.phone,
         email: mockReq.body.email
       });
-      sinon.stub(jwt, 'sign').returns('token');
+      sinon.stub(getJWT, 'accessJwtSign').resolves('token');
       // 模擬發送驗證郵件
       sinon
         .stub(emailVerification, 'sendVerificationEmail')
