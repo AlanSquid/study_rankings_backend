@@ -13,6 +13,11 @@ module.exports = (sequelize, DataTypes) => {
       Course.belongsTo(models.DegreeLevel, { foreignKey: 'degreeLevelId' });
       Course.belongsTo(models.Currency, { foreignKey: 'currencyId' });
       Course.hasMany(models.CourseComparison, { foreignKey: 'courseId' });
+      Course.belongsToMany(models.User, {
+        through: models.CourseComparison,
+        foreignKey: 'courseId',
+        otherKey: 'userId'
+      });
     }
   }
   Course.init(
