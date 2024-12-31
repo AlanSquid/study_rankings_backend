@@ -65,16 +65,16 @@ const universityServices = {
     return { success: true, courseCategories };
   },
   getCourses: async (req) => {
-    const { page, course, university, degreeLevelId, engReq, minFee, maxFee, categoryId } =
+    const { page, course, universityId, degreeLevelId, engReq, minFee, maxFee, categoryId } =
       req.query;
 
     const whereConditions = {};
     if (course) whereConditions.name = { [Op.like]: `%${course}%` };
-    if (university) whereConditions['$University.name$'] = { [Op.like]: `%${university}%` };
+    if (universityId) whereConditions['$University.id$'] = universityId;
     if (degreeLevelId) whereConditions['$DegreeLevel.id$'] = degreeLevelId;
-    if (engReq) whereConditions.engReq = { [Op.like]: `%${engReq}%` };
-    if (minFee) whereClause.minTuitionFees = { [Op.gte]: minFee };
-    if (maxFee) whereClause.maxTuitionFees = { [Op.lte]: maxFee };
+    if (engReq) whereConditions.engReq = { [Op.lte]: engReq };
+    if (minFee) whereClause.minFee = { [Op.gte]: minFee };
+    if (maxFee) whereClause.maxFee = { [Op.lte]: maxFee };
     if (categoryId) whereConditions['$CourseCategory.id$'] = categoryId;
 
     const courses = await UniversityCourse.findAll({
@@ -82,9 +82,10 @@ const universityServices = {
         'id',
         'name',
         'currencyId',
-        'minTuitionFees',
-        'maxTuitionFees',
+        'minFee',
+        'maxFee',
         'engReq',
+        'engReqInfo',
         'duration',
         'location',
         'courseUrl',

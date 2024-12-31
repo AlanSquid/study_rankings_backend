@@ -46,15 +46,19 @@ module.exports = {
         },
         defaultValue: 1
       },
-      min_tuition_fees: {
+      min_fee: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      max_tuition_fees: {
+      max_fee: {
         allowNull: true,
         type: Sequelize.INTEGER
       },
       eng_req: {
+        allowNull: false,
+        type: Sequelize.DECIMAL(2, 1)
+      },
+      eng_req_info: {
         allowNull: false,
         type: Sequelize.STRING(50)
       },
