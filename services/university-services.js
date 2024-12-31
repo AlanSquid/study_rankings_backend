@@ -96,7 +96,7 @@ const universityServices = {
       include: [
         {
           model: University,
-          attributes: ['id', 'name']
+          attributes: ['id', 'name', 'chName', 'emblemPic']
         },
         {
           model: DegreeLevel,
@@ -109,9 +109,7 @@ const universityServices = {
       ],
       where: whereConditions,
       limit: 10,
-      offset: page ? (parseInt(page) - 1) * 10 : 0,
-      raw: true,
-      nest: true
+      offset: page ? (parseInt(page) - 1) * 10 : 0
     });
     return { success: true, courses };
   }

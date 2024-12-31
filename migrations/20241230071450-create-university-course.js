@@ -64,7 +64,7 @@ module.exports = {
       },
       duration: {
         allowNull: false,
-        type: Sequelize.STRING(50)
+        type: Sequelize.INTEGER
       },
       location: {
         allowNull: false,

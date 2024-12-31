@@ -25,7 +25,7 @@ module.exports = (sequelize, DataTypes) => {
       maxFee: DataTypes.INTEGER,
       engReq: DataTypes.INTEGER,
       engReqInfo: DataTypes.STRING(50),
-      duration: DataTypes.STRING(50),
+      duration: DataTypes.INTEGER,
       location: DataTypes.STRING(50),
       courseUrl: DataTypes.STRING,
       engReqUrl: DataTypes.STRING,

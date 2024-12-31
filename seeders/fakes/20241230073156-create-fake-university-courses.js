@@ -29,7 +29,7 @@ module.exports = {
           max_fee: Math.random() < 0.8 ? null : 50000,
           eng_req: ieltsScore,
           eng_req_info: `IELTS ${ieltsScore}`,
-          duration: `${Math.floor(Math.random() * 4) + 1} years`,
+          duration: Math.floor(Math.random() * 4) + 1,
           location: 'Campus',
           course_url: 'http://example.com/course',
           eng_req_url: 'http://example.com/eng-req',
