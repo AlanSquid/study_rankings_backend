@@ -1,5 +1,5 @@
 const authServices = require('../services/auth-services');
-const { formatResponse } = require('../lib/utils/format-response');
+const { formatResponse } = require('../lib/utils/formatResponse');
 
 const authController = {
   refresh: async (req, res, next) => {

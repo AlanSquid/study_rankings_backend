@@ -1,5 +1,5 @@
 const userServices = require('../services/user-services');
-const { formatResponse } = require('../lib/utils/format-response');
+const { formatResponse } = require('../lib/utils/formatResponse');
 
 const userController = {
   getUser: async (req, res, next) => {

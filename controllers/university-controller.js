@@ -1,5 +1,5 @@
 const universityServices = require('../services/university-services');
-const { formatResponse } = require('../lib/utils/format-response');
+const { formatResponse } = require('../lib/utils/formatResponse');
 
 const universityController = {
   getUniversities: async (req, res, next) => {

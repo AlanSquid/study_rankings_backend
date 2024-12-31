@@ -1,5 +1,5 @@
 const verificationServices = require('../services/verification-services');
-const { formatResponse } = require('../lib/utils/format-response');
+const { formatResponse } = require('../lib/utils/formatResponse');
 
 const verificationController = {
   sendPhoneVerification: async (req, res, next) => {

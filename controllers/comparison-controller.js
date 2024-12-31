@@ -1,5 +1,5 @@
 const comparisonServices = require('../services/comparison-services');
-const { formatResponse } = require('../lib/utils/format-response');
+const { formatResponse } = require('../lib/utils/formatResponse');
 
 const comparisonController = {
   getComparisons: async (req, res, next) => {
