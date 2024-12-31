@@ -3,7 +3,7 @@ const {
   UniversityGroup,
   UniversityRank,
   StateTerritory,
-  UniversityCourse,
+  Course,
   CourseCategory,
   DegreeLevel
 } = require('../models');
@@ -82,7 +82,7 @@ const universityServices = {
     if (maxFee) whereConditions.maxFee = { [Op.lte]: maxFee };
     if (categoryId) whereConditions['$CourseCategory.id$'] = categoryId;
 
-    const courses = await UniversityCourse.findAll({
+    const courses = await Course.findAll({
       attributes: [
         'id',
         'name',

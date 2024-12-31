@@ -1,20 +1,20 @@
 'use strict';
 const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class UniversityCourse extends Model {
+  class Course extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      UniversityCourse.belongsTo(models.University, { foreignKey: 'universityId' });
-      UniversityCourse.belongsTo(models.CourseCategory, { foreignKey: 'courseCategoryId' });
-      UniversityCourse.belongsTo(models.DegreeLevel, { foreignKey: 'degreeLevelId' });
-      UniversityCourse.belongsTo(models.Currency, { foreignKey: 'CurrencyId' });
+      Course.belongsTo(models.University, { foreignKey: 'universityId' });
+      Course.belongsTo(models.CourseCategory, { foreignKey: 'courseCategoryId' });
+      Course.belongsTo(models.DegreeLevel, { foreignKey: 'degreeLevelId' });
+      Course.belongsTo(models.Currency, { foreignKey: 'CurrencyId' });
     }
   }
-  UniversityCourse.init(
+  Course.init(
     {
       universityId: DataTypes.INTEGER,
       degreeLevelId: DataTypes.INTEGER,
@@ -34,10 +34,10 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: 'UniversityCourse',
-      tableName: 'university_courses',
+      modelName: 'Course',
+      tableName: 'courses',
       underscored: true
     }
   );
-  return UniversityCourse;
+  return Course;
 };

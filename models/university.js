@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       University.belongsTo(models.UniversityGroup, { foreignKey: 'universityGroupId' });
       University.hasOne(models.UniversityRank, { foreignKey: 'universityId' });
-      University.hasMany(models.UniversityCourse, { foreignKey: 'universityId' });
+      University.hasMany(models.Course, { foreignKey: 'universityId' });
       University.belongsTo(models.StateTerritory, { foreignKey: 'stateTerritoryId' });
     }
   }

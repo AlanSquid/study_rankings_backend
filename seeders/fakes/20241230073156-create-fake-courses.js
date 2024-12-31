@@ -9,7 +9,7 @@ module.exports = {
     const degreeLevels = await DegreeLevel.findAll();
     const courseCategories = await CourseCategory.findAll();
 
-    const universityCourses = [];
+    const courses = [];
 
     universities.forEach((university) => {
       for (let i = 0; i < 100; i++) {
@@ -19,7 +19,7 @@ module.exports = {
         const baseScore = Math.floor(Math.random() * 3) + 5;
         const ieltsScore = Math.random() < 0.5 ? baseScore : baseScore + 0.5;
 
-        universityCourses.push({
+        courses.push({
           university_id: university.id,
           degree_level_id: degreeLevel.id,
           course_category_id: randomCourseCategory.id,
@@ -41,10 +41,10 @@ module.exports = {
       }
     });
 
-    await queryInterface.bulkInsert('university_courses', universityCourses, {});
+    await queryInterface.bulkInsert('courses', courses, {});
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.bulkDelete('university_courses', null, {});
+    await queryInterface.bulkDelete('courses', null, {});
   }
 };

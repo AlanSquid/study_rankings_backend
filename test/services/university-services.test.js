@@ -5,7 +5,7 @@ const {
   UniversityGroup,
   UniversityRank,
   StateTerritory,
-  UniversityCourse,
+  Course,
   CourseCategory,
   DegreeLevel
 } = require('../../models');
@@ -209,14 +209,14 @@ describe('university-services Unit Test', () => {
         }
       ];
 
-      sinon.stub(UniversityCourse, 'findAll').resolves(mockCourses);
+      sinon.stub(Course, 'findAll').resolves(mockCourses);
 
       const data = await universityServices.getCourses(req);
 
       expect(data.success).to.be.true;
       expect(data.courses).to.deep.equal(mockCourses);
       expect(
-        UniversityCourse.findAll.calledWith({
+        Course.findAll.calledWith({
           attributes: [
             'id',
             'name',
@@ -266,7 +266,7 @@ describe('university-services Unit Test', () => {
         }
       };
 
-      sinon.stub(UniversityCourse, 'findAll').throws(createError(500, 'Database error'));
+      sinon.stub(Course, 'findAll').throws(createError(500, 'Database error'));
 
       try {
         await universityServices.getCourses(req);
