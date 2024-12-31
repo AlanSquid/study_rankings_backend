@@ -17,25 +17,6 @@ dayjs.extend(timezone);
 dayjs.tz.setDefault('Asia/Taipei');
 
 describe('auth-services Unit Test', () => {
-  describe('verifyJWT', () => {
-    afterEach(() => {
-      sinon.restore();
-    });
-
-    it('正常情境：應回傳使用者資料', async () => {
-      const mockUser = {
-        id: 1,
-        name: 'test'
-      };
-      const req = { user: mockUser };
-
-      const data = await authServices.verifyJWT(req);
-
-      expect(data.success).to.be.true;
-      expect(data.user).to.deep.equal(mockUser);
-    });
-  });
-
   describe('refresh', () => {
     afterEach(() => {
       sinon.restore();

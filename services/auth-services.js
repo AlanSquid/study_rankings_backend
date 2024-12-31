@@ -14,10 +14,6 @@ dayjs.extend(timezone);
 dayjs.tz.setDefault('Asia/Taipei');
 
 const authServices = {
-  verifyJWT: async (req) => {
-    const user = req.user;
-    return { success: true, user };
-  },
   refresh: async (req) => {
     const refreshToken = req.cookies.refreshToken;
     if (!refreshToken) {
