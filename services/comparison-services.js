@@ -1,5 +1,5 @@
 const { University, UniversityRank, Course, CourseComparison } = require('../models');
-const { getComparisonCount } = require('../lib/utils/getComparisonCount');
+const helper = require('../lib/utils/helper');
 const createError = require('http-errors');
 
 const comparisonServices = {
@@ -68,7 +68,7 @@ const comparisonServices = {
     if (comparison) throw createError(409, 'Course already exists in comparison');
 
     // 比較清單上限為10
-    const comparisonCount = await getComparisonCount(userId);
+    const comparisonCount = await helper.getComparisonCount(userId);
     if (comparisonCount > 10) throw createError(400, 'Comparison limit exceeded');
 
     await CourseComparison.create({
@@ -92,7 +92,7 @@ const comparisonServices = {
     if (!comparison) throw createError(404, 'Course not found in comparison');
 
     await comparison.destroy();
-    const comparisonCount = await getComparisonCount(userId);
+    const comparisonCount = await helper.getComparisonCount(userId);
 
     return {
       success: true,
