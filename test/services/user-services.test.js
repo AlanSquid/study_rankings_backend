@@ -13,39 +13,26 @@ describe('user-services Unit Test', () => {
 
     it('正常情境：應回傳使用者資料', async () => {
       // 模擬req
-      const req = { user: { id: 1 } };
-
-      // 假user資料
-      const mockUser = {
-        id: 1,
-        name: 'test',
-        email: 'test@gmail.com',
-        phone: '0989889889',
-        isPhoneVerified: 1,
-        isEmailVerified: 1
+      const req = {
+        user: {
+          id: 1,
+          name: 'test',
+          email: 'test@gmail.com',
+          phone: '0989889889',
+          isPhoneVerified: 1,
+          isEmailVerified: 1
+        }
       };
-      // 模擬User.findOne() 回傳假資料
-      sinon.stub(User, 'findOne').resolves(mockUser);
 
       const data = await userServices.getUser(req);
 
       expect(data.success).to.be.true;
-      expect(data.user).to.deep.equal(mockUser);
-      expect(
-        User.findOne.calledWith({
-          where: { id: 1 },
-          attributes: ['id', 'name', 'email', 'phone', 'isPhoneVerified', 'isEmailVerified'],
-          raw: true
-        })
-      ).to.be.true;
+      expect(data.user).to.deep.equal(req.user);
     });
 
     it('異常情境：使用者不存在時應拋出404錯誤', async () => {
-      // 模擬req，傳入不存在的使用者id
-      const req = { user: { id: 999 } };
-
-      // 模擬User.findOne() 找不到資料回傳null
-      sinon.stub(User, 'findOne').resolves(null);
+      // 模擬req，傳入不存在的使用者
+      const req = { user: null };
 
       try {
         await userServices.getUser(req);
@@ -53,13 +40,6 @@ describe('user-services Unit Test', () => {
       } catch (error) {
         expect(error.status).to.equal(404);
         expect(error.message).to.equal('User not found');
-        expect(
-          User.findOne.calledWith({
-            where: { id: req.user.id },
-            attributes: ['id', 'name', 'email', 'phone', 'isPhoneVerified', 'isEmailVerified'],
-            raw: true
-          })
-        ).to.be.true;
       }
     });
   });

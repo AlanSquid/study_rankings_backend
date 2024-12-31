@@ -6,12 +6,7 @@ const loginAttemptManager = require('../lib/login-attempt');
 
 const userServices = {
   getUser: async (req) => {
-    const userId = req.user.id;
-    const user = await User.findOne({
-      where: { id: userId },
-      attributes: ['id', 'name', 'email', 'phone', 'isPhoneVerified', 'isEmailVerified'],
-      raw: true
-    });
+    const user = req.user;
     if (!user) {
       throw createError(404, 'User not found');
     }
