@@ -5,7 +5,7 @@ const passport = require('passport');
 const createError = require('http-errors');
 const { emailVerification } = require('../lib/verification');
 const loginAttemptManager = require('../lib/login-attempt');
-const getJWT = require('../lib/get-jwt');
+const generateJWT = require('../lib/utils/generateJWT');
 const dayjs = require('dayjs');
 const utc = require('dayjs/plugin/utc');
 const timezone = require('dayjs/plugin/timezone');
@@ -30,7 +30,7 @@ const authServices = {
       });
     });
     // 產生新的 access token
-    const accessToken = await getJWT.accessJwtSign(user);
+    const accessToken = await generateJWT.getAccessToken(user);
 
     return { success: true, accessToken };
   },
@@ -70,12 +70,12 @@ const authServices = {
 
     // 產生 tokens
     // const [accessToken, refreshToken] = await Promise.all([
-    //   getJWT.accessJwtSign(user),
-    //   getJWT.refreshJwtSign(user)
+    //   generateJWT.getAccessToken(user),
+    //   generateJWT.getRefreshToken(user)
     // ]);
 
-    const accessToken = await getJWT.accessJwtSign(user);
-    const refreshToken = getJWT.refreshJwtSign(user);
+    const accessToken = await generateJWT.getAccessToken(user);
+    const refreshToken = generateJWT.getRefreshToken(user);
 
     // accessToken回傳json給前端，refreshToken回傳httpOnly cookie
     return { success: true, user, accessToken, refreshToken };
@@ -119,12 +119,12 @@ const authServices = {
 
     // 產生 tokens
     // const [accessToken, refreshToken] = await Promise.all([
-    //   getJWT.accessJwtSign(user),
-    //   getJWT.refreshJwtSign(user)
+    //   generateJWT.getAccessToken(user),
+    //   generateJWT.getRefreshToken(user)
     // ]);
 
-    const accessToken = await getJWT.accessJwtSign(user);
-    const refreshToken = getJWT.refreshJwtSign(user);
+    const accessToken = await generateJWT.getAccessToken(user);
+    const refreshToken = generateJWT.getRefreshToken(user);
 
     // 註冊成功寄送email驗證信
     const verificationLink = await emailVerification.sendVerificationEmail(user.id, email);

@@ -4,7 +4,7 @@ const { User } = require('../../models');
 const authServices = require('../../services/auth-services');
 const { emailVerification } = require('../../lib/verification');
 const loginAttemptManager = require('../../lib/login-attempt');
-const getJWT = require('../../lib/get-jwt');
+const generateJWT = require('../../lib/utils/generateJWT');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
@@ -38,14 +38,14 @@ describe('auth-services Unit Test', () => {
         callback(null, mockUser);
       });
 
-      sinon.stub(getJWT, 'accessJwtSign').resolves(mockAccessToken);
+      sinon.stub(generateJWT, 'getAccessToken').resolves(mockAccessToken);
 
       const data = await authServices.refresh(req);
 
       expect(data.success).to.be.true;
       expect(data.accessToken).to.equal(mockAccessToken);
       expect(jwt.verify.calledWith(mockRefreshToken, process.env.JWT_REFRESH_SECRET)).to.be.true;
-      expect(getJWT.accessJwtSign.calledOnce).to.be.true;
+      expect(generateJWT.getAccessToken.calledOnce).to.be.true;
     });
 
     it('異常情境：未提供refresh token應拋出401錯誤', async () => {
@@ -112,8 +112,8 @@ describe('auth-services Unit Test', () => {
         return () => callback(null, mockUser);
       });
 
-      sinon.stub(getJWT, 'accessJwtSign').resolves(mockAccessToken);
-      sinon.stub(getJWT, 'refreshJwtSign').returns(mockRefreshToken);
+      sinon.stub(generateJWT, 'getAccessToken').resolves(mockAccessToken);
+      sinon.stub(generateJWT, 'getRefreshToken').returns(mockRefreshToken);
 
       const data = await authServices.login(req);
 
@@ -123,8 +123,8 @@ describe('auth-services Unit Test', () => {
       expect(data.refreshToken).to.equal(mockRefreshToken);
       expect(loginAttemptManager.isLocked.calledWith(req.ip, req.body.phone)).to.be.true;
       expect(loginAttemptManager.reset.calledWith(req.ip, req.body.phone)).to.be.true;
-      expect(getJWT.accessJwtSign.calledWith(mockUser)).to.be.true;
-      expect(getJWT.refreshJwtSign.calledWith(mockUser)).to.be.true;
+      expect(generateJWT.getAccessToken.calledWith(mockUser)).to.be.true;
+      expect(generateJWT.getRefreshToken.calledWith(mockUser)).to.be.true;
     });
 
     it('異常情境：帳號被鎖定時應拋出429錯誤', async () => {
@@ -286,8 +286,8 @@ describe('auth-services Unit Test', () => {
       sinon.stub(emailVerification, 'sendVerificationEmail').resolves(mockVerificationLink);
 
       // 模擬產生 token
-      sinon.stub(getJWT, 'accessJwtSign').resolves(mockAccessToken);
-      sinon.stub(getJWT, 'refreshJwtSign').returns(mockRefreshToken);
+      sinon.stub(generateJWT, 'getAccessToken').resolves(mockAccessToken);
+      sinon.stub(generateJWT, 'getRefreshToken').returns(mockRefreshToken);
 
       const data = await authServices.register(mockReq);
 
@@ -310,8 +310,8 @@ describe('auth-services Unit Test', () => {
         })
       ).to.be.true;
       expect(bcrypt.hash.calledWith(mockReq.body.password, 10)).to.be.true;
-      expect(getJWT.accessJwtSign.calledOnce).to.be.true;
-      expect(getJWT.refreshJwtSign.calledOnce).to.be.true;
+      expect(generateJWT.getAccessToken.calledOnce).to.be.true;
+      expect(generateJWT.getRefreshToken.calledOnce).to.be.true;
     });
 
     it('異常情境：手機號碼已註冊應拋出409錯誤', async () => {
@@ -386,7 +386,7 @@ describe('auth-services Unit Test', () => {
         phone: mockReq.body.phone,
         email: mockReq.body.email
       });
-      sinon.stub(getJWT, 'accessJwtSign').resolves('token');
+      sinon.stub(generateJWT, 'getAccessToken').resolves('token');
       // 模擬發送驗證郵件
       sinon
         .stub(emailVerification, 'sendVerificationEmail')

@@ -75,6 +75,9 @@ const universityServices = {
     const { page, course, universityId, degreeLevelId, engReq, minFee, maxFee, categoryId } =
       req.query;
 
+    // 每頁顯示 10 筆資料
+    const perPage = 10;
+
     const whereConditions = {};
     if (course) whereConditions.name = { [Op.like]: `%${course}%` };
     if (universityId) whereConditions['$University.id$'] = universityId;
@@ -115,8 +118,8 @@ const universityServices = {
         }
       ],
       where: whereConditions,
-      limit: 10,
-      offset: page ? (parseInt(page) - 1) * 10 : 0,
+      limit: perPage,
+      offset: page ? (parseInt(page) - 1) * perPage : 0,
       raw: true,
       nest: true
     });
