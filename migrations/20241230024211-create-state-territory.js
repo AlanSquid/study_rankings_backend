@@ -11,6 +11,9 @@ module.exports = {
       },
       name: {
         type: Sequelize.STRING(50)
+      },
+      chName: {
+        type: Sequelize.STRING(20)
       }
     });
   },

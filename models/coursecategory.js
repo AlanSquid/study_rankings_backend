@@ -13,7 +13,8 @@ module.exports = (sequelize, DataTypes) => {
   }
   CourseCategory.init(
     {
-      name: DataTypes.STRING(50)
+      name: DataTypes.STRING(50),
+      chName: DataTypes.STRING(20)
     },
     {
       sequelize,

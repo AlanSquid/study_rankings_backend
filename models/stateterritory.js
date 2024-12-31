@@ -13,7 +13,8 @@ module.exports = (sequelize, DataTypes) => {
   }
   StateTerritory.init(
     {
-      name: DataTypes.STRING(50)
+      name: DataTypes.STRING(50),
+      chName: DataTypes.STRING(20)
     },
     {
       sequelize,
