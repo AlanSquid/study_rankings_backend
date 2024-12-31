@@ -17,6 +17,14 @@ const comparisonController = {
     } catch (err) {
       next(err);
     }
+  },
+  removeComparison: async (req, res, next) => {
+    try {
+      const comparison = await comparisonServices.removeComparison(req);
+      res.json(formatResponse(comparison));
+    } catch (err) {
+      next(err);
+    }
   }
 };
 

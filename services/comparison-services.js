@@ -69,6 +69,18 @@ const comparisonServices = {
       courseId
     });
     return { success: true, message: 'Course successfully added to comparison' };
+  },
+  removeComparison: async (req) => {
+    const userId = req.user.id;
+    const courseId = req.params.courseId;
+
+    const comparison = await CourseComparison.findOne({
+      where: { userId, courseId }
+    });
+    if (!comparison) throw createError(404, 'Course not found in comparison');
+
+    await comparison.destroy();
+    return { success: true, message: 'Course successfully removed from comparison' };
   }
 };
 
