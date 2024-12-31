@@ -5,7 +5,8 @@ const {
   StateTerritory,
   Course,
   CourseCategory,
-  DegreeLevel
+  DegreeLevel,
+  CourseComparison
 } = require('../models');
 const { Op } = require('sequelize');
 const createError = require('http-errors');
@@ -70,6 +71,7 @@ const universityServices = {
     return { success: true, courseCategories };
   },
   getCourses: async (req) => {
+    const user = req.user || null;
     const { page, course, universityId, degreeLevelId, engReq, minFee, maxFee, categoryId } =
       req.query;
 
@@ -114,9 +116,27 @@ const universityServices = {
       ],
       where: whereConditions,
       limit: 10,
-      offset: page ? (parseInt(page) - 1) * 10 : 0
+      offset: page ? (parseInt(page) - 1) * 10 : 0,
+      raw: true,
+      nest: true
     });
     if (!courses) throw createError(500, 'Database error');
+
+    // 有使用者登入的情況下，查詢使用者的比較清單
+    if (user) {
+      const comparisons = await CourseComparison.findAll({
+        where: { userId: user.id },
+        attributes: ['courseId'],
+        raw: true
+      });
+      const comparisonCourses = comparisons.map((comparison) => comparison.courseId);
+
+      // 將比較清單的課程標記為已比較
+      courses.forEach((course) => {
+        course.isCompared = comparisonCourses.includes(course.id);
+      });
+    }
+
     return { success: true, courses };
   }
 };

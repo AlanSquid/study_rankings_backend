@@ -4,7 +4,7 @@ const verificationController = require('../../../controllers/verification-contro
 const { emailLimiter, smsLimiter, smsLimiterMax } = require('../../../middlewares/rate-limit');
 const formRules = require('../../../middlewares/form-validator/form-rules');
 const validationHandler = require('../../../middlewares/form-validator/validation-handler');
-const { authenticated } = require('../../../middlewares/auth-middleware');
+const { authenticator } = require('../../../middlewares/auth-middleware');
 
 // 發送手機驗證碼
 router.post(
@@ -18,7 +18,7 @@ router.post(
 // 發送驗證email
 router.post(
   '/email',
-  authenticated,
+  authenticator,
   formRules.sendEmail,
   validationHandler,
   emailLimiter,

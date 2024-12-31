@@ -7,7 +7,8 @@ const {
   StateTerritory,
   Course,
   CourseCategory,
-  DegreeLevel
+  DegreeLevel,
+  CourseComparison
 } = require('../../models');
 const { Op } = require('sequelize');
 const universityServices = require('../../services/university-services');
@@ -247,9 +248,63 @@ describe('university-services Unit Test', () => {
             '$CourseCategory.id$': req.query.categoryId
           },
           limit: 10,
-          offset: (req.query.page - 1) * 10
+          offset: (req.query.page - 1) * 10,
+          raw: true,
+          nest: true
         })
       ).to.be.true;
+    });
+
+    it('使用者登入情況:應回傳包含使用者比較清單的課程資料', async () => {
+      const req = {
+        user: { id: 1 },
+        query: {
+          page: 1,
+          course: 'Course A',
+          universityId: 1,
+          degreeLevelId: 1,
+          engReq: 5,
+          minFee: 1000,
+          maxFee: 5000,
+          categoryId: 1
+        }
+      };
+
+      const mockCourses = [
+        {
+          id: 1,
+          name: 'Course A',
+          currencyId: 'USD',
+          minFee: 1000,
+          maxFee: 5000,
+          engReq: 5,
+          engReqInfo: 'TOEFL',
+          duration: '4 years',
+          location: 'Campus A',
+          courseUrl: 'http://courseA.com',
+          engReqUrl: 'http://engReqA.com',
+          acadReqUrl: 'http://acadReqA.com',
+          feeDetailUrl: 'http://feeDetailA.com',
+          University: { id: 1, name: 'University A', chName: '大學A', emblemPic: 'emblemA.png' },
+          DegreeLevel: { id: 1, name: 'Bachelor' },
+          CourseCategory: { id: 1, name: 'Category A' },
+          isCompared: true
+        }
+      ];
+
+      const mockComparisons = [{ courseId: 1 }];
+
+      sinon.stub(Course, 'findAll').resolves(mockCourses);
+      sinon.stub(CourseComparison, 'findAll').resolves(mockComparisons);
+
+      const data = await universityServices.getCourses(req);
+
+      expect(data.success).to.be.true;
+      expect(data.courses).to.deep.equal(mockCourses);
+      expect(data.courses[0].isCompared).to.be.true;
+
+      Course.findAll.restore();
+      CourseComparison.findAll.restore();
     });
 
     it('異常情境：資料庫錯誤應拋出500錯誤', async () => {
