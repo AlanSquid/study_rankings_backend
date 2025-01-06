@@ -86,7 +86,24 @@ const universityServices = {
     if (minFee) whereConditions.minFee = { [Op.gte]: minFee };
     if (maxFee) whereConditions.maxFee = { [Op.lte]: maxFee };
     if (categoryId) whereConditions['$CourseCategory.id$'] = categoryId;
+    // 計算符合條件的總資料數
+    const totalCount = await Course.count({
+      where: whereConditions,
+      include: [
+        {
+          model: University
+        },
+        {
+          model: DegreeLevel
+        },
+        {
+          model: CourseCategory
+        }
+      ]
+    });
 
+    // 計算總頁數
+    const totalPages = Math.ceil(totalCount / perPage);
     const courses = await Course.findAll({
       attributes: [
         'id',
@@ -140,7 +157,7 @@ const universityServices = {
       });
     }
 
-    return { success: true, courses };
+    return { success: true, courses, totalPages };
   }
 };
 
