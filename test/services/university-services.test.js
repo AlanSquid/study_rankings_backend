@@ -211,9 +211,11 @@ describe('university-services Unit Test', () => {
       ];
 
       sinon.stub(Course, 'findAll').resolves(mockCourses);
+      sinon.stub(Course, 'count').resolves(10);
 
       const data = await universityServices.getCourses(req);
 
+      expect(data.totalPages).to.equal(1);
       expect(data.success).to.be.true;
       expect(data.courses).to.deep.equal(mockCourses);
       expect(
@@ -296,9 +298,11 @@ describe('university-services Unit Test', () => {
 
       sinon.stub(Course, 'findAll').resolves(mockCourses);
       sinon.stub(CourseComparison, 'findAll').resolves(mockComparisons);
+      sinon.stub(Course, 'count').resolves(10);
 
       const data = await universityServices.getCourses(req);
 
+      expect(data.totalPages).to.equal(1);
       expect(data.success).to.be.true;
       expect(data.courses).to.deep.equal(mockCourses);
       expect(data.courses[0].isCompared).to.be.true;
@@ -322,6 +326,7 @@ describe('university-services Unit Test', () => {
       };
 
       sinon.stub(Course, 'findAll').throws(createError(500, 'Database error'));
+      sinon.stub(Course, 'count').resolves(10);
 
       try {
         await universityServices.getCourses(req);
