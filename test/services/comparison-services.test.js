@@ -36,7 +36,6 @@ describe('comparison-services Unit Test', () => {
       const data = await comparisonServices.getComparisons(req);
 
       expect(data.success).to.be.true;
-      expect(data.comparisonCount).to.equal(mockCourses.length);
       expect(data.courses).to.deep.equal([
         {
           id: 1,
@@ -87,7 +86,6 @@ describe('comparison-services Unit Test', () => {
       const data = await comparisonServices.addComparison(req);
 
       expect(data.success).to.be.true;
-      expect(data.comparisonCount).to.equal(6);
       expect(data.message).to.equal('Course successfully added to comparison');
     });
 
@@ -148,12 +146,10 @@ describe('comparison-services Unit Test', () => {
       const mockComparison = { destroy: sinon.stub().resolves() };
 
       sinon.stub(CourseComparison, 'findOne').resolves(mockComparison);
-      sinon.stub(helper, 'getComparisonCount').resolves(5);
 
       const data = await comparisonServices.removeComparison(req);
 
       expect(data.success).to.be.true;
-      expect(data.comparisonCount).to.equal(5);
       expect(data.message).to.equal('Course successfully removed from comparison');
     });
 

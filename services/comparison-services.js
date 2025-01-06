@@ -51,9 +51,7 @@ const comparisonServices = {
       return course;
     });
 
-    const comparisonCount = courses.length;
-
-    return { success: true, comparisonCount, courses };
+    return { success: true, courses };
   },
   addComparison: async (req) => {
     const userId = req.user.id;
@@ -78,7 +76,6 @@ const comparisonServices = {
 
     return {
       success: true,
-      comparisonCount: comparisonCount + 1,
       message: 'Course successfully added to comparison'
     };
   },
@@ -92,11 +89,9 @@ const comparisonServices = {
     if (!comparison) throw createError(404, 'Course not found in comparison');
 
     await comparison.destroy();
-    const comparisonCount = await helper.getComparisonCount(userId);
 
     return {
       success: true,
-      comparisonCount,
       message: 'Course successfully removed from comparison'
     };
   }
