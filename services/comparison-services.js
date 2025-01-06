@@ -67,7 +67,7 @@ const comparisonServices = {
 
     // 比較清單上限為10
     const comparisonCount = await helper.getComparisonCount(userId);
-    if (comparisonCount > 10) throw createError(400, 'Comparison limit exceeded');
+    if (comparisonCount >= 10) throw createError(400, 'Comparison limit exceeded');
 
     await CourseComparison.create({
       userId,

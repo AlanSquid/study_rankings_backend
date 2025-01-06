@@ -41,6 +41,30 @@ const userController = {
     } catch (err) {
       next(err);
     }
+  },
+  getFavorites: async (req, res, next) => {
+    try {
+      const data = await userServices.getFavorites(req);
+      res.json(formatResponse(data));
+    } catch (err) {
+      next(err);
+    }
+  },
+  addFavorite: async (req, res, next) => {
+    try {
+      const data = await userServices.addFavorite(req);
+      res.json(formatResponse(data));
+    } catch (err) {
+      next(err);
+    }
+  },
+  deleteFavorite: async (req, res, next) => {
+    try {
+      const data = await userServices.deleteFavorite(req);
+      res.json(formatResponse(data));
+    } catch (err) {
+      next(err);
+    }
   }
 };
 

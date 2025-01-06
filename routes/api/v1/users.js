@@ -32,5 +32,11 @@ router.patch(
   validationHandler,
   userController.updateName
 );
+// 獲取favorite
+router.get('/favorites', authenticator, userController.getFavorites);
+// 新增favorite
+router.post('/favorites/:id', authenticator, userController.addFavorite);
+// 刪除favorite
+router.delete('/favorites/:id', authenticator, userController.deleteFavorite);
 
 module.exports = router;

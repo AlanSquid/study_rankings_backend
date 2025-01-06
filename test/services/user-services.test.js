@@ -1,6 +1,13 @@
 const { expect } = require('chai');
 const sinon = require('sinon');
-const { User, Verification } = require('../../models');
+const {
+  User,
+  Verification,
+  Course,
+  CourseFavorite,
+  University,
+  UniversityRank
+} = require('../../models');
 const userServices = require('../../services/user-services');
 const bcrypt = require('bcryptjs');
 const loginAttemptManager = require('../../lib/login-attempt');
@@ -320,6 +327,167 @@ describe('user-services Unit Test', () => {
       } catch (error) {
         expect(error.status).to.equal(404);
         expect(error.message).to.equal('User not found');
+      }
+    });
+  });
+
+  describe('getFavorites', () => {
+    afterEach(() => {
+      sinon.restore();
+    });
+
+    it('正常情境：應回傳使用者收藏的課程', async () => {
+      const req = {
+        user: { id: 1 }
+      };
+
+      const mockCourses = [
+        {
+          id: 1,
+          name: 'Course 1',
+          minFee: 1000,
+          maxFee: 2000,
+          engReq: 'IELTS 6.5',
+          engReqInfo: 'Minimum IELTS score of 6.5',
+          duration: '1 year',
+          location: 'Location 1',
+          University: {
+            name: 'University 1',
+            emblemPic: 'emblem1.png',
+            rank: 1
+          }
+        }
+      ];
+
+      sinon.stub(Course, 'findAll').resolves(mockCourses);
+
+      const data = await userServices.getFavorites(req);
+
+      expect(data.success).to.be.true;
+      expect(data.courses).to.deep.equal(mockCourses);
+    });
+
+    it('異常情境：使用者沒有收藏的課程', async () => {
+      const req = {
+        user: { id: 1 }
+      };
+
+      sinon.stub(Course, 'findAll').resolves([]);
+
+      const data = await userServices.getFavorites(req);
+
+      expect(data.success).to.be.true;
+      expect(data.courses).to.deep.equal([]);
+    });
+  });
+
+  describe('addFavorite', () => {
+    afterEach(() => {
+      sinon.restore();
+    });
+
+    it('正常情境：應成功新增收藏課程', async () => {
+      const req = {
+        user: { id: 1 },
+        params: { courseId: 1 }
+      };
+
+      const mockCourse = {
+        id: 1,
+        name: 'Course 1'
+      };
+
+      sinon.stub(Course, 'findByPk').resolves(mockCourse);
+      sinon.stub(CourseFavorite, 'findOne').resolves(null);
+      sinon.stub(CourseFavorite, 'create').resolves();
+
+      const data = await userServices.addFavorite(req);
+
+      expect(data.success).to.be.true;
+      expect(data.message).to.equal('Course successfully added to favorite');
+    });
+
+    it('異常情境：課程不存在時應拋出404錯誤', async () => {
+      const req = {
+        user: { id: 1 },
+        params: { courseId: 999 }
+      };
+
+      sinon.stub(Course, 'findByPk').resolves(null);
+
+      try {
+        await userServices.addFavorite(req);
+        expect.fail('預期應拋出 404 Course not found 錯誤，但沒有拋出任何錯誤');
+      } catch (error) {
+        expect(error.status).to.equal(404);
+        expect(error.message).to.equal('Course not found');
+      }
+    });
+
+    it('異常情境：課程已存在於收藏時應拋出409錯誤', async () => {
+      const req = {
+        user: { id: 1 },
+        params: { courseId: 1 }
+      };
+
+      const mockFavorite = {
+        userId: 1,
+        courseId: 1
+      };
+
+      sinon.stub(Course, 'findByPk').resolves(mockFavorite);
+      sinon.stub(CourseFavorite, 'findOne').resolves(mockFavorite);
+
+      try {
+        await userServices.addFavorite(req);
+        expect.fail('預期應拋出 409 Course already exists in favorite 錯誤，但沒有拋出任何錯誤');
+      } catch (error) {
+        expect(error.status).to.equal(409);
+        expect(error.message).to.equal('Course already exists in favorite');
+      }
+    });
+  });
+
+  describe('deleteFavorite', () => {
+    afterEach(() => {
+      sinon.restore();
+    });
+
+    it('正常情境：應成功刪除收藏課程', async () => {
+      const req = {
+        user: { id: 1 },
+        params: { courseId: 1 }
+      };
+
+      const mockFavorite = {
+        userId: 1,
+        courseId: 1,
+        destroy: sinon.stub().resolves()
+      };
+
+      sinon.stub(CourseFavorite, 'findOne').resolves(mockFavorite);
+
+      const data = await userServices.deleteFavorite(req);
+
+      expect(data.success).to.be.true;
+      expect(data.message).to.equal('Course successfully removed from favorite');
+      expect(mockFavorite.destroy.called).to.be.true;
+    });
+
+    it('異常情境：課程不存在於收藏時應拋出404錯誤', async () => {
+      const req = {
+        user: { id: 1 },
+        params: { courseId: 999 }
+      };
+
+      sinon.stub(CourseFavorite, 'findOne').resolves(null);
+
+      try {
+        await userServices.deleteFavorite(req);
+        expect.fail('預期應拋出 404 Course not found in comparison 錯誤，但沒有拋出任何錯誤');
+      } catch (error) {
+        expect(error.status).to.equal(404);
+        expect(error.message).to.equal('Course not found in comparison');
       }
     });
   });

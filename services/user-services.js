@@ -1,4 +1,11 @@
-const { User, Verification } = require('../models');
+const {
+  User,
+  Verification,
+  Course,
+  CourseFavorite,
+  University,
+  UniversityRank
+} = require('../models');
 const { Op } = require('sequelize');
 const createError = require('http-errors');
 const bcrypt = require('bcryptjs');
@@ -95,6 +102,94 @@ const userServices = {
     await user.save();
 
     return { success: true, message: 'Name updated' };
+  },
+  getFavorites: async (req) => {
+    const userId = req.user.id;
+    const coursesRaw = await Course.findAll({
+      attributes: [
+        'id',
+        'name',
+        'minFee',
+        'maxFee',
+        'engReq',
+        'engReqInfo',
+        'duration',
+        'location'
+      ],
+      include: [
+        {
+          model: CourseFavorite,
+          where: { userId },
+          attributes: []
+        },
+        {
+          model: University,
+          attributes: ['name', 'emblemPic'],
+          include: [
+            {
+              model: UniversityRank,
+              attributes: ['rank']
+            }
+          ]
+        }
+      ],
+      raw: true,
+      nest: true
+    });
+    // 簡化巢狀結構，將 UniversityRank 的 rank 放到 University 的屬性中
+    const courses = coursesRaw.map((course) => {
+      if (course.University && course.University.UniversityRank) {
+        const { UniversityRank, ...universityWithoutRank } = course.University;
+        return {
+          ...course,
+          University: {
+            ...universityWithoutRank,
+            rank: UniversityRank.rank
+          }
+        };
+      }
+      return course;
+    });
+
+    return { success: true, courses };
+  },
+  addFavorite: async (req) => {
+    const userId = req.user.id;
+    const courseId = req.params.courseId;
+
+    const course = await Course.findByPk(courseId);
+    if (!course) throw createError(404, 'Course not found');
+
+    const favorite = await CourseFavorite.findOne({
+      where: { userId, courseId }
+    });
+    if (favorite) throw createError(409, 'Course already exists in favorite');
+
+    await CourseFavorite.create({
+      userId,
+      courseId
+    });
+
+    return {
+      success: true,
+      message: 'Course successfully added to favorite'
+    };
+  },
+  deleteFavorite: async (req) => {
+    const userId = req.user.id;
+    const courseId = req.params.courseId;
+
+    const favorite = await CourseFavorite.findOne({
+      where: { userId, courseId }
+    });
+    if (!favorite) throw createError(404, 'Course not found in comparison');
+
+    await favorite.destroy();
+
+    return {
+      success: true,
+      message: 'Course successfully removed from favorite'
+    };
   }
 };
 
