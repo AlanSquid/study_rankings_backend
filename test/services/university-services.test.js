@@ -8,7 +8,8 @@ const {
   Course,
   CourseCategory,
   DegreeLevel,
-  CourseComparison
+  CourseComparison,
+  CourseFavorite
 } = require('../../models');
 const { Op } = require('sequelize');
 const universityServices = require('../../services/university-services');
@@ -257,7 +258,7 @@ describe('university-services Unit Test', () => {
       ).to.be.true;
     });
 
-    it('使用者登入情況:應回傳包含使用者比較清單的課程資料', async () => {
+    it('使用者登入情況:應回傳包含isCompared跟isFavorited的課程資料', async () => {
       const req = {
         user: { id: 1 },
         query: {
@@ -290,14 +291,17 @@ describe('university-services Unit Test', () => {
           University: { id: 1, name: 'University A', chName: '大學A', emblemPic: 'emblemA.png' },
           DegreeLevel: { id: 1, name: 'Bachelor' },
           CourseCategory: { id: 1, name: 'Category A' },
-          isCompared: true
+          isCompared: true,
+          isFavorited: true
         }
       ];
 
       const mockComparisons = [{ courseId: 1 }];
+      const mockFavorites = [{ courseId: 1 }];
 
       sinon.stub(Course, 'findAll').resolves(mockCourses);
       sinon.stub(CourseComparison, 'findAll').resolves(mockComparisons);
+      sinon.stub(CourseFavorite, 'findAll').resolves(mockFavorites);
       sinon.stub(Course, 'count').resolves(10);
 
       const data = await universityServices.getCourses(req);
@@ -306,6 +310,7 @@ describe('university-services Unit Test', () => {
       expect(data.success).to.be.true;
       expect(data.courses).to.deep.equal(mockCourses);
       expect(data.courses[0].isCompared).to.be.true;
+      expect(data.courses[0].isFavorited).to.be.true;
 
       Course.findAll.restore();
       CourseComparison.findAll.restore();

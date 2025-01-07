@@ -6,7 +6,8 @@ const {
   Course,
   CourseCategory,
   DegreeLevel,
-  CourseComparison
+  CourseComparison,
+  CourseFavorite
 } = require('../models');
 const { Op } = require('sequelize');
 const createError = require('http-errors');
@@ -135,18 +136,29 @@ const universityServices = {
     });
     if (!courses) throw createError(500, 'Database error');
 
-    // 有使用者登入的情況下，查詢使用者的比較清單
+    // 有使用者登入的情況下，查詢使用者的比較清單跟收藏清單
     if (user) {
       const comparisons = await CourseComparison.findAll({
         where: { userId: user.id },
         attributes: ['courseId'],
         raw: true
       });
-      const comparisonCourses = comparisons.map((comparison) => comparison.courseId);
+      const comparisonCourseIdArr = comparisons.map((comparison) => comparison.courseId);
 
-      // 將比較清單的課程標記為已比較
+      const favorites = await CourseFavorite.findAll({
+        where: { userId: user.id },
+        attributes: ['courseId'],
+        raw: true
+      });
+      const favoritesCourseIdArr = favorites.map((favorite) => favorite.courseId);
+
+      // 將課程資料標記是否加入比較
       courses.forEach((course) => {
-        course.isCompared = comparisonCourses.includes(course.id);
+        course.isCompared = comparisonCourseIdArr.includes(course.id);
+      });
+      // 將課程資料標記是否加入收藏
+      courses.forEach((course) => {
+        course.isFavorited = favoritesCourseIdArr.includes(course.id);
       });
     }
 
