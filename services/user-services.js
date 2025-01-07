@@ -106,71 +106,103 @@ const userServices = {
   },
   getFavorites: async (req) => {
     const userId = req.user.id;
-    const coursesRaw = await Course.findAll({
-      attributes: [
-        'id',
-        'name',
-        'minFee',
-        'maxFee',
-        'engReq',
-        'engReqInfo',
-        'duration',
-        'location'
-      ],
+    const page = req.query.page || 1;
+    const perPage = 20;
+
+    // 計算符合條件的總資料數
+    const totalCount = await CourseFavorite.count({
+      where: { userId }
+    });
+
+    // 計算總頁數
+    const totalPages = Math.ceil(totalCount / perPage);
+
+    // 取得收藏課程
+    const favoritesRaw = await CourseFavorite.findAll({
+      where: { userId },
+      attributes: [],
       include: [
         {
-          model: CourseFavorite,
-          where: { userId },
-          attributes: []
-        },
-        {
-          model: University,
-          attributes: ['name', 'emblemPic'],
+          model: Course,
+          attributes: [
+            'id',
+            'name',
+            'minFee',
+            'maxFee',
+            'engReq',
+            'engReqInfo',
+            'duration',
+            'location'
+          ],
           include: [
             {
-              model: UniversityRank,
-              attributes: ['rank']
+              model: University,
+              attributes: ['name', 'emblemPic'],
+              include: [
+                {
+                  model: UniversityRank,
+                  attributes: ['rank']
+                }
+              ]
             }
           ]
         }
       ],
+      order: [['id', 'DESC']],
+      limit: perPage,
+      offset: page ? (parseInt(page) - 1) * perPage : 0,
       raw: true,
       nest: true
     });
+
     // 簡化巢狀結構，將 UniversityRank 的 rank 放到 University 的屬性中
-    const courses = coursesRaw.map((course) => {
-      if (course.University && course.University.UniversityRank) {
-        const { UniversityRank, ...universityWithoutRank } = course.University;
+    function formatFavoriteCourse(favoritesRaw) {
+      const courses = favoritesRaw.map((favorite) => {
+        const { Course } = favorite;
+        if (Course.University && Course.University.UniversityRank) {
+          const { UniversityRank, ...universityWithoutRank } = Course.University;
+          return {
+            ...Course,
+            University: {
+              ...universityWithoutRank,
+              rank: UniversityRank.rank
+            }
+          };
+        }
         return {
-          ...course,
-          University: {
-            ...universityWithoutRank,
-            rank: UniversityRank.rank
-          }
+          ...Course
         };
-      }
-      return course;
-    });
+      });
+      return courses;
+    }
+    const courses = formatFavoriteCourse(favoritesRaw);
 
     // 標記是否加入收藏
     await addExtraProperty.isFavorited(courses, userId);
     // 標記是否加入比較
     await addExtraProperty.isCompared(courses, userId);
 
-    return { success: true, courses };
+    return { success: true, courses, totalPages };
   },
   addFavorite: async (req) => {
     const userId = req.user.id;
     const courseId = req.params.courseId;
 
+    // 檢查課程是否存在
     const course = await Course.findByPk(courseId);
     if (!course) throw createError(404, 'Course not found');
 
+    // 檢查是否已經加入收藏
     const favorite = await CourseFavorite.findOne({
       where: { userId, courseId }
     });
     if (favorite) throw createError(409, 'Course already exists in favorite');
 
+    // 檢查是否超過收藏上限
+    const favoriteCount = await CourseFavorite.count({ where: { userId } });
+    if (favoriteCount > 100) throw createError(400, 'Favorite limit exceeded');
+
+    // 加入收藏
     await CourseFavorite.create({
       userId,
       courseId

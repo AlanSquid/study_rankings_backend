@@ -332,10 +332,31 @@ describe('user-services Unit Test', () => {
 
     it('正常情境：應回傳使用者收藏的課程', async () => {
       const req = {
-        user: { id: 1 }
+        user: { id: 1 },
+        query: { page: 1 }
       };
 
-      const mockCourses = [
+      const mockFavorites = [
+        {
+          Course: {
+            id: 1,
+            name: 'Course 1',
+            minFee: 1000,
+            maxFee: 2000,
+            engReq: 'IELTS 6.5',
+            engReqInfo: 'Minimum IELTS score of 6.5',
+            duration: '1 year',
+            location: 'Location 1',
+            University: {
+              name: 'University 1',
+              emblemPic: 'emblem1.png',
+              UniversityRank: { rank: 1 }
+            }
+          }
+        }
+      ];
+
+      const formatFavorites = [
         {
           id: 1,
           name: 'Course 1',
@@ -353,24 +374,56 @@ describe('user-services Unit Test', () => {
         }
       ];
 
-      sinon.stub(Course, 'findAll').resolves(mockCourses);
-      sinon.stub(addExtraProperty, 'isFavorited').resolves({});
-      sinon.stub(addExtraProperty, 'isCompared').resolves({});
+      const expectedCourses = [
+        {
+          id: 1,
+          name: 'Course 1',
+          minFee: 1000,
+          maxFee: 2000,
+          engReq: 'IELTS 6.5',
+          engReqInfo: 'Minimum IELTS score of 6.5',
+          duration: '1 year',
+          location: 'Location 1',
+          University: {
+            name: 'University 1',
+            emblemPic: 'emblem1.png',
+            rank: 1
+          },
+          isFavorited: true,
+          isCompared: false
+        }
+      ];
+
+      sinon.stub(CourseFavorite, 'count').resolves(1);
+      sinon.stub(CourseFavorite, 'findAll').resolves(mockFavorites);
+      sinon.stub(addExtraProperty, 'isFavorited').callsFake((courses, userId) => {
+        courses.forEach((course) => {
+          course.isFavorited = true;
+        });
+      });
+      sinon.stub(addExtraProperty, 'isCompared').callsFake((courses, userId) => {
+        courses.forEach((course) => {
+          course.isCompared = false;
+        });
+      });
 
       const data = await userServices.getFavorites(req);
 
       expect(data.success).to.be.true;
-      expect(data.courses).to.deep.equal(mockCourses);
+      expect(data.courses).to.deep.equal(expectedCourses);
+      expect(data.totalPages).to.equal(1);
       expect(addExtraProperty.isCompared.calledOnce).to.be.true;
       expect(addExtraProperty.isFavorited.calledOnce).to.be.true;
     });
 
     it('異常情境：使用者沒有收藏的課程', async () => {
       const req = {
-        user: { id: 1 }
+        user: { id: 1 },
+        query: { page: 1 }
       };
 
-      sinon.stub(Course, 'findAll').resolves([]);
+      sinon.stub(CourseFavorite, 'count').resolves(0);
+      sinon.stub(CourseFavorite, 'findAll').resolves([]);
       sinon.stub(addExtraProperty, 'isFavorited').resolves({});
       sinon.stub(addExtraProperty, 'isCompared').resolves({});
 
@@ -378,6 +431,27 @@ describe('user-services Unit Test', () => {
 
       expect(data.success).to.be.true;
       expect(data.courses).to.deep.equal([]);
+      expect(data.totalPages).to.equal(0);
+      expect(addExtraProperty.isCompared.calledOnce).to.be.true;
+      expect(addExtraProperty.isFavorited.calledOnce).to.be.true;
+    });
+
+    it('異常情境：頁數超過總頁數', async () => {
+      const req = {
+        user: { id: 1 },
+        query: { page: 2 }
+      };
+
+      sinon.stub(CourseFavorite, 'count').resolves(1);
+      sinon.stub(CourseFavorite, 'findAll').resolves([]);
+      sinon.stub(addExtraProperty, 'isFavorited').resolves({});
+      sinon.stub(addExtraProperty, 'isCompared').resolves({});
+
+      const data = await userServices.getFavorites(req);
+
+      expect(data.success).to.be.true;
+      expect(data.courses).to.deep.equal([]);
+      expect(data.totalPages).to.equal(1);
       expect(addExtraProperty.isCompared.calledOnce).to.be.true;
       expect(addExtraProperty.isFavorited.calledOnce).to.be.true;
     });
@@ -401,6 +475,7 @@ describe('user-services Unit Test', () => {
 
       sinon.stub(Course, 'findByPk').resolves(mockCourse);
       sinon.stub(CourseFavorite, 'findOne').resolves(null);
+      sinon.stub(CourseFavorite, 'count').resolves(1);
       sinon.stub(CourseFavorite, 'create').resolves();
 
       const data = await userServices.addFavorite(req);
@@ -446,6 +521,30 @@ describe('user-services Unit Test', () => {
       } catch (error) {
         expect(error.status).to.equal(409);
         expect(error.message).to.equal('Course already exists in favorite');
+      }
+    });
+
+    it('異常情境：收藏數量超過上限時應拋出400錯誤', async () => {
+      const req = {
+        user: { id: 1 },
+        params: { courseId: 1 }
+      };
+
+      const mockFavorite = {
+        userId: 1,
+        courseId: 1
+      };
+
+      sinon.stub(Course, 'findByPk').resolves(mockFavorite);
+      sinon.stub(CourseFavorite, 'findOne').resolves(null);
+      sinon.stub(CourseFavorite, 'count').resolves(101);
+
+      try {
+        await userServices.addFavorite(req);
+        expect.fail('預期應拋出 400 Favorite limit exceeded 錯誤，但沒有拋出任何錯誤');
+      } catch (error) {
+        expect(error.status).to.equal(400);
+        expect(error.message).to.equal('Favorite limit exceeded');
       }
     });
   });
