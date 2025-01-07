@@ -35,8 +35,8 @@ router.patch(
 // 獲取favorite
 router.get('/favorites', authenticator, userController.getFavorites);
 // 新增favorite
-router.post('/favorites/:id', authenticator, userController.addFavorite);
+router.post('/favorites/:courseId', authenticator, userController.addFavorite);
 // 刪除favorite
-router.delete('/favorites/:id', authenticator, userController.deleteFavorite);
+router.delete('/favorites/:courseId', authenticator, userController.deleteFavorite);
 
 module.exports = router;
