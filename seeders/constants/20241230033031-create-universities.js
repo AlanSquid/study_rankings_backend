@@ -170,14 +170,14 @@ module.exports = {
       {
         name: 'Flinders University',
         ch_name: '弗林德斯大學',
-        emblem_pic: '/images/universities/emblems/flinders.webp',
+        emblem_pic: '/images/universities/emblems/flinders.jpg',
         university_group_id: 3,
         state_territory_id: 5
       },
       {
         name: 'Torrens University Australia',
         ch_name: '澳洲托倫斯大學',
-        emblem_pic: '/images/universities/emblems/torrens.webp',
+        emblem_pic: '/images/universities/emblems/torrens.jpg',
         state_territory_id: 5
       },
       {
@@ -254,7 +254,7 @@ module.exports = {
       {
         name: 'Curtin University',
         ch_name: '科廷大學',
-        emblem_pic: '/images/universities/emblems/curtin.webp',
+        emblem_pic: '/images/universities/emblems/curtin.jpg',
         university_group_id: 2,
         state_territory_id: 8
       },
