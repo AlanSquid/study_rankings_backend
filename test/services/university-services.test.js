@@ -12,6 +12,7 @@ const {
   CourseFavorite
 } = require('../../models');
 const { Op } = require('sequelize');
+const addExtraProperty = require('../../lib/utils/addExtraProperty');
 const universityServices = require('../../services/university-services');
 const createError = require('http-errors');
 
@@ -176,6 +177,10 @@ describe('university-services Unit Test', () => {
   });
 
   describe('getCourses', () => {
+    afterEach(() => {
+      sinon.restore();
+    });
+
     it('應回傳課程資料', async () => {
       const req = {
         query: {
@@ -296,12 +301,9 @@ describe('university-services Unit Test', () => {
         }
       ];
 
-      const mockComparisons = [{ courseId: 1 }];
-      const mockFavorites = [{ courseId: 1 }];
-
       sinon.stub(Course, 'findAll').resolves(mockCourses);
-      sinon.stub(CourseComparison, 'findAll').resolves(mockComparisons);
-      sinon.stub(CourseFavorite, 'findAll').resolves(mockFavorites);
+      sinon.stub(addExtraProperty, 'isCompared').resolves({});
+      sinon.stub(addExtraProperty, 'isFavorited').resolves({});
       sinon.stub(Course, 'count').resolves(10);
 
       const data = await universityServices.getCourses(req);
@@ -311,9 +313,8 @@ describe('university-services Unit Test', () => {
       expect(data.courses).to.deep.equal(mockCourses);
       expect(data.courses[0].isCompared).to.be.true;
       expect(data.courses[0].isFavorited).to.be.true;
-
-      Course.findAll.restore();
-      CourseComparison.findAll.restore();
+      expect(addExtraProperty.isCompared.calledOnce).to.be.true;
+      expect(addExtraProperty.isFavorited.calledOnce).to.be.true;
     });
 
     it('異常情境：資料庫錯誤應拋出500錯誤', async () => {

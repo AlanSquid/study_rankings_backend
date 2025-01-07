@@ -1,16 +1,10 @@
 const { expect } = require('chai');
 const sinon = require('sinon');
-const {
-  User,
-  Verification,
-  Course,
-  CourseFavorite,
-  University,
-  UniversityRank
-} = require('../../models');
+const { User, Verification, Course, CourseFavorite } = require('../../models');
 const userServices = require('../../services/user-services');
 const bcrypt = require('bcryptjs');
 const loginAttemptManager = require('../../lib/login-attempt');
+const addExtraProperty = require('../../lib/utils/addExtraProperty');
 
 describe('user-services Unit Test', () => {
   describe('getUser', () => {
@@ -360,11 +354,15 @@ describe('user-services Unit Test', () => {
       ];
 
       sinon.stub(Course, 'findAll').resolves(mockCourses);
+      sinon.stub(addExtraProperty, 'isFavorited').resolves({});
+      sinon.stub(addExtraProperty, 'isCompared').resolves({});
 
       const data = await userServices.getFavorites(req);
 
       expect(data.success).to.be.true;
       expect(data.courses).to.deep.equal(mockCourses);
+      expect(addExtraProperty.isCompared.calledOnce).to.be.true;
+      expect(addExtraProperty.isFavorited.calledOnce).to.be.true;
     });
 
     it('異常情境：使用者沒有收藏的課程', async () => {
@@ -373,11 +371,15 @@ describe('user-services Unit Test', () => {
       };
 
       sinon.stub(Course, 'findAll').resolves([]);
+      sinon.stub(addExtraProperty, 'isFavorited').resolves({});
+      sinon.stub(addExtraProperty, 'isCompared').resolves({});
 
       const data = await userServices.getFavorites(req);
 
       expect(data.success).to.be.true;
       expect(data.courses).to.deep.equal([]);
+      expect(addExtraProperty.isCompared.calledOnce).to.be.true;
+      expect(addExtraProperty.isFavorited.calledOnce).to.be.true;
     });
   });
 

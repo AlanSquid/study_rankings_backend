@@ -5,11 +5,10 @@ const {
   StateTerritory,
   Course,
   CourseCategory,
-  DegreeLevel,
-  CourseComparison,
-  CourseFavorite
+  DegreeLevel
 } = require('../models');
 const { Op } = require('sequelize');
+const addExtraProperty = require('../lib/utils/addExtraProperty');
 const createError = require('http-errors');
 
 const universityServices = {
@@ -138,28 +137,8 @@ const universityServices = {
 
     // 有使用者登入的情況下，查詢使用者的比較清單跟收藏清單
     if (user) {
-      const comparisons = await CourseComparison.findAll({
-        where: { userId: user.id },
-        attributes: ['courseId'],
-        raw: true
-      });
-      const comparisonCourseIdArr = comparisons.map((comparison) => comparison.courseId);
-
-      const favorites = await CourseFavorite.findAll({
-        where: { userId: user.id },
-        attributes: ['courseId'],
-        raw: true
-      });
-      const favoritesCourseIdArr = favorites.map((favorite) => favorite.courseId);
-
-      // 將課程資料標記是否加入比較
-      courses.forEach((course) => {
-        course.isCompared = comparisonCourseIdArr.includes(course.id);
-      });
-      // 將課程資料標記是否加入收藏
-      courses.forEach((course) => {
-        course.isFavorited = favoritesCourseIdArr.includes(course.id);
-      });
+      await addExtraProperty.isCompared(courses, user.id);
+      await addExtraProperty.isFavorited(courses, user.id);
     }
 
     return { success: true, courses, totalPages, isAuthenticated };

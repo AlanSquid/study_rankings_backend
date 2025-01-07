@@ -10,6 +10,7 @@ const { Op } = require('sequelize');
 const createError = require('http-errors');
 const bcrypt = require('bcryptjs');
 const loginAttemptManager = require('../lib/login-attempt');
+const addExtraProperty = require('../lib/utils/addExtraProperty');
 
 const userServices = {
   getUser: async (req) => {
@@ -150,6 +151,11 @@ const userServices = {
       }
       return course;
     });
+
+    // 標記是否加入收藏
+    await addExtraProperty.isFavorited(courses, userId);
+    // 標記是否加入比較
+    await addExtraProperty.isCompared(courses, userId);
 
     return { success: true, courses };
   },
