@@ -34,7 +34,7 @@ module.exports = {
       {
         name: 'Macquarie University',
         ch_name: '麥覺理大學',
-        emblem_pic: '/images/universities/emblems/mq.webp',
+        emblem_pic: '/images/universities/emblems/mq.jpg',
         state_territory_id: 2
       },
       {
