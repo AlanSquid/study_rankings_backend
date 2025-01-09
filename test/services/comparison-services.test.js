@@ -22,7 +22,7 @@ describe('comparison-services Unit Test', () => {
           engReq: 6.5,
           engReqInfo: 'IELTS 6.5',
           duration: 2,
-          location: 'Location 1',
+          campus: 'Campus 1',
           University: {
             name: 'University 1',
             emblemPic: 'pic1.jpg',
@@ -45,7 +45,7 @@ describe('comparison-services Unit Test', () => {
           engReq: 6.5,
           engReqInfo: 'IELTS 6.5',
           duration: 2,
-          location: 'Location 1',
+          campus: 'Campus 1',
           University: {
             name: 'University 1',
             emblemPic: 'pic1.jpg',

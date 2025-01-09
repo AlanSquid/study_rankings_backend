@@ -132,7 +132,7 @@ const userServices = {
             'engReq',
             'engReqInfo',
             'duration',
-            'location'
+            'campus'
           ],
           include: [
             {

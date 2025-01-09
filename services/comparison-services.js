@@ -6,16 +6,7 @@ const comparisonServices = {
   getComparisons: async (req) => {
     const userId = req.user.id;
     const coursesRaw = await Course.findAll({
-      attributes: [
-        'id',
-        'name',
-        'minFee',
-        'maxFee',
-        'engReq',
-        'engReqInfo',
-        'duration',
-        'location'
-      ],
+      attributes: ['id', 'name', 'minFee', 'maxFee', 'engReq', 'engReqInfo', 'duration', 'campus'],
       include: [
         {
           model: CourseComparison,

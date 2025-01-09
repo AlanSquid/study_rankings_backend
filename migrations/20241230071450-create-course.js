@@ -66,7 +66,7 @@ module.exports = {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      location: {
+      campus: {
         allowNull: false,
         type: Sequelize.STRING(50)
       },

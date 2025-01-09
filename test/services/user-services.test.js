@@ -346,7 +346,7 @@ describe('user-services Unit Test', () => {
             engReq: 'IELTS 6.5',
             engReqInfo: 'Minimum IELTS score of 6.5',
             duration: '1 year',
-            location: 'Location 1',
+            campus: 'Campus 1',
             University: {
               name: 'University 1',
               emblemPic: 'emblem1.png',
@@ -365,7 +365,7 @@ describe('user-services Unit Test', () => {
           engReq: 'IELTS 6.5',
           engReqInfo: 'Minimum IELTS score of 6.5',
           duration: '1 year',
-          location: 'Location 1',
+          campus: 'Campus 1',
           University: {
             name: 'University 1',
             emblemPic: 'emblem1.png',
@@ -383,7 +383,7 @@ describe('user-services Unit Test', () => {
           engReq: 'IELTS 6.5',
           engReqInfo: 'Minimum IELTS score of 6.5',
           duration: '1 year',
-          location: 'Location 1',
+          campus: 'Campus 1',
           University: {
             name: 'University 1',
             emblemPic: 'emblem1.png',

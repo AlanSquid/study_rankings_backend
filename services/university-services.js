@@ -107,7 +107,7 @@ const universityServices = {
         'engReq',
         'engReqInfo',
         'duration',
-        'location',
+        'campus',
         'courseUrl',
         'engReqUrl',
         'acadReqUrl',

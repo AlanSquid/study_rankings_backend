@@ -30,7 +30,7 @@ module.exports = {
           eng_req: ieltsScore,
           eng_req_info: `IELTS ${ieltsScore}`,
           duration: Math.floor(Math.random() * 4) + 1,
-          location: 'Campus',
+          campus: 'Campus',
           course_url: 'http://example.com/course',
           eng_req_url: 'http://example.com/eng-req',
           acad_req_url: 'http://example.com/acad-req',

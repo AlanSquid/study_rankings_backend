@@ -38,7 +38,7 @@ module.exports = (sequelize, DataTypes) => {
       engReq: DataTypes.INTEGER,
       engReqInfo: DataTypes.STRING(50),
       duration: DataTypes.INTEGER,
-      location: DataTypes.STRING(50),
+      campus: DataTypes.STRING(50),
       courseUrl: DataTypes.STRING,
       engReqUrl: DataTypes.STRING,
       acadReqUrl: DataTypes.STRING,
