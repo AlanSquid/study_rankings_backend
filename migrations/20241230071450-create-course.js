@@ -51,7 +51,7 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       max_fee: {
-        allowNull: true,
+        allowNull: false,
         type: Sequelize.INTEGER
       },
       eng_req: {

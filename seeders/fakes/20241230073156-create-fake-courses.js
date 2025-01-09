@@ -18,6 +18,8 @@ module.exports = {
           courseCategories[Math.floor(Math.random() * courseCategories.length)];
         const baseScore = Math.floor(Math.random() * 3) + 5;
         const ieltsScore = Math.random() < 0.5 ? baseScore : baseScore + 0.5;
+        const minFee = Math.floor(Math.random() * 20000) + 30000;
+        const maxFee = Math.floor(Math.random() * 10000) + 50000;
 
         courses.push({
           university_id: university.id,
@@ -25,8 +27,8 @@ module.exports = {
           course_category_id: randomCourseCategory.id,
           name: `Course ${i + 1}`,
           currency_id: 1,
-          min_fee: Math.floor(Math.random() * 20000) + 30000,
-          max_fee: Math.random() < 0.8 ? null : 50000,
+          min_fee: minFee,
+          max_fee: Math.random() < 0.8 ? minFee : maxFee,
           eng_req: ieltsScore,
           eng_req_info: `IELTS ${ieltsScore}`,
           duration: Math.floor(Math.random() * 4) + 1,
