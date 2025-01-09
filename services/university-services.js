@@ -1,3 +1,4 @@
+// const sequelize = require('sequelize');
 const {
   University,
   UniversityGroup,
@@ -7,7 +8,7 @@ const {
   CourseCategory,
   DegreeLevel
 } = require('../models');
-const { Op } = require('sequelize');
+const { Op, fn, col, where } = require('sequelize');
 const addExtraProperty = require('../lib/utils/addExtraProperty');
 const createError = require('http-errors');
 
@@ -73,25 +74,54 @@ const universityServices = {
   getCourses: async (req) => {
     const user = req.user || null;
     const isAuthenticated = !!user;
-    const { page, course, universityId, degreeLevelId, engReq, minFee, maxFee, categoryId } =
-      req.query;
+    const {
+      page,
+      course,
+      universityId,
+      degreeLevelId,
+      engReq,
+      minFee,
+      maxFee,
+      categoryId,
+      campus,
+      stateTerritoryId,
+      universityGroupId
+    } = req.query;
 
     // 每頁顯示 10 筆資料
     const perPage = 10;
 
+    // 設定查詢條件
     const whereConditions = {};
-    if (course) whereConditions.name = { [Op.like]: `%${course}%` };
+    if (course)
+      whereConditions.name = where(
+        fn('lower', col('Course.name')),
+        'LIKE',
+        `%${course.toLowerCase()}%`
+      );
     if (universityId) whereConditions['$University.id$'] = universityId;
     if (degreeLevelId) whereConditions['$DegreeLevel.id$'] = degreeLevelId;
     if (engReq) whereConditions.engReq = { [Op.lte]: engReq };
     if (minFee) whereConditions.minFee = { [Op.gte]: minFee };
     if (maxFee) whereConditions.maxFee = { [Op.lte]: maxFee };
     if (categoryId) whereConditions['$CourseCategory.id$'] = categoryId;
+    if (campus)
+      whereConditions.campus = where(
+        fn('lower', col('Course.campus')),
+        'LIKE',
+        `%${campus.toLowerCase()}%`
+      );
+    if (stateTerritoryId) whereConditions['$University.StateTerritory.id$'] = stateTerritoryId;
+    if (universityGroupId) whereConditions['$University.UniversityGroup.id$'] = universityGroupId;
 
     // 計算符合條件的總資料數
     const totalCount = await Course.count({
       where: whereConditions,
-      include: [{ model: University }, { model: DegreeLevel }, { model: CourseCategory }]
+      include: [
+        { model: University, include: [{ model: StateTerritory }, { model: UniversityGroup }] },
+        { model: DegreeLevel },
+        { model: CourseCategory }
+      ]
     });
 
     // 計算總頁數
@@ -116,7 +146,17 @@ const universityServices = {
       include: [
         {
           model: University,
-          attributes: ['id', 'name', 'chName', 'emblemPic']
+          attributes: ['id', 'name', 'chName', 'emblemPic'],
+          include: [
+            {
+              model: StateTerritory,
+              attributes: ['id', 'name']
+            },
+            {
+              model: UniversityGroup,
+              attributes: ['id', 'name']
+            }
+          ]
         },
         {
           model: DegreeLevel,

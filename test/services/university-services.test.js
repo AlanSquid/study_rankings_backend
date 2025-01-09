@@ -11,7 +11,7 @@ const {
   CourseComparison,
   CourseFavorite
 } = require('../../models');
-const { Op } = require('sequelize');
+const { Op, fn, col, where } = require('sequelize');
 const addExtraProperty = require('../../lib/utils/addExtraProperty');
 const universityServices = require('../../services/university-services');
 const createError = require('http-errors');
@@ -191,7 +191,10 @@ describe('university-services Unit Test', () => {
           engReq: 5,
           minFee: 1000,
           maxFee: 5000,
-          categoryId: 1
+          categoryId: 1,
+          campus: 'Campus',
+          stateTerritoryId: 1,
+          universityGroupId: 1
         }
       };
 
@@ -210,7 +213,14 @@ describe('university-services Unit Test', () => {
           engReqUrl: 'http://engReqA.com',
           acadReqUrl: 'http://acadReqA.com',
           feeDetailUrl: 'http://feeDetailA.com',
-          University: { id: 1, name: 'University A', chName: '大學A', emblemPic: 'emblemA.png' },
+          University: {
+            id: 1,
+            name: 'University A',
+            chName: '大學A',
+            emblemPic: 'emblemA.png',
+            StateTerritory: { id: 1, name: 'State A' },
+            UniversityGroup: { id: 1, name: 'Group A' }
+          },
           DegreeLevel: { id: 1, name: 'Bachelor' },
           CourseCategory: { id: 1, name: 'Category A' }
         }
@@ -242,18 +252,42 @@ describe('university-services Unit Test', () => {
             'feeDetailUrl'
           ],
           include: [
-            { model: University, attributes: ['id', 'name', 'chName', 'emblemPic'] },
+            {
+              model: University,
+              attributes: ['id', 'name', 'chName', 'emblemPic'],
+              include: [
+                {
+                  model: StateTerritory,
+                  attributes: ['id', 'name']
+                },
+                {
+                  model: UniversityGroup,
+                  attributes: ['id', 'name']
+                }
+              ]
+            },
             { model: DegreeLevel, attributes: ['id', 'name'] },
             { model: CourseCategory, attributes: ['id', 'name'] }
           ],
           where: {
-            name: { [Op.like]: `%${req.query.course}%` },
+            name: where(
+              fn('lower', col('Course.name')),
+              'LIKE',
+              `%${req.query.course.toLowerCase()}%`
+            ),
             '$University.id$': req.query.universityId,
             '$DegreeLevel.id$': req.query.degreeLevelId,
             engReq: { [Op.lte]: req.query.engReq },
             minFee: { [Op.gte]: req.query.minFee },
             maxFee: { [Op.lte]: req.query.maxFee },
-            '$CourseCategory.id$': req.query.categoryId
+            '$CourseCategory.id$': req.query.categoryId,
+            campus: where(
+              fn('lower', col('Course.campus')),
+              'LIKE',
+              `%${req.query.campus.toLowerCase()}%`
+            ),
+            '$University.StateTerritory.id$': req.query.stateTerritoryId,
+            '$University.UniversityGroup.id$': req.query.universityGroupId
           },
           limit: 10,
           offset: (req.query.page - 1) * 10,
