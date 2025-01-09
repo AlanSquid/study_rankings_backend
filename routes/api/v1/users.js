@@ -8,7 +8,13 @@ const { authenticator } = require('../../../middlewares/auth-middleware');
 // 取得使用者資料
 router.get('/profile', authenticator, userController.getUser);
 // 修改密碼
-router.patch('/profile/password', authenticator, userController.updatePassword);
+router.patch(
+  '/profile/password',
+  authenticator,
+  formRules.updatePassword,
+  validationHandler,
+  userController.updatePassword
+);
 // 重置密碼
 router.patch(
   '/profile/password/reset',
