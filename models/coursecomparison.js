@@ -8,8 +8,8 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      CourseComparison.belongsTo(models.User, { foreignKey: 'userId' });
-      CourseComparison.belongsTo(models.Course, { foreignKey: 'courseId' });
+      CourseComparison.belongsTo(models.User, { foreignKey: 'userId', as: 'user' });
+      CourseComparison.belongsTo(models.Course, { foreignKey: 'courseId', as: 'course' });
     }
   }
   CourseComparison.init(

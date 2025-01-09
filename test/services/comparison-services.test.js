@@ -23,10 +23,10 @@ describe('comparison-services Unit Test', () => {
           engReqInfo: 'IELTS 6.5',
           duration: 2,
           campus: 'Campus 1',
-          University: {
+          university: {
             name: 'University 1',
             emblemPic: 'pic1.jpg',
-            UniversityRank: { rank: '1' }
+            universityRank: { rank: '1' }
           }
         }
       ];
@@ -46,7 +46,7 @@ describe('comparison-services Unit Test', () => {
           engReqInfo: 'IELTS 6.5',
           duration: 2,
           campus: 'Campus 1',
-          University: {
+          university: {
             name: 'University 1',
             emblemPic: 'pic1.jpg',
             rank: '1'

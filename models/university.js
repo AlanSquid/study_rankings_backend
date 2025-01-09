@@ -8,10 +8,19 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      University.belongsTo(models.UniversityGroup, { foreignKey: 'universityGroupId' });
-      University.hasOne(models.UniversityRank, { foreignKey: 'universityId' });
-      University.hasMany(models.Course, { foreignKey: 'universityId' });
-      University.belongsTo(models.StateTerritory, { foreignKey: 'stateTerritoryId' });
+      University.belongsTo(models.UniversityGroup, {
+        foreignKey: 'universityGroupId',
+        as: 'universityGroup'
+      });
+      University.hasOne(models.UniversityRank, {
+        foreignKey: 'universityId',
+        as: 'universityRank'
+      });
+      University.hasMany(models.Course, { foreignKey: 'universityId', as: 'course' });
+      University.belongsTo(models.StateTerritory, {
+        foreignKey: 'stateTerritoryId',
+        as: 'stateTerritory'
+      });
     }
   }
   University.init(

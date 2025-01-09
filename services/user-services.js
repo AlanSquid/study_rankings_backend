@@ -124,6 +124,7 @@ const userServices = {
       include: [
         {
           model: Course,
+          as: 'course',
           attributes: [
             'id',
             'name',
@@ -137,10 +138,12 @@ const userServices = {
           include: [
             {
               model: University,
+              as: 'university',
               attributes: ['name', 'emblemPic'],
               include: [
                 {
                   model: UniversityRank,
+                  as: 'universityRank',
                   attributes: ['rank']
                 }
               ]
@@ -157,23 +160,22 @@ const userServices = {
 
     // 簡化巢狀結構，將 UniversityRank 的 rank 放到 University 的屬性中
     function formatFavoriteCourse(favoritesRaw) {
-      const courses = favoritesRaw.map((favorite) => {
-        const { Course } = favorite;
-        if (Course.University && Course.University.UniversityRank) {
-          const { UniversityRank, ...universityWithoutRank } = Course.University;
+      return favoritesRaw.map(({ course }) => {
+        if (course.university?.universityRank) {
+          const {
+            universityRank: { rank },
+            ...universityWithoutRank
+          } = course.university;
           return {
-            ...Course,
-            University: {
+            ...course,
+            university: {
               ...universityWithoutRank,
-              rank: UniversityRank.rank
+              rank
             }
           };
         }
-        return {
-          ...Course
-        };
+        return course;
       });
-      return courses;
     }
     const courses = formatFavoriteCourse(favoritesRaw);
 

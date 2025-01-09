@@ -9,7 +9,8 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       UniversityRank.belongsTo(models.University, {
-        foreignKey: 'universityId'
+        foreignKey: 'universityId',
+        as: 'university'
       });
     }
   }

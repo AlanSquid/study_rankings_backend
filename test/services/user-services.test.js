@@ -338,7 +338,7 @@ describe('user-services Unit Test', () => {
 
       const mockFavorites = [
         {
-          Course: {
+          course: {
             id: 1,
             name: 'Course 1',
             minFee: 1000,
@@ -347,29 +347,11 @@ describe('user-services Unit Test', () => {
             engReqInfo: 'Minimum IELTS score of 6.5',
             duration: '1 year',
             campus: 'Campus 1',
-            University: {
+            university: {
               name: 'University 1',
               emblemPic: 'emblem1.png',
-              UniversityRank: { rank: 1 }
+              universityRank: { rank: 1 }
             }
-          }
-        }
-      ];
-
-      const formatFavorites = [
-        {
-          id: 1,
-          name: 'Course 1',
-          minFee: 1000,
-          maxFee: 2000,
-          engReq: 'IELTS 6.5',
-          engReqInfo: 'Minimum IELTS score of 6.5',
-          duration: '1 year',
-          campus: 'Campus 1',
-          University: {
-            name: 'University 1',
-            emblemPic: 'emblem1.png',
-            rank: 1
           }
         }
       ];
@@ -384,7 +366,7 @@ describe('user-services Unit Test', () => {
           engReqInfo: 'Minimum IELTS score of 6.5',
           duration: '1 year',
           campus: 'Campus 1',
-          University: {
+          university: {
             name: 'University 1',
             emblemPic: 'emblem1.png',
             rank: 1

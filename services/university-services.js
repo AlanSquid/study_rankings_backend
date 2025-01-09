@@ -26,10 +26,12 @@ const universityServices = {
       include: [
         {
           model: StateTerritory,
+          as: 'stateTerritory',
           attributes: ['id', 'name']
         },
         {
           model: UniversityGroup,
+          as: 'universityGroup',
           attributes: ['id', 'name']
         }
       ],
@@ -45,6 +47,7 @@ const universityServices = {
       include: [
         {
           model: University,
+          as: 'university',
           attributes: ['id', 'name', 'chName', 'emblemPic']
         }
       ],
@@ -110,9 +113,16 @@ const universityServices = {
     const totalCount = await Course.count({
       where: whereConditions,
       include: [
-        { model: University, include: [{ model: StateTerritory }, { model: UniversityGroup }] },
-        { model: DegreeLevel },
-        { model: CourseCategory }
+        {
+          model: University,
+          as: 'university',
+          include: [
+            { model: StateTerritory, as: 'stateTerritory' },
+            { model: UniversityGroup, as: 'universityGroup' }
+          ]
+        },
+        { model: DegreeLevel, as: 'degreeLevel' },
+        { model: CourseCategory, as: 'courseCategory' }
       ]
     });
 
@@ -138,24 +148,29 @@ const universityServices = {
       include: [
         {
           model: University,
+          as: 'university',
           attributes: ['id', 'name', 'chName', 'emblemPic'],
           include: [
             {
               model: StateTerritory,
+              as: 'stateTerritory',
               attributes: ['id', 'name']
             },
             {
               model: UniversityGroup,
+              as: 'universityGroup',
               attributes: ['id', 'name']
             }
           ]
         },
         {
           model: DegreeLevel,
+          as: 'degreeLevel',
           attributes: ['id', 'name']
         },
         {
           model: CourseCategory,
+          as: 'courseCategory',
           attributes: ['id', 'name']
         }
       ],

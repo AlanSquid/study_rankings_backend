@@ -10,7 +10,8 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Verification.belongsTo(models.User, {
         foreignKey: 'userId',
-        onDelete: 'SET NULL'
+        onDelete: 'SET NULL',
+        as: 'user'
       });
     }
   }

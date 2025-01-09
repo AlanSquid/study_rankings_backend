@@ -10,19 +10,22 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       User.hasMany(models.Verification, {
         foreignKey: 'userId',
-        onDelete: 'SET NULL'
+        onDelete: 'SET NULL',
+        as: 'verification'
       });
       User.hasMany(models.CourseComparison, { foreignKey: 'userId' });
       User.belongsToMany(models.Course, {
         through: models.CourseComparison,
         foreignKey: 'userId',
-        otherKey: 'courseId'
+        otherKey: 'courseId',
+        as: 'courseComparison'
       });
-      User.hasMany(models.CourseFavorite, { foreignKey: 'userId' });
+      User.hasMany(models.CourseFavorite, { foreignKey: 'userId', as: 'courseFavorite' });
       User.belongsToMany(models.Course, {
         through: models.CourseFavorite,
         foreignKey: 'userId',
-        otherKey: 'courseId'
+        otherKey: 'courseId',
+        as: 'course'
       });
     }
   }

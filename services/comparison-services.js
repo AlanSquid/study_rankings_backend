@@ -10,15 +10,18 @@ const comparisonServices = {
       include: [
         {
           model: CourseComparison,
+          as: 'courseComparisons',
           where: { userId },
           attributes: []
         },
         {
           model: University,
+          as: 'university',
           attributes: ['name', 'emblemPic'],
           include: [
             {
               model: UniversityRank,
+              as: 'universityRank',
               attributes: ['rank']
             }
           ]
@@ -29,13 +32,16 @@ const comparisonServices = {
     });
     // 簡化巢狀結構，將 UniversityRank 的 rank 放到 University 的屬性中
     const courses = coursesRaw.map((course) => {
-      if (course.University && course.University.UniversityRank) {
-        const { UniversityRank, ...universityWithoutRank } = course.University;
+      if (course.university?.universityRank) {
+        const {
+          universityRank: { rank },
+          ...universityWithoutRank
+        } = course.university;
         return {
           ...course,
-          University: {
+          university: {
             ...universityWithoutRank,
-            rank: UniversityRank.rank
+            rank
           }
         };
       }

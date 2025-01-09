@@ -55,8 +55,16 @@ describe('university-services Unit Test', () => {
           },
           attributes: ['id', 'name', 'chName', 'emblemPic'],
           include: [
-            { model: StateTerritory, attributes: ['id', 'name'] },
-            { model: UniversityGroup, attributes: ['id', 'name'] }
+            {
+              model: StateTerritory,
+              as: 'stateTerritory',
+              attributes: ['id', 'name']
+            },
+            {
+              model: UniversityGroup,
+              as: 'universityGroup',
+              attributes: ['id', 'name']
+            }
           ],
           raw: true,
           nest: true
@@ -95,8 +103,16 @@ describe('university-services Unit Test', () => {
           },
           attributes: ['id', 'name', 'chName', 'emblemPic'],
           include: [
-            { model: StateTerritory, attributes: ['id', 'name'] },
-            { model: UniversityGroup, attributes: ['id', 'name'] }
+            {
+              model: StateTerritory,
+              as: 'stateTerritory',
+              attributes: ['id', 'name']
+            },
+            {
+              model: UniversityGroup,
+              as: 'universityGroup',
+              attributes: ['id', 'name']
+            }
           ],
           raw: true,
           nest: true
@@ -142,7 +158,13 @@ describe('university-services Unit Test', () => {
       expect(
         UniversityRank.findAll.calledWith({
           attributes: ['id', 'rank'],
-          include: [{ model: University, attributes: ['id', 'name', 'chName', 'emblemPic'] }],
+          include: [
+            {
+              model: University,
+              as: 'university',
+              attributes: ['id', 'name', 'chName', 'emblemPic']
+            }
+          ],
           order: [['id', 'ASC']],
           raw: true,
           nest: true
@@ -272,20 +294,31 @@ describe('university-services Unit Test', () => {
           include: [
             {
               model: University,
+              as: 'university',
               attributes: ['id', 'name', 'chName', 'emblemPic'],
               include: [
                 {
                   model: StateTerritory,
+                  as: 'stateTerritory',
                   attributes: ['id', 'name']
                 },
                 {
                   model: UniversityGroup,
+                  as: 'universityGroup',
                   attributes: ['id', 'name']
                 }
               ]
             },
-            { model: DegreeLevel, attributes: ['id', 'name'] },
-            { model: CourseCategory, attributes: ['id', 'name'] }
+            {
+              model: DegreeLevel,
+              as: 'degreeLevel',
+              attributes: ['id', 'name']
+            },
+            {
+              model: CourseCategory,
+              as: 'courseCategory',
+              attributes: ['id', 'name']
+            }
           ],
           where: {
             name: where(
