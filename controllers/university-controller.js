@@ -18,14 +18,6 @@ const universityController = {
       next(err);
     }
   },
-  getStatesTerritories: async (req, res, next) => {
-    try {
-      const data = await universityServices.getStatesTerritories(req);
-      res.json(formatResponse(data));
-    } catch (err) {
-      next(err);
-    }
-  },
   getCourses: async (req, res, next) => {
     try {
       const data = await universityServices.getCourses(req);

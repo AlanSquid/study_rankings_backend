@@ -14,7 +14,14 @@ const createError = require('http-errors');
 
 const universityServices = {
   getUniversities: async (req) => {
+    const { universityGroupId, stateTerritoryId } = req.query;
+
+    const whereConditions = {};
+    if (universityGroupId) whereConditions['$UniversityGroup.id$'] = universityGroupId;
+    if (stateTerritoryId) whereConditions['$StateTerritory.id$'] = stateTerritoryId;
+
     const universities = await University.findAll({
+      where: whereConditions,
       attributes: ['id', 'name', 'chName', 'emblemPic'],
       include: [
         {
@@ -47,21 +54,6 @@ const universityServices = {
     });
     if (!ranks) throw createError(500, 'Database error');
     return { success: true, ranks };
-  },
-  getStatesTerritories: async (req) => {
-    const statesTerritories = await StateTerritory.findAll({
-      attributes: ['id', 'name'],
-      include: [
-        {
-          model: University,
-          attributes: ['id', 'name', 'chName', 'emblemPic']
-        }
-      ],
-      raw: true,
-      nest: true
-    });
-    if (!statesTerritories) throw createError(500, 'Database error');
-    return { success: true, statesTerritories };
   },
   getCourseCategories: async (req) => {
     const courseCategories = await CourseCategory.findAll({

@@ -23,6 +23,13 @@ describe('university-services Unit Test', () => {
 
   describe('getUniversities', () => {
     it('應回傳大學資料', async () => {
+      const req = {
+        query: {
+          universityGroupId: 1,
+          stateTerritoryId: 1
+        }
+      };
+
       const mockUniversities = [
         {
           id: 1,
@@ -36,12 +43,56 @@ describe('university-services Unit Test', () => {
 
       sinon.stub(University, 'findAll').resolves(mockUniversities);
 
-      const data = await universityServices.getUniversities({});
+      const data = await universityServices.getUniversities(req);
 
       expect(data.success).to.be.true;
       expect(data.universities).to.deep.equal(mockUniversities);
       expect(
         University.findAll.calledWith({
+          where: {
+            '$UniversityGroup.id$': 1,
+            '$StateTerritory.id$': 1
+          },
+          attributes: ['id', 'name', 'chName', 'emblemPic'],
+          include: [
+            { model: StateTerritory, attributes: ['id', 'name'] },
+            { model: UniversityGroup, attributes: ['id', 'name'] }
+          ],
+          raw: true,
+          nest: true
+        })
+      ).to.be.true;
+    });
+
+    it('應回傳符合查詢條件的大學資料', async () => {
+      const req = {
+        query: {
+          universityGroupId: 1
+        }
+      };
+
+      const mockUniversities = [
+        {
+          id: 1,
+          name: 'University A',
+          chName: '大學A',
+          emblemPic: 'emblemA.png',
+          StateTerritory: { id: 1, name: 'State A' },
+          UniversityGroup: { id: 1, name: 'Group A' }
+        }
+      ];
+
+      sinon.stub(University, 'findAll').resolves(mockUniversities);
+
+      const data = await universityServices.getUniversities(req);
+
+      expect(data.success).to.be.true;
+      expect(data.universities).to.deep.equal(mockUniversities);
+      expect(
+        University.findAll.calledWith({
+          where: {
+            '$UniversityGroup.id$': 1
+          },
           attributes: ['id', 'name', 'chName', 'emblemPic'],
           include: [
             { model: StateTerritory, attributes: ['id', 'name'] },
@@ -54,10 +105,16 @@ describe('university-services Unit Test', () => {
     });
 
     it('異常情境：資料庫錯誤應拋出500錯誤', async () => {
+      const req = {
+        query: {
+          universityGroupId: 1,
+          stateTerritoryId: 1
+        }
+      };
       sinon.stub(University, 'findAll').throws(createError(500, 'Database error'));
 
       try {
-        await universityServices.getUniversities({});
+        await universityServices.getUniversities(req);
         expect.fail('預期應拋出500錯誤，但沒有拋出任何錯誤');
       } catch (error) {
         expect(error.message).to.equal('Database error');
@@ -97,46 +154,7 @@ describe('university-services Unit Test', () => {
       sinon.stub(UniversityRank, 'findAll').throws(createError(500, 'Database error'));
 
       try {
-        await universityServices.getUniversityRanks({});
-        expect.fail('預期應拋出500錯誤，但沒有拋出任何錯誤');
-      } catch (error) {
-        expect(error.message).to.equal('Database error');
-        expect(error.status).to.equal(500);
-      }
-    });
-  });
-
-  describe('getStatesTerritories', () => {
-    it('應回傳州和領地資料', async () => {
-      const mockStatesTerritories = [
-        {
-          id: 1,
-          name: 'State A',
-          Universities: [{ id: 1, name: 'University A', chName: '大學A', emblemPic: 'emblemA.png' }]
-        }
-      ];
-
-      sinon.stub(StateTerritory, 'findAll').resolves(mockStatesTerritories);
-
-      const data = await universityServices.getStatesTerritories({});
-
-      expect(data.success).to.be.true;
-      expect(data.statesTerritories).to.deep.equal(mockStatesTerritories);
-      expect(
-        StateTerritory.findAll.calledWith({
-          attributes: ['id', 'name'],
-          include: [{ model: University, attributes: ['id', 'name', 'chName', 'emblemPic'] }],
-          raw: true,
-          nest: true
-        })
-      ).to.be.true;
-    });
-
-    it('異常情境：資料庫錯誤應拋出500錯誤', async () => {
-      sinon.stub(StateTerritory, 'findAll').throws(createError(500, 'Database error'));
-
-      try {
-        await universityServices.getStatesTerritories({});
+        await universityServices.getUniversityRanks();
         expect.fail('預期應拋出500錯誤，但沒有拋出任何錯誤');
       } catch (error) {
         expect(error.message).to.equal('Database error');
