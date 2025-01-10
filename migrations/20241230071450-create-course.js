@@ -56,7 +56,7 @@ module.exports = {
       },
       eng_req: {
         allowNull: false,
-        type: Sequelize.DECIMAL(2, 1)
+        type: Sequelize.FLOAT
       },
       eng_req_info: {
         allowNull: false,

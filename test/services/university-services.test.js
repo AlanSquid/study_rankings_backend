@@ -11,7 +11,7 @@ const {
   CourseComparison,
   CourseFavorite
 } = require('../../models');
-const { Op, fn, col, where } = require('sequelize');
+const { Op, fn, col, where, or } = require('sequelize');
 const addExtraProperty = require('../../lib/utils/addExtraProperty');
 const universityServices = require('../../services/university-services');
 const createError = require('http-errors');
@@ -234,7 +234,8 @@ describe('university-services Unit Test', () => {
           categoryId: 1,
           campus: 'Campus',
           stateTerritoryId: 1,
-          universityGroupId: 1
+          universityGroupId: 1,
+          sort: 'ea'
         }
       };
 
@@ -340,6 +341,7 @@ describe('university-services Unit Test', () => {
             '$University.StateTerritory.id$': req.query.stateTerritoryId,
             '$University.UniversityGroup.id$': req.query.universityGroupId
           },
+          order: [['eng_req', 'ASC']],
           limit: 10,
           offset: (req.query.page - 1) * 10,
           raw: true,

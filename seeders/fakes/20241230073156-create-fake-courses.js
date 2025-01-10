@@ -1,6 +1,7 @@
 'use strict';
 
 const { University, DegreeLevel, CourseCategory } = require('../../models');
+const { faker } = require('@faker-js/faker');
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
@@ -25,14 +26,14 @@ module.exports = {
           university_id: university.id,
           degree_level_id: degreeLevel.id,
           course_category_id: randomCourseCategory.id,
-          name: `Course ${i + 1}`,
+          name: faker.lorem.sentence({ min: 1, max: 4 }),
           currency_id: 1,
           min_fee: minFee,
           max_fee: Math.random() < 0.8 ? minFee : maxFee,
           eng_req: ieltsScore,
           eng_req_info: `IELTS ${ieltsScore}`,
           duration: Math.floor(Math.random() * 4) + 1,
-          campus: 'Campus',
+          campus: faker.location.city(),
           course_url: 'http://example.com/course',
           eng_req_url: 'http://example.com/eng-req',
           acad_req_url: 'http://example.com/acad-req',

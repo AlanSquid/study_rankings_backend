@@ -80,7 +80,8 @@ const universityServices = {
       categoryId,
       campus,
       stateTerritoryId,
-      universityGroupId
+      universityGroupId,
+      sort
     } = req.query;
 
     // 每頁顯示 10 筆資料
@@ -109,6 +110,43 @@ const universityServices = {
     if (stateTerritoryId) whereConditions['$University.StateTerritory.id$'] = stateTerritoryId;
     if (universityGroupId) whereConditions['$University.UniversityGroup.id$'] = universityGroupId;
 
+    // 設定排序條件
+    let order = [];
+    switch (sort) {
+      case 'ea':
+        order = [['eng_req', 'ASC']];
+        break;
+      case 'ed':
+        order = [['eng_req', 'DESC']];
+        break;
+      case 'da':
+        order = [['duration', 'ASC']];
+        break;
+      case 'dd':
+        order = [['duration', 'DESC']];
+        break;
+      case 'ma':
+        order = [['min_fee', 'ASC']];
+        break;
+      case 'md':
+        order = [['min_fee', 'DESC']];
+        break;
+      case 'xa':
+        order = [['max_fee', 'ASC']];
+        break;
+      case 'xd':
+        order = [['max_fee', 'DESC']];
+        break;
+      case 'na':
+        order = [['name', 'ASC']];
+        break;
+      case 'nd':
+        order = [['name', 'DESC']];
+        break;
+      default:
+        order = [['name', 'ASC']]; // 預設排序
+    }
+
     // 計算符合條件的總資料數
     const totalCount = await Course.count({
       where: whereConditions,
@@ -129,6 +167,7 @@ const universityServices = {
     // 計算總頁數
     const totalPages = Math.ceil(totalCount / perPage);
 
+    // 查詢符合條件的資料
     const courses = await Course.findAll({
       attributes: [
         'id',
@@ -175,6 +214,7 @@ const universityServices = {
         }
       ],
       where: whereConditions,
+      order,
       limit: perPage,
       offset: page ? (parseInt(page) - 1) * perPage : 0,
       raw: true,

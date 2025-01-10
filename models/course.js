@@ -40,7 +40,7 @@ module.exports = (sequelize, DataTypes) => {
       currencyId: DataTypes.INTEGER,
       minFee: DataTypes.INTEGER,
       maxFee: DataTypes.INTEGER,
-      engReq: DataTypes.INTEGER,
+      engReq: DataTypes.FLOAT,
       engReqInfo: DataTypes.STRING(50),
       duration: DataTypes.INTEGER,
       campus: DataTypes.STRING(50),
