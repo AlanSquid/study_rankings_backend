@@ -10,7 +10,7 @@ const comparisonServices = {
       include: [
         {
           model: CourseComparison,
-          as: 'courseComparisons',
+          as: 'courseComparison',
           where: { userId },
           attributes: []
         },
