@@ -125,16 +125,10 @@ const universityServices = {
       case 'dd':
         order = [['duration', 'DESC']];
         break;
-      case 'ma':
+      case 'fa':
         order = [['min_fee', 'ASC']];
         break;
-      case 'md':
-        order = [['min_fee', 'DESC']];
-        break;
-      case 'xa':
-        order = [['max_fee', 'ASC']];
-        break;
-      case 'xd':
+      case 'fd':
         order = [['max_fee', 'DESC']];
         break;
       case 'na':
