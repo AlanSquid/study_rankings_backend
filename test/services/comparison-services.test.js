@@ -1,9 +1,9 @@
-const { expect } = require('chai');
-const sinon = require('sinon');
-const { University, UniversityRank, Course, CourseComparison } = require('../../models');
-const comparisonServices = require('../../services/comparison-services');
-const createError = require('http-errors');
-const helper = require('../../lib/utils/helper');
+import { expect } from 'chai';
+import sinon from 'sinon';
+import models from '../../models/index.js';
+const { Course, CourseComparison } = models;
+import comparisonServices from '../../services/comparison-services.js';
+import helper from '../../lib/utils/helper.js';
 
 describe('comparison-services Unit Test', () => {
   describe('getComparisons', () => {

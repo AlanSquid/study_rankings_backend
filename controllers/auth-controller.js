@@ -1,5 +1,5 @@
-const authServices = require('../services/auth-services');
-const { formatResponse } = require('../lib/utils/formatResponse');
+import authServices from '../services/auth-services.js';
+import formatResponse from '../lib/utils/formatResponse.js';
 
 const authController = {
   refresh: async (req, res, next) => {
@@ -55,4 +55,4 @@ const authController = {
   }
 };
 
-module.exports = authController;
+export default authController;

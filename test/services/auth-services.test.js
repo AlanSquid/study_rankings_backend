@@ -1,17 +1,17 @@
-const { expect } = require('chai');
-const sinon = require('sinon');
-const { User } = require('../../models');
-const authServices = require('../../services/auth-services');
-const { emailVerification } = require('../../lib/verification');
-const loginAttemptManager = require('../../lib/login-attempt');
-const generateJWT = require('../../lib/utils/generateJWT');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const passport = require('passport');
-
-const dayjs = require('dayjs');
-const utc = require('dayjs/plugin/utc');
-const timezone = require('dayjs/plugin/timezone');
+import { expect } from 'chai';
+import sinon from 'sinon';
+import models from '../../models/index.js';
+const { User } = models;
+import authServices from '../../services/auth-services.js';
+import { emailVerification } from '../../lib/verification.js';
+import loginAttemptManager from '../../lib/login-attempt.js';
+import generateJWT from '../../lib/utils/generateJWT.js';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import passport from 'passport';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc.js';
+import timezone from 'dayjs/plugin/timezone.js';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);

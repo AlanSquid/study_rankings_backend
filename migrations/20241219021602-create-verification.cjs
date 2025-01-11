@@ -1,37 +1,41 @@
 'use strict';
+
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('universities', {
+    await queryInterface.createTable('Verifications', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      name: {
+      type: {
+        type: Sequelize.ENUM('phone', 'email', 'reset_pwd'),
+        allowNull: false
+      },
+      // 驗證目標 (手機號碼或email)
+      target: {
         type: Sequelize.STRING(50),
         allowNull: false
       },
-      ch_name: {
-        type: Sequelize.STRING(20),
+      code: {
+        type: Sequelize.STRING,
         allowNull: false
       },
-      emblem_pic: {
-        type: Sequelize.STRING,
-        allowNull: true
-      },
-      university_group_id: {
+      // 驗證email時會需要記錄使用者id
+      user_id: {
         type: Sequelize.INTEGER,
-        allowNull: true
-      },
-      state_territory_id: {
-        allowNull: false,
-        type: Sequelize.INTEGER,
+        allowNull: true,
         references: {
-          model: 'states_territories',
+          model: 'users',
           key: 'id'
-        }
+        },
+        onDelete: 'SET NULL'
+      },
+      expires_at: {
+        type: Sequelize.DATE,
+        allowNull: false
       },
       created_at: {
         allowNull: false,
@@ -44,6 +48,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('universities');
+    await queryInterface.dropTable('Verifications');
   }
 };

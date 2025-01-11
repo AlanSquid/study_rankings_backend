@@ -1,6 +1,7 @@
-const { University, UniversityRank, Course, CourseComparison } = require('../models');
-const helper = require('../lib/utils/helper');
-const createError = require('http-errors');
+import models from '../models/index.js';
+const { Course, CourseComparison, University, UniversityRank } = models;
+import helper from '../lib/utils/helper.js';
+import createError from 'http-errors';
 
 const comparisonServices = {
   getComparisons: async (req) => {
@@ -94,4 +95,4 @@ const comparisonServices = {
   }
 };
 
-module.exports = comparisonServices;
+export default comparisonServices;

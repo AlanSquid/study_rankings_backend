@@ -1,8 +1,9 @@
 'use strict';
+
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('states_territories', {
+    await queryInterface.createTable('currencies', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -10,14 +11,11 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       name: {
-        type: Sequelize.STRING(50)
-      },
-      chName: {
-        type: Sequelize.STRING(20)
+        type: Sequelize.STRING(10)
       }
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('states_territories');
+    await queryInterface.dropTable('currencies');
   }
 };

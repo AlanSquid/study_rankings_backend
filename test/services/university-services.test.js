@@ -1,5 +1,7 @@
-const { expect } = require('chai');
-const sinon = require('sinon');
+import { expect } from 'chai';
+import sinon from 'sinon';
+
+import models from '../../models/index.js';
 const {
   University,
   UniversityGroup,
@@ -7,14 +9,12 @@ const {
   StateTerritory,
   Course,
   CourseCategory,
-  DegreeLevel,
-  CourseComparison,
-  CourseFavorite
-} = require('../../models');
-const { Op, fn, col, where, or } = require('sequelize');
-const addExtraProperty = require('../../lib/utils/addExtraProperty');
-const universityServices = require('../../services/university-services');
-const createError = require('http-errors');
+  DegreeLevel
+} = models;
+import { Op, fn, col, where, or } from 'sequelize';
+import addExtraProperty from '../../lib/utils/addExtraProperty.js';
+import universityServices from '../../services/university-services.js';
+import createError from 'http-errors';
 
 describe('university-services Unit Test', () => {
   afterEach(() => {

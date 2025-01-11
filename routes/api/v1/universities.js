@@ -1,11 +1,11 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const universityController = require('../../../controllers/university-controller');
-const { optionalAuthenticator } = require('../../../middlewares/auth-middleware');
+import universityController from '../../../controllers/university-controller.js';
+import { optionalAuthenticator } from '../../../middlewares/auth-middleware.js';
 
 router.get('/', universityController.getUniversities);
 router.get('/ranks', universityController.getUniversityRanks);
 router.get('/courses', optionalAuthenticator, universityController.getCourses);
 router.get('/courses/categories', universityController.getCourseCategories);
 
-module.exports = router;
+export default router;

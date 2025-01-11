@@ -1,5 +1,5 @@
-const userServices = require('../services/user-services');
-const { formatResponse } = require('../lib/utils/formatResponse');
+import userServices from '../services/user-services.js';
+import formatResponse from '../lib/utils/formatResponse.js';
 
 const userController = {
   getUser: async (req, res, next) => {
@@ -68,4 +68,4 @@ const userController = {
   }
 };
 
-module.exports = userController;
+export default userController;

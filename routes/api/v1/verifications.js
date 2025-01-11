@@ -1,10 +1,11 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const verificationController = require('../../../controllers/verification-controller');
-const { emailLimiter, smsLimiter, smsLimiterMax } = require('../../../middlewares/rate-limit');
-const formRules = require('../../../middlewares/form-validator/form-rules');
-const validationHandler = require('../../../middlewares/form-validator/validation-handler');
-const { authenticator } = require('../../../middlewares/auth-middleware');
+import verificationController from '../../../controllers/verification-controller.js';
+import rateLimit from '../../../middlewares/rate-limit.js';
+const { emailLimiter, smsLimiter, smsLimiterMax } = rateLimit;
+import formRules from '../../../middlewares/form-validator/form-rules.js';
+import validationHandler from '../../../middlewares/form-validator/validation-handler.js';
+import { authenticator } from '../../../middlewares/auth-middleware.js';
 
 // 發送手機驗證碼
 router.post(
@@ -46,4 +47,4 @@ router.post(
   verificationController.verifyResetPassword
 );
 
-module.exports = router;
+export default router;

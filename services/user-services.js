@@ -1,16 +1,10 @@
-const {
-  User,
-  Verification,
-  Course,
-  CourseFavorite,
-  University,
-  UniversityRank
-} = require('../models');
-const { Op } = require('sequelize');
-const createError = require('http-errors');
-const bcrypt = require('bcryptjs');
-const loginAttemptManager = require('../lib/login-attempt');
-const addExtraProperty = require('../lib/utils/addExtraProperty');
+import models from '../models/index.js';
+const { User, Verification, Course, CourseFavorite, University, UniversityRank } = models;
+import { Op } from 'sequelize';
+import createError from 'http-errors';
+import bcrypt from 'bcryptjs';
+import loginAttemptManager from '../lib/login-attempt.js';
+import addExtraProperty from '../lib/utils/addExtraProperty.js';
 
 const userServices = {
   getUser: async (req) => {
@@ -233,4 +227,4 @@ const userServices = {
   }
 };
 
-module.exports = userServices;
+export default userServices;

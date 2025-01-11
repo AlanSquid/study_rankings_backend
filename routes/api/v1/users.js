@@ -1,9 +1,9 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const userController = require('../../../controllers/user-controller');
-const formRules = require('../../../middlewares/form-validator/form-rules');
-const validationHandler = require('../../../middlewares/form-validator/validation-handler');
-const { authenticator } = require('../../../middlewares/auth-middleware');
+import userController from '../../../controllers/user-controller.js';
+import formRules from '../../../middlewares/form-validator/form-rules.js';
+import validationHandler from '../../../middlewares/form-validator/validation-handler.js';
+import { authenticator } from '../../../middlewares/auth-middleware.js';
 
 // 取得使用者資料
 router.get('/profile', authenticator, userController.getUser);
@@ -45,4 +45,4 @@ router.post('/favorites/:courseId', authenticator, userController.addFavorite);
 // 刪除favorite
 router.delete('/favorites/:courseId', authenticator, userController.deleteFavorite);
 
-module.exports = router;
+export default router;

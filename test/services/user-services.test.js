@@ -1,10 +1,11 @@
-const { expect } = require('chai');
-const sinon = require('sinon');
-const { User, Verification, Course, CourseFavorite } = require('../../models');
-const userServices = require('../../services/user-services');
-const bcrypt = require('bcryptjs');
-const loginAttemptManager = require('../../lib/login-attempt');
-const addExtraProperty = require('../../lib/utils/addExtraProperty');
+import { expect } from 'chai';
+import sinon from 'sinon';
+import models from '../../models/index.js';
+const { User, Verification, Course, CourseFavorite } = models;
+import userServices from '../../services/user-services.js';
+import bcrypt from 'bcryptjs';
+import loginAttemptManager from '../../lib/login-attempt.js';
+import addExtraProperty from '../../lib/utils/addExtraProperty.js';
 
 describe('user-services Unit Test', () => {
   describe('getUser', () => {

@@ -1,10 +1,11 @@
-const {
+import {
   smsVerification,
   emailVerification,
   resetPwdEmailVerification
-} = require('../lib/verification');
-const { User } = require('../models');
-const createError = require('http-errors');
+} from '../lib/verification.js';
+import models from '../models/index.js';
+const { User } = models;
+import createError from 'http-errors';
 
 const verificationServices = {
   sendPhoneVerification: async (req) => {
@@ -39,4 +40,4 @@ const verificationServices = {
   }
 };
 
-module.exports = verificationServices;
+export default verificationServices;

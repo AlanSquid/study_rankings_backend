@@ -1,13 +1,14 @@
-const { expect } = require('chai');
-const sinon = require('sinon');
-const { User } = require('../../models');
-const {
+import { expect } from 'chai';
+import sinon from 'sinon';
+import models from '../../models/index.js';
+const { User } = models;
+import {
   smsVerification,
   emailVerification,
   resetPwdEmailVerification
-} = require('../../lib/verification');
-const verificationServices = require('../../services/verification-services');
-const createError = require('http-errors');
+} from '../../lib/verification.js';
+import verificationServices from '../../services/verification-services.js';
+import createError from 'http-errors';
 
 describe('verification-services Unit Test', () => {
   describe('sendPhoneVerification', () => {

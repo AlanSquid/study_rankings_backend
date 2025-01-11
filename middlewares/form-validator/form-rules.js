@@ -1,6 +1,7 @@
-const { body } = require('express-validator');
-const { User } = require('../../models');
-const { smsVerification } = require('../../lib/verification');
+import { body } from 'express-validator';
+import models from '../../models/index.js';
+const { User } = models;
+import { smsVerification } from '../../lib/verification.js';
 
 const formRules = {
   register: [
@@ -225,4 +226,4 @@ const formRules = {
   ]
 };
 
-module.exports = formRules;
+export default formRules;

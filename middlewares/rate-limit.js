@@ -1,4 +1,4 @@
-const rateLimit = require('express-rate-limit');
+import rateLimit from 'express-rate-limit';
 
 const emailLimiter = rateLimit({
   windowMs: 30 * 60 * 1000, // 每 30 分鐘
@@ -30,7 +30,7 @@ const smsLimiterMax = rateLimit({
   }
 });
 
-module.exports = {
+export default {
   emailLimiter,
   smsLimiter,
   smsLimiterMax

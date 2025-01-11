@@ -1,19 +1,19 @@
-const { expect } = require('chai');
-const sinon = require('sinon');
-const { User, Verification } = require('../../models');
-const { Op } = require('sequelize');
-const smsService = require('../../lib/sms');
-const emailService = require('../../lib/email');
-const {
+import { expect } from 'chai';
+import sinon from 'sinon';
+import models from '../../models/index.js';
+const { User, Verification } = models;
+import { Op } from 'sequelize';
+import smsService from '../../lib/sms.js';
+import emailService from '../../lib/email.js';
+import {
   smsVerification,
   emailVerification,
   resetPwdEmailVerification
-} = require('../../lib/verification');
-const crypto = require('crypto');
-
-const dayjs = require('dayjs');
-const utc = require('dayjs/plugin/utc');
-const timezone = require('dayjs/plugin/timezone');
+} from '../../lib/verification.js';
+import crypto from 'crypto';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc.js';
+import timezone from 'dayjs/plugin/timezone.js';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);

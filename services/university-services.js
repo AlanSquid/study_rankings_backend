@@ -1,16 +1,18 @@
 // const sequelize = require('sequelize');
+import models from '../models/index.js';
 const {
   University,
-  UniversityGroup,
   UniversityRank,
-  StateTerritory,
-  Course,
   CourseCategory,
+  Course,
+  StateTerritory,
+  UniversityGroup,
   DegreeLevel
-} = require('../models');
-const { Op, fn, col, where } = require('sequelize');
-const addExtraProperty = require('../lib/utils/addExtraProperty');
-const createError = require('http-errors');
+} = models;
+
+import { Op, fn, col, where } from 'sequelize';
+import addExtraProperty from '../lib/utils/addExtraProperty.js';
+import createError from 'http-errors';
 
 const universityServices = {
   getUniversities: async (req) => {
@@ -226,4 +228,4 @@ const universityServices = {
   }
 };
 
-module.exports = universityServices;
+export default universityServices;

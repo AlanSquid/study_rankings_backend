@@ -1,11 +1,13 @@
 'use strict';
 
-const { University, DegreeLevel, CourseCategory } = require('../../models');
+// const { University, DegreeLevel, CourseCategory } = require('../../models');
 const { faker } = require('@faker-js/faker');
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
+    const models = await import('../../models/index.js');
+    const { University, DegreeLevel, CourseCategory } = models.default;
     const universities = await University.findAll();
     const degreeLevels = await DegreeLevel.findAll();
     const courseCategories = await CourseCategory.findAll();

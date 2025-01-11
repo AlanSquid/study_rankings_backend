@@ -1,14 +1,15 @@
-const { User } = require('../models');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
-const passport = require('passport');
-const createError = require('http-errors');
-const { emailVerification } = require('../lib/verification');
-const loginAttemptManager = require('../lib/login-attempt');
-const generateJWT = require('../lib/utils/generateJWT');
-const dayjs = require('dayjs');
-const utc = require('dayjs/plugin/utc');
-const timezone = require('dayjs/plugin/timezone');
+import models from '../models/index.js';
+const { User } = models;
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
+import passport from 'passport';
+import createError from 'http-errors';
+import { emailVerification } from '../lib/verification.js';
+import loginAttemptManager from '../lib/login-attempt.js';
+import generateJWT from '../lib/utils/generateJWT.js';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc.js';
+import timezone from 'dayjs/plugin/timezone.js';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -68,12 +69,6 @@ const authServices = {
       })(req);
     });
 
-    // 產生 tokens
-    // const [accessToken, refreshToken] = await Promise.all([
-    //   generateJWT.getAccessToken(user),
-    //   generateJWT.getRefreshToken(user)
-    // ]);
-
     const accessToken = await generateJWT.getAccessToken(user);
     const refreshToken = generateJWT.getRefreshToken(user);
 
@@ -117,12 +112,6 @@ const authServices = {
       email: newUser.email
     };
 
-    // 產生 tokens
-    // const [accessToken, refreshToken] = await Promise.all([
-    //   generateJWT.getAccessToken(user),
-    //   generateJWT.getRefreshToken(user)
-    // ]);
-
     const accessToken = await generateJWT.getAccessToken(user);
     const refreshToken = generateJWT.getRefreshToken(user);
 
@@ -134,4 +123,4 @@ const authServices = {
   }
 };
 
-module.exports = authServices;
+export default authServices;

@@ -6,10 +6,15 @@ import prettierConfig from 'eslint-config-prettier';
 export default [
   pluginJs.configs.recommended,
   prettierConfig,
-  { files: ['**/*.js'], languageOptions: { sourceType: 'commonjs' } },
+  { files: ['**/*.js'], languageOptions: { sourceType: 'module' } },
   { languageOptions: { globals: globals.node } },
   {
-    ignores: ['test/**/*.test.js', 'models/**/*.js', 'migrations/**/*.js', 'seeders/**/*.js']
+    ignores: [
+      'test/**/*.test.{js,cjs}',
+      'models/**/*.{js,cjs}',
+      'migrations/**/*.{js,cjs}',
+      'seeders/**/*.{js,cjs}'
+    ]
   },
 
   {

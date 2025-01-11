@@ -1,8 +1,8 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const authController = require('../../../controllers/auth-controller');
-const formRules = require('../../../middlewares/form-validator/form-rules');
-const validationHandler = require('../../../middlewares/form-validator/validation-handler');
+import authController from '../../../controllers/auth-controller.js';
+import formRules from '../../../middlewares/form-validator/form-rules.js';
+import validationHandler from '../../../middlewares/form-validator/validation-handler.js';
 
 // 登入
 router.post('/login', formRules.login, validationHandler, authController.login);
@@ -13,4 +13,4 @@ router.post('/register', formRules.register, validationHandler, authController.r
 // 更新access token
 router.post('/refresh', authController.refresh);
 
-module.exports = router;
+export default router;

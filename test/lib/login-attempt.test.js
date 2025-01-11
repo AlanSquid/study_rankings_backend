@@ -1,7 +1,7 @@
-const { expect } = require('chai');
-const sinon = require('sinon');
-const dayjs = require('dayjs');
-const LoginAttemptManager = require('../../lib/login-attempt');
+import { expect } from 'chai';
+import sinon from 'sinon';
+import dayjs from 'dayjs';
+import LoginAttemptManager from '../../lib/login-attempt.js';
 
 describe('LoginAttemptManager', () => {
   let clock;

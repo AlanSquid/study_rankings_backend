@@ -1,5 +1,5 @@
-const universityServices = require('../services/university-services');
-const { formatResponse } = require('../lib/utils/formatResponse');
+import universityServices from '../services/university-services.js';
+import formatResponse from '../lib/utils/formatResponse.js';
 
 const universityController = {
   getUniversities: async (req, res, next) => {
@@ -36,4 +36,4 @@ const universityController = {
   }
 };
 
-module.exports = universityController;
+export default universityController;
