@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import models from '../../models/index.js';
-const { Course, CourseComparison } = models;
+import db from '../../models/index.js';
+const { Course, CourseComparison } = db;
 import comparisonServices from '../../services/comparison-services.js';
 import helper from '../../lib/utils/helper.js';
 

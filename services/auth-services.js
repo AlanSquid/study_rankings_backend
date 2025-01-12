@@ -1,5 +1,5 @@
-import models from '../models/index.js';
-const { User } = models;
+import db from '../models/index.js';
+const { User } = db;
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import passport from 'passport';

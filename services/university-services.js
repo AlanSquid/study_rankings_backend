@@ -1,5 +1,5 @@
 // const sequelize = require('sequelize');
-import models from '../models/index.js';
+import db from '../models/index.js';
 const {
   University,
   UniversityRank,
@@ -8,7 +8,7 @@ const {
   StateTerritory,
   UniversityGroup,
   DegreeLevel
-} = models;
+} = db;
 
 import { Op, fn, col, where } from 'sequelize';
 import addExtraProperty from '../lib/utils/addExtraProperty.js';

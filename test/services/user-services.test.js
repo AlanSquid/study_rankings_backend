@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import models from '../../models/index.js';
-const { User, Verification, Course, CourseFavorite } = models;
+import db from '../../models/index.js';
+const { User, Verification, Course, CourseFavorite } = db;
 import userServices from '../../services/user-services.js';
 import bcrypt from 'bcryptjs';
 import loginAttemptManager from '../../lib/login-attempt.js';

@@ -1,6 +1,6 @@
 import { body } from 'express-validator';
-import models from '../../models/index.js';
-const { User } = models;
+import db from '../../models/index.js';
+const { User } = db;
 
 const formRules = {
   register: [

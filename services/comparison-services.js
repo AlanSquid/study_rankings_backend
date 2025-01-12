@@ -1,5 +1,5 @@
-import models from '../models/index.js';
-const { Course, CourseComparison, University, UniversityRank } = models;
+import db from '../models/index.js';
+const { Course, CourseComparison, University, UniversityRank } = db;
 import helper from '../lib/utils/helper.js';
 import createError from 'http-errors';
 

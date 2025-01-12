@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import models from '../../models/index.js';
-const { User, Verification } = models;
+import db from '../../models/index.js';
+const { User, Verification } = db;
 import { Op } from 'sequelize';
 import smsService from '../../lib/sms.js';
 import emailService from '../../lib/email.js';

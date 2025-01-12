@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import models from '../../models/index.js';
+import db from '../../models/index.js';
 const {
   University,
   UniversityGroup,
@@ -10,7 +10,7 @@ const {
   Course,
   CourseCategory,
   DegreeLevel
-} = models;
+} = db;
 import { Op, fn, col, where, or } from 'sequelize';
 import addExtraProperty from '../../lib/utils/addExtraProperty.js';
 import universityServices from '../../services/university-services.js';

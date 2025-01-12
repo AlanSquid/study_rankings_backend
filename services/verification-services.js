@@ -3,8 +3,8 @@ import {
   emailVerification,
   resetPwdEmailVerification
 } from '../lib/verification.js';
-import models from '../models/index.js';
-const { User } = models;
+import db from '../models/index.js';
+const { User } = db;
 import createError from 'http-errors';
 
 const verificationServices = {

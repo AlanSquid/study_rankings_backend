@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import models from '../../models/index.js';
-const { User } = models;
+import db from '../../models/index.js';
+const { User } = db;
 import authServices from '../../services/auth-services.js';
 import { emailVerification, smsVerification } from '../../lib/verification.js';
 import loginAttemptManager from '../../lib/login-attempt.js';

@@ -1,5 +1,5 @@
-import models from '../models/index.js';
-const { User, Verification, Course, CourseFavorite, University, UniversityRank } = models;
+import db from '../models/index.js';
+const { User, Verification, Course, CourseFavorite, University, UniversityRank } = db;
 import { Op } from 'sequelize';
 import createError from 'http-errors';
 import bcrypt from 'bcryptjs';
