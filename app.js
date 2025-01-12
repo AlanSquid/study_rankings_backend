@@ -6,6 +6,7 @@ import routes from './routes/index.js';
 import errorHandler from './middlewares/error-handler.js';
 import usePassport from './lib/passport.js';
 import cors from 'cors';
+import admins from './lib/admin.js';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
@@ -26,6 +27,9 @@ app.use(
     credentials: true
   })
 );
+
+// 後台管理
+app.use(admins);
 
 app.use(logger('dev'));
 app.use(express.json());
