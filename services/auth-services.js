@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import passport from 'passport';
 import createError from 'http-errors';
-import { emailVerification } from '../lib/verification.js';
+import { emailVerification, smsVerification } from '../lib/verification.js';
 import loginAttemptManager from '../lib/login-attempt.js';
 import generateJWT from '../lib/utils/generateJWT.js';
 import dayjs from 'dayjs';
@@ -79,7 +79,7 @@ const authServices = {
     return { success: true, message: 'Logged out' };
   },
   register: async (req) => {
-    const { name, phone, email, password } = req.body;
+    const { name, phone, email, password, verificationCode } = req.body;
 
     // 檢查使用者是否已存在
     const existingUser = await User.findOne({
@@ -91,6 +91,9 @@ const authServices = {
     if (existingUser) {
       throw createError(409, 'Phone number already registered');
     }
+
+    // 驗證手機號碼
+    await smsVerification.verifyPhone(phone, verificationCode);
 
     // 密碼雜湊
     const hashedPassword = await bcrypt.hash(password, 10);

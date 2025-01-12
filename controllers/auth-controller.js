@@ -50,6 +50,15 @@ const authController = {
       });
       res.json(formatResponse(restData));
     } catch (err) {
+      // 手機驗證碼錯誤特殊處理
+      if (err.status === 400) {
+        return res.status(400).json({
+          success: false,
+          status: 400,
+          message: 'Validation error',
+          errors: { verificationCode: err.message }
+        });
+      }
       next(err);
     }
   }

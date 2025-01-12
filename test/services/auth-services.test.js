@@ -3,7 +3,7 @@ import sinon from 'sinon';
 import models from '../../models/index.js';
 const { User } = models;
 import authServices from '../../services/auth-services.js';
-import { emailVerification } from '../../lib/verification.js';
+import { emailVerification, smsVerification } from '../../lib/verification.js';
 import loginAttemptManager from '../../lib/login-attempt.js';
 import generateJWT from '../../lib/utils/generateJWT.js';
 import bcrypt from 'bcryptjs';
@@ -261,7 +261,8 @@ describe('auth-services Unit Test', () => {
           name: 'test',
           phone: '0912345678',
           email: 'test@example.com',
-          password: 'password123'
+          password: 'password123',
+          verificationCode: '123456'
         }
       };
 
@@ -272,6 +273,8 @@ describe('auth-services Unit Test', () => {
 
       // 模擬找不到已存在用戶
       sinon.stub(User, 'findOne').resolves(null);
+      // 模擬手機證碼正確
+      sinon.stub(smsVerification, 'verifyPhone').resolves(true);
       // 模擬密碼加密
       sinon.stub(bcrypt, 'hash').resolves(mockHashedPassword);
       // 模擬建立新用戶
@@ -353,10 +356,12 @@ describe('auth-services Unit Test', () => {
           name: 'test',
           phone: '0912345678',
           email: 'test@example.com',
-          password: 'password123'
+          password: 'password123',
+          verificationCode: '123456'
         }
       };
 
+      sinon.stub(smsVerification, 'verifyPhone').resolves(true);
       sinon.stub(User, 'findOne').resolves(null);
       sinon.stub(bcrypt, 'hash').rejects(new Error('Hash failed'));
 
@@ -374,10 +379,13 @@ describe('auth-services Unit Test', () => {
           name: 'test',
           phone: '0912345678',
           email: 'test@example.com',
-          password: 'password123'
+          password: 'password123',
+          verificationCode: '123456'
         }
       };
 
+      // 模擬手機證碼正確
+      sinon.stub(smsVerification, 'verifyPhone').resolves(true);
       sinon.stub(User, 'findOne').resolves(null);
       sinon.stub(bcrypt, 'hash').resolves('hashedPassword');
       sinon.stub(User, 'create').resolves({
@@ -397,6 +405,26 @@ describe('auth-services Unit Test', () => {
         expect.fail('預期應拋出錯誤，但沒有拋出任何錯誤');
       } catch (error) {
         expect(error.message).to.equal('Failed to send verification email');
+      }
+    });
+
+    it('異常情境：驗證手機號碼失敗應拋出錯誤', async () => {
+      const mockReq = {
+        body: {
+          name: 'test',
+          phone: '0912345678',
+          email: 'test@example.com',
+          password: 'password123',
+          verificationCode: '123456'
+        }
+      };
+      sinon.stub(User, 'findOne').resolves(null);
+      sinon.stub(smsVerification, 'verifyPhone').rejects(new Error('Verification failed'));
+      try {
+        await authServices.register(mockReq);
+        expect.fail('預期應拋出錯誤，但沒有拋出任何錯誤');
+      } catch (error) {
+        expect(error.message).to.equal('Verification failed');
       }
     });
   });

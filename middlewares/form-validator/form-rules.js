@@ -1,7 +1,6 @@
 import { body } from 'express-validator';
 import models from '../../models/index.js';
 const { User } = models;
-import { smsVerification } from '../../lib/verification.js';
 
 const formRules = {
   register: [
@@ -53,15 +52,6 @@ const formRules = {
       .withMessage('Verification code is required')
       .isLength({ max: 50 })
       .withMessage('Verification code must not exceed 50 characters')
-      // value就是verificationCode
-      .custom(async (value, { req }) => {
-        try {
-          await smsVerification.verifyPhone(req.body.phone, value);
-        } catch (error) {
-          console.error(error);
-          throw new Error('Verification code is invalid');
-        }
-      })
   ],
   login: [
     body('phone')
