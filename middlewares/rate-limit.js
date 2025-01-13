@@ -1,4 +1,10 @@
 import rateLimit from 'express-rate-limit';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc.js';
+import timezone from 'dayjs/plugin/timezone.js';
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.tz.setDefault('Asia/Taipei');
 
 const emailLimiter = rateLimit({
   windowMs: 30 * 60 * 1000, // 每 30 分鐘
@@ -17,6 +23,13 @@ const smsLimiter = rateLimit({
     success: false,
     status: 429,
     message: 'Too many requests, please try again later.'
+  },
+  handler: (req, res, next, options) => {
+    const resetTime = dayjs(req.rateLimit.resetTime);
+    const now = dayjs();
+    const retryAfter = resetTime.diff(now, 'second');
+    res.setHeader('Retry-After', retryAfter);
+    res.status(options.statusCode).json(options.message);
   }
 });
 
