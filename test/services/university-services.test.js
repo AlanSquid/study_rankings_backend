@@ -197,7 +197,7 @@ describe('university-services Unit Test', () => {
       expect(data.courseCategories).to.deep.equal(mockCourseCategories);
       expect(
         CourseCategory.findAll.calledWith({
-          attributes: ['id', 'name'],
+          attributes: ['id', 'name', 'chName'],
           raw: true
         })
       ).to.be.true;

@@ -62,7 +62,7 @@ const universityServices = {
   },
   getCourseCategories: async (req) => {
     const courseCategories = await CourseCategory.findAll({
-      attributes: ['id', 'name'],
+      attributes: ['id', 'name', 'chName'],
       raw: true
     });
     if (!courseCategories) throw createError(500, 'Database error');
