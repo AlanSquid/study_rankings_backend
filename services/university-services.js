@@ -29,7 +29,7 @@ const universityServices = {
         {
           model: StateTerritory,
           as: 'stateTerritory',
-          attributes: ['id', 'name']
+          attributes: ['id', 'name', 'chName']
         },
         {
           model: UniversityGroup,
