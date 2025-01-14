@@ -330,8 +330,8 @@ describe('university-services Unit Test', () => {
             '$University.id$': req.query.universityId,
             '$DegreeLevel.id$': req.query.degreeLevelId,
             engReq: { [Op.lte]: req.query.engReq },
-            minFee: { [Op.gte]: req.query.minFee },
-            maxFee: { [Op.lte]: req.query.maxFee },
+            maxFee: { [Op.gte]: req.query.minFee },
+            minFee: { [Op.lte]: req.query.maxFee },
             '$CourseCategory.id$': req.query.categoryId,
             campus: where(
               fn('lower', col('Course.campus')),

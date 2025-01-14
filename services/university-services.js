@@ -100,8 +100,8 @@ const universityServices = {
     if (universityId) whereConditions['$University.id$'] = universityId;
     if (degreeLevelId) whereConditions['$DegreeLevel.id$'] = degreeLevelId;
     if (engReq) whereConditions.engReq = { [Op.lte]: engReq };
-    if (minFee) whereConditions.minFee = { [Op.gte]: minFee };
-    if (maxFee) whereConditions.maxFee = { [Op.lte]: maxFee };
+    if (minFee) whereConditions.maxFee = { [Op.gte]: minFee };
+    if (maxFee) whereConditions.minFee = { [Op.lte]: maxFee };
     if (categoryId) whereConditions['$CourseCategory.id$'] = categoryId;
     if (campus)
       whereConditions.campus = where(
