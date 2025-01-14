@@ -28,7 +28,7 @@ const smsLimiter = rateLimit({
     const resetTime = dayjs(req.rateLimit.resetTime);
     const now = dayjs();
     const retryAfter = resetTime.diff(now, 'second');
-    res.setHeader('Retry-After', retryAfter);
+    res.setHeader('Access-Control-Expose-Headers', 'Retry-After', retryAfter);
     res.status(options.statusCode).json(options.message);
   }
 });
