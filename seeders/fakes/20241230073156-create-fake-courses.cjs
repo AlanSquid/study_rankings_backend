@@ -28,7 +28,7 @@ module.exports = {
           university_id: university.id,
           degree_level_id: degreeLevel.id,
           course_category_id: randomCourseCategory.id,
-          name: faker.lorem.sentence({ min: 1, max: 4 }),
+          name: faker.lorem.words({ min: 1, max: 4 }),
           currency_id: 1,
           min_fee: minFee,
           max_fee: Math.random() < 0.8 ? minFee : maxFee,

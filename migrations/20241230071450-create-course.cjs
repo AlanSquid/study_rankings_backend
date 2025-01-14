@@ -16,7 +16,9 @@ module.exports = {
         references: {
           model: 'universities',
           key: 'id'
-        }
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
       },
       degree_level_id: {
         allowNull: false,

@@ -24,7 +24,13 @@ module.exports = {
       },
       university_group_id: {
         type: Sequelize.INTEGER,
-        allowNull: true
+        allowNull: true,
+        references: {
+          model: 'university_groups',
+          key: 'id'
+        },
+        onDelete: 'SET NULL',
+        onUpdate: 'CASCADE'
       },
       state_territory_id: {
         allowNull: false,

@@ -11,10 +11,18 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       rank: {
+        allowNull: false,
         type: Sequelize.STRING(20)
       },
       university_id: {
-        type: Sequelize.INTEGER
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'universities',
+          key: 'id'
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
       },
       created_at: {
         allowNull: false,
