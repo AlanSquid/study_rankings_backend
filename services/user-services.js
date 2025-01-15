@@ -196,7 +196,7 @@ const userServices = {
 
     // 檢查是否超過收藏上限
     const favoriteCount = await CourseFavorite.count({ where: { userId } });
-    if (favoriteCount > 100) throw createError(400, 'Favorite limit exceeded');
+    if (favoriteCount >= 100) throw createError(400, 'Favorite limit exceeded');
 
     // 加入收藏
     await CourseFavorite.create({
