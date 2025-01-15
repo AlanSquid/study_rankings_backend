@@ -19,8 +19,8 @@ const universityServices = {
     const { universityGroupId, stateTerritoryId } = req.query;
 
     const whereConditions = {};
-    if (universityGroupId) whereConditions['$UniversityGroup.id$'] = universityGroupId;
-    if (stateTerritoryId) whereConditions['$StateTerritory.id$'] = stateTerritoryId;
+    if (universityGroupId) whereConditions['$universityGroup.id$'] = universityGroupId;
+    if (stateTerritoryId) whereConditions['$stateTerritory.id$'] = stateTerritoryId;
 
     const universities = await University.findAll({
       where: whereConditions,
@@ -93,24 +93,24 @@ const universityServices = {
     const whereConditions = {};
     if (course)
       whereConditions.name = where(
-        fn('lower', col('Course.name')),
+        fn('lower', col('course.name')),
         'LIKE',
         `%${course.toLowerCase()}%`
       );
-    if (universityId) whereConditions['$University.id$'] = universityId;
-    if (degreeLevelId) whereConditions['$DegreeLevel.id$'] = degreeLevelId;
+    if (universityId) whereConditions['$university.id$'] = universityId;
+    if (degreeLevelId) whereConditions['$degreeLevel.id$'] = degreeLevelId;
     if (engReq) whereConditions.engReq = { [Op.lte]: engReq };
     if (minFee) whereConditions.maxFee = { [Op.gte]: minFee };
     if (maxFee) whereConditions.minFee = { [Op.lte]: maxFee };
-    if (categoryId) whereConditions['$CourseCategory.id$'] = categoryId;
+    if (categoryId) whereConditions['$courseCategory.id$'] = categoryId;
     if (campus)
       whereConditions.campus = where(
-        fn('lower', col('Course.campus')),
+        fn('lower', col('course.campus')),
         'LIKE',
         `%${campus.toLowerCase()}%`
       );
-    if (stateTerritoryId) whereConditions['$University.StateTerritory.id$'] = stateTerritoryId;
-    if (universityGroupId) whereConditions['$University.UniversityGroup.id$'] = universityGroupId;
+    if (stateTerritoryId) whereConditions['$university.stateTerritory.id$'] = stateTerritoryId;
+    if (universityGroupId) whereConditions['$university.universityGroup.id$'] = universityGroupId;
 
     // 設定排序條件
     let order = [];

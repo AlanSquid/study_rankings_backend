@@ -50,8 +50,8 @@ describe('university-services Unit Test', () => {
       expect(
         University.findAll.calledWith({
           where: {
-            '$UniversityGroup.id$': 1,
-            '$StateTerritory.id$': 1
+            '$universityGroup.id$': 1,
+            '$stateTerritory.id$': 1
           },
           attributes: ['id', 'name', 'chName', 'emblemPic'],
           include: [
@@ -99,7 +99,7 @@ describe('university-services Unit Test', () => {
       expect(
         University.findAll.calledWith({
           where: {
-            '$UniversityGroup.id$': 1
+            '$universityGroup.id$': 1
           },
           attributes: ['id', 'name', 'chName', 'emblemPic'],
           include: [
@@ -323,23 +323,23 @@ describe('university-services Unit Test', () => {
           ],
           where: {
             name: where(
-              fn('lower', col('Course.name')),
+              fn('lower', col('course.name')),
               'LIKE',
               `%${req.query.course.toLowerCase()}%`
             ),
-            '$University.id$': req.query.universityId,
-            '$DegreeLevel.id$': req.query.degreeLevelId,
+            '$university.id$': req.query.universityId,
+            '$degreeLevel.id$': req.query.degreeLevelId,
             engReq: { [Op.lte]: req.query.engReq },
             maxFee: { [Op.gte]: req.query.minFee },
             minFee: { [Op.lte]: req.query.maxFee },
-            '$CourseCategory.id$': req.query.categoryId,
+            '$courseCategory.id$': req.query.categoryId,
             campus: where(
-              fn('lower', col('Course.campus')),
+              fn('lower', col('course.campus')),
               'LIKE',
               `%${req.query.campus.toLowerCase()}%`
             ),
-            '$University.StateTerritory.id$': req.query.stateTerritoryId,
-            '$University.UniversityGroup.id$': req.query.universityGroupId
+            '$university.stateTerritory.id$': req.query.stateTerritoryId,
+            '$university.universityGroup.id$': req.query.universityGroupId
           },
           order: [['eng_req', 'ASC']],
           limit: 10,
