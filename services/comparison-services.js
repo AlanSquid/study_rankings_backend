@@ -1,5 +1,6 @@
 import db from '../models/index.js';
 const { Course, CourseComparison, University, UniversityRank } = db;
+import addExtraProperty from '../lib/utils/addExtraProperty.js';
 import helper from '../lib/utils/helper.js';
 import createError from 'http-errors';
 
@@ -48,6 +49,9 @@ const comparisonServices = {
       }
       return course;
     });
+
+    // 有使用者登入的情況下，查詢使用者的比較清單跟收藏清單
+    await addExtraProperty.isFavorited(courses, userId);
 
     return { success: true, courses };
   },

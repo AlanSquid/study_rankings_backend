@@ -3,6 +3,7 @@ import sinon from 'sinon';
 import db from '../../models/index.js';
 const { Course, CourseComparison } = db;
 import comparisonServices from '../../services/comparison-services.js';
+import addExtraProperty from '../../lib/utils/addExtraProperty.js';
 import helper from '../../lib/utils/helper.js';
 
 describe('comparison-services Unit Test', () => {
@@ -32,6 +33,9 @@ describe('comparison-services Unit Test', () => {
       ];
 
       sinon.stub(Course, 'findAll').resolves(mockCourses);
+      sinon.stub(addExtraProperty, 'isFavorited').callsFake(async (courses) => {
+        courses.forEach((course) => (course.isFavorited = false));
+      });
 
       const data = await comparisonServices.getComparisons(req);
 
@@ -50,7 +54,8 @@ describe('comparison-services Unit Test', () => {
             name: 'University 1',
             emblemPic: 'pic1.jpg',
             rank: '1'
-          }
+          },
+          isFavorited: false
         }
       ]);
     });
