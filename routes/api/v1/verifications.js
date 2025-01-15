@@ -1,8 +1,7 @@
 import express from 'express';
 const router = express.Router();
 import verificationController from '../../../controllers/verification-controller.js';
-import rateLimit from '../../../middlewares/rate-limit.js';
-const { emailLimiter, smsLimiter, smsLimiterMax } = rateLimit;
+import { emailLimiter, smsLimiter, smsLimiterMax } from '../../../middlewares/rate-limit.js';
 import formRules from '../../../middlewares/form-validator/form-rules.js';
 import validationHandler from '../../../middlewares/form-validator/validation-handler.js';
 import { authenticator } from '../../../middlewares/auth-middleware.js';

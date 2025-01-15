@@ -6,7 +6,7 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.tz.setDefault('Asia/Taipei');
 
-const emailLimiter = rateLimit({
+export const emailLimiter = rateLimit({
   windowMs: 30 * 60 * 1000, // 每 30 分鐘
   max: 5, // 只允許 5 次請求
   message: {
@@ -16,7 +16,7 @@ const emailLimiter = rateLimit({
   }
 });
 
-const smsLimiter = rateLimit({
+export const smsLimiter = rateLimit({
   windowMs: 2 * 60 * 1000, // 每 2 分鐘
   max: 1, // 只允許 1 次請求
   message: {
@@ -33,7 +33,7 @@ const smsLimiter = rateLimit({
   }
 });
 
-const smsLimiterMax = rateLimit({
+export const smsLimiterMax = rateLimit({
   windowMs: 30 * 60 * 1000, // 每 30 分鐘
   max: 5, // 只允許 5 次請求
   message: {
@@ -43,8 +43,12 @@ const smsLimiterMax = rateLimit({
   }
 });
 
-export default {
-  emailLimiter,
-  smsLimiter,
-  smsLimiterMax
-};
+export const refreshTokenLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 15 分鐘
+  max: 5, // 只允許 5 次請求
+  message: {
+    success: false,
+    status: 429,
+    message: 'Too many requests, please try again later.'
+  }
+});
