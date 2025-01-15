@@ -1,10 +1,10 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import db from '../../models/index.js';
+import db from '../../../models/index.js';
 const { Course, CourseComparison } = db;
-import comparisonServices from '../../services/comparison-services.js';
-import addExtraProperty from '../../lib/utils/addExtraProperty.js';
-import helper from '../../lib/utils/helper.js';
+import comparisonServices from '../../../services/comparison-services.js';
+import addExtraProperty from '../../../lib/utils/addExtraProperty.js';
+import helper from '../../../lib/utils/helper.js';
 
 describe('comparison-services Unit Test', () => {
   describe('getComparisons', () => {

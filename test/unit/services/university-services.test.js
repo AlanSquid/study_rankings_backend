@@ -1,7 +1,6 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-
-import db from '../../models/index.js';
+import db from '../../../models/index.js';
 const {
   University,
   UniversityGroup,
@@ -11,9 +10,9 @@ const {
   CourseCategory,
   DegreeLevel
 } = db;
-import { Op, fn, col, where, or } from 'sequelize';
-import addExtraProperty from '../../lib/utils/addExtraProperty.js';
-import universityServices from '../../services/university-services.js';
+import { Op, fn, col, where } from 'sequelize';
+import addExtraProperty from '../../../lib/utils/addExtraProperty.js';
+import universityServices from '../../../services/university-services.js';
 import createError from 'http-errors';
 
 describe('university-services Unit Test', () => {

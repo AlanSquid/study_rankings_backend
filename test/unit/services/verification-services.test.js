@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import db from '../../models/index.js';
+import db from '../../../models/index.js';
 const { User } = db;
 import {
   smsVerification,
   emailVerification,
   resetPwdEmailVerification
-} from '../../lib/verification.js';
-import verificationServices from '../../services/verification-services.js';
+} from '../../../lib/verification.js';
+import verificationServices from '../../../services/verification-services.js';
 import createError from 'http-errors';
 
 describe('verification-services Unit Test', () => {

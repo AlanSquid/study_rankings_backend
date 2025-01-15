@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 import dayjs from 'dayjs';
-import LoginAttemptManager from '../../lib/login-attempt.js';
+import LoginAttemptManager from '../../../lib/login-attempt.js';
 
 describe('LoginAttemptManager', () => {
   let clock;

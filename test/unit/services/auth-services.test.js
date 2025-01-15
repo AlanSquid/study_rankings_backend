@@ -1,11 +1,11 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import db from '../../models/index.js';
+import db from '../../../models/index.js';
 const { User } = db;
-import authServices from '../../services/auth-services.js';
-import { emailVerification, smsVerification } from '../../lib/verification.js';
-import loginAttemptManager from '../../lib/login-attempt.js';
-import generateJWT from '../../lib/utils/generateJWT.js';
+import authServices from '../../../services/auth-services.js';
+import { emailVerification, smsVerification } from '../../../lib/verification.js';
+import loginAttemptManager from '../../../lib/login-attempt.js';
+import generateJWT from '../../../lib/utils/generateJWT.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import passport from 'passport';

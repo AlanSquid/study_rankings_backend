@@ -1,11 +1,11 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import db from '../../models/index.js';
+import db from '../../../models/index.js';
 const { User, Verification, Course, CourseFavorite } = db;
-import userServices from '../../services/user-services.js';
+import userServices from '../../../services/user-services.js';
 import bcrypt from 'bcryptjs';
-import loginAttemptManager from '../../lib/login-attempt.js';
-import addExtraProperty from '../../lib/utils/addExtraProperty.js';
+import loginAttemptManager from '../../../lib/login-attempt.js';
+import addExtraProperty from '../../../lib/utils/addExtraProperty.js';
 
 describe('user-services Unit Test', () => {
   describe('getUser', () => {

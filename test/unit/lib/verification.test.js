@@ -1,15 +1,15 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import db from '../../models/index.js';
+import db from '../../../models/index.js';
 const { User, Verification } = db;
 import { Op } from 'sequelize';
-import smsService from '../../lib/sms.js';
-import emailService from '../../lib/email.js';
+import smsService from '../../../lib/sms.js';
+import emailService from '../../../lib/email.js';
 import {
   smsVerification,
   emailVerification,
   resetPwdEmailVerification
-} from '../../lib/verification.js';
+} from '../../../lib/verification.js';
 import crypto from 'crypto';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc.js';
