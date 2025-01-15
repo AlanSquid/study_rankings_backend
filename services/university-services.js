@@ -93,7 +93,7 @@ const universityServices = {
     const whereConditions = {};
     if (course)
       whereConditions.name = where(
-        fn('lower', col('course.name')),
+        fn('lower', col('Course.name')),
         'LIKE',
         `%${course.toLowerCase()}%`
       );
@@ -105,7 +105,7 @@ const universityServices = {
     if (categoryId) whereConditions['$courseCategory.id$'] = categoryId;
     if (campus)
       whereConditions.campus = where(
-        fn('lower', col('course.campus')),
+        fn('lower', col('Course.campus')),
         'LIKE',
         `%${campus.toLowerCase()}%`
       );

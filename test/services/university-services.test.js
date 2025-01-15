@@ -323,7 +323,7 @@ describe('university-services Unit Test', () => {
           ],
           where: {
             name: where(
-              fn('lower', col('course.name')),
+              fn('lower', col('Course.name')),
               'LIKE',
               `%${req.query.course.toLowerCase()}%`
             ),
@@ -334,7 +334,7 @@ describe('university-services Unit Test', () => {
             minFee: { [Op.lte]: req.query.maxFee },
             '$courseCategory.id$': req.query.categoryId,
             campus: where(
-              fn('lower', col('course.campus')),
+              fn('lower', col('Course.campus')),
               'LIKE',
               `%${req.query.campus.toLowerCase()}%`
             ),
