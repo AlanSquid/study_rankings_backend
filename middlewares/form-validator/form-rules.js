@@ -13,9 +13,7 @@ const formRules = {
       .notEmpty()
       .withMessage('Phone number is required')
       .matches(/^09\d{8}$/)
-      .withMessage('Please enter a valid phone number')
-      .matches(/^.{10}$/)
-      .withMessage('Phone number must be exactly 10 characters'),
+      .withMessage('Please enter a valid phone number'),
     body('email')
       .notEmpty()
       .withMessage('Email is required')
@@ -58,9 +56,7 @@ const formRules = {
       .notEmpty()
       .withMessage('Phone number is required')
       .matches(/^09\d{8}$/)
-      .withMessage('Please enter a valid phone number')
-      .matches(/^.{10}$/)
-      .withMessage('Phone number must be exactly 10 characters'),
+      .withMessage('Please enter a valid phone number'),
     body('password')
       .notEmpty()
       .withMessage('Password is required')
@@ -120,12 +116,13 @@ const formRules = {
     body('phone')
       .notEmpty()
       .withMessage('Phone number is required')
+      .bail()
       .matches(/^09\d{8}$/)
       .withMessage('Please enter a valid phone number')
-      .matches(/^.{10}$/)
-      .withMessage('Phone number must be exactly 10 characters')
+      .bail()
       // value就是phone
       .custom(async (value) => {
+        value = value || '';
         const user = await User.findOne({ where: { phone: value } });
         if (user) {
           throw new Error('Phone number is already registered');
@@ -154,9 +151,7 @@ const formRules = {
       .notEmpty()
       .withMessage('Phone number is required')
       .matches(/^09\d{8}$/)
-      .withMessage('Please enter a valid phone number')
-      .matches(/^.{10}$/)
-      .withMessage('Phone number must be exactly 10 characters'),
+      .withMessage('Please enter a valid phone number'),
     body('email')
       .notEmpty()
       .withMessage('Email is required')

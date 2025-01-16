@@ -2,6 +2,7 @@
 
 // const { University, DegreeLevel, CourseCategory } = require('../../models');
 const { faker } = require('@faker-js/faker');
+const env = process.env.NODE_ENV || 'development';
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
@@ -14,8 +15,10 @@ module.exports = {
 
     const courses = [];
 
+    let counts = 100;
+    if (env === 'test') counts = 5;
     universities.forEach((university) => {
-      for (let i = 0; i < 100; i++) {
+      for (let i = 0; i < counts; i++) {
         const degreeLevel = i < 50 ? degreeLevels[0] : degreeLevels[1];
         const randomCourseCategory =
           courseCategories[Math.floor(Math.random() * courseCategories.length)];
