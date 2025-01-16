@@ -17,8 +17,6 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.tz.setDefault('Asia/Taipei');
 
-// let app;
-
 before(async () => {
   // 初始化資料庫
   execSync('npm run db-init', { stdio: 'inherit' });
@@ -29,9 +27,14 @@ before(async () => {
   );
 });
 
+// 本地端IP
+const LOCAL_IP = '::ffff:127.0.0.1';
+
 describe('POST /verifications/phone', () => {
   beforeEach(async () => {
     sinon.restore();
+    smsLimiter.resetKey(LOCAL_IP);
+    smsLimiterMax.resetKey(LOCAL_IP);
   });
   afterEach(async () => {
     // 清理資料庫中的資料
@@ -39,44 +42,43 @@ describe('POST /verifications/phone', () => {
     // 恢復 sinon
     sinon.restore();
   });
+  it('正常情況: Verification model要建立一筆新資料並回傳200', async () => {
+    // 模擬簡訊發送
+    const smsServiceMock = sinon.mock(smsService);
+    smsServiceMock
+      .expects('postSMS')
+      .once()
+      .resolves({ code: '00000', text: 'Success', msgid: 123456789 });
 
-  // it('正常情況: Verification model要建立一筆新資料並回傳200', async () => {
-  //   // 模擬簡訊發送
-  //   const smsServiceMock = sinon.mock(smsService);
-  //   smsServiceMock
-  //     .expects('postSMS')
-  //     .once()
-  //     .resolves({ code: '00000', text: 'Success', msgid: 123456789 });
+    const payload = { phone: '0987002093' };
+    const now = dayjs();
 
-  //   const payload = { phone: '0987002093' };
-  //   const now = dayjs();
+    // 模擬請求
+    const response = await request(app)
+      .post('/api/v1/verifications/phone')
+      .send(payload)
+      .expect('Content-Type', /json/)
+      .expect(200);
 
-  //   // 模擬請求
-  //   const response = await request(app)
-  //     .post('/api/v1/verifications/phone')
-  //     .send(payload)
-  //     .expect('Content-Type', /json/)
-  //     .expect(200);
+    // 要建立一筆Verification資料
+    const verification = await Verification.findOne({
+      where: { target: payload.phone, type: 'phone', expiresAt: { [Op.gt]: now } },
+      raw: true
+    });
 
-  //   // 要建立一筆Verification資料
-  //   const verification = await Verification.findOne({
-  //     where: { target: payload.phone, type: 'phone', expiresAt: { [Op.gt]: now } },
-  //     raw: true
-  //   });
-
-  //   smsServiceMock.verify();
-  //   expect(verification).to.deep.include({
-  //     target: payload.phone,
-  //     type: 'phone',
-  //     expiresAt: verification.expiresAt
-  //   });
-  //   // 驗證碼要是六位數字
-  //   expect(verification.code).to.match(/^\d{6}$/);
-  //   expect(response.body).to.deep.equal({
-  //     success: true,
-  //     message: 'Verification SMS sent'
-  //   });
-  // });
+    smsServiceMock.verify();
+    expect(verification).to.deep.include({
+      target: payload.phone,
+      type: 'phone',
+      expiresAt: verification.expiresAt
+    });
+    // 驗證碼要是六位數字
+    expect(verification.code).to.match(/^\d{6}$/);
+    expect(response.body).to.deep.equal({
+      success: true,
+      message: 'Verification SMS sent'
+    });
+  });
 
   it('異常情況: 手機號沒填寫要回傳400', async () => {
     // 模擬簡訊發送
@@ -168,13 +170,6 @@ describe('POST /verifications/phone', () => {
   });
 
   it('異常情況: 簡訊發送失敗要回傳502', async () => {
-    // 略過速率限制
-    const helper = {};
-    helper.smsLimiter = smsLimiter;
-    helper.smsLimiterMax = smsLimiterMax;
-    sinon.stub(helper, 'smsLimiter').callsFake((req, res, next) => next());
-    sinon.stub(helper, 'smsLimiterMax').callsFake((req, res, next) => next());
-
     // 模擬簡訊發送
     const smsServiceMock = sinon.mock(smsService);
     smsServiceMock
@@ -203,12 +198,12 @@ describe('POST /verifications/phone', () => {
     // 模擬簡訊發送
     const smsServiceMock = sinon.mock(smsService);
     // 不應該發送簡訊
-    smsServiceMock.expects('postSMS').never();
+    smsServiceMock.expects('postSMS').once();
 
     const payload = { phone: '0987002093' };
 
     // 第一次請求
-    await request(app).post('/api/v1/verifications/phone').send(payload);
+    await request(app).post('/api/v1/verifications/phone').send(payload).expect(200);
     // 第二次請求
     const response = await request(app)
       .post('/api/v1/verifications/phone')
