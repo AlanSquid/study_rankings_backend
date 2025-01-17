@@ -68,7 +68,6 @@ describe('verification-services Unit Test', () => {
       const data = await verificationServices.sendEmailVerification(req);
 
       expect(data.success).to.be.true;
-      expect(data.verificationUrl).to.equal(mockUrl);
       expect(User.findByPk.calledWith(req.user.id)).to.be.true;
       expect(emailVerification.sendVerificationEmail.calledWith(req.user.id, req.body.email)).to.be
         .true;
@@ -108,6 +107,23 @@ describe('verification-services Unit Test', () => {
         expect(error.message).to.equal(
           'The provided email does not match the registered email address'
         );
+      }
+    });
+
+    it('異常情境：Email已驗證時應拋出400錯誤', async () => {
+      const req = {
+        user: { id: 1 },
+        body: { email: 'test@example.com' }
+      };
+      const mockUser = { email: 'test@example.com', isEmailVerified: true };
+      sinon.stub(User, 'findByPk').resolves(mockUser);
+
+      try {
+        await verificationServices.sendEmailVerification(req);
+        expect.fail('預期應拋出400錯誤，但沒有拋出任何錯誤');
+      } catch (error) {
+        expect(error.status).to.equal(400);
+        expect(error.message).to.equal('Email already verified');
       }
     });
 

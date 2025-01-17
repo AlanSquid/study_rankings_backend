@@ -269,7 +269,7 @@ describe('auth-services Unit Test', () => {
       const mockHashedPassword = 'hashedPassword123';
       const mockAccessToken = 'access.token';
       const mockRefreshToken = 'refresh.token';
-      const mockVerificationLink = 'http://www.example.com/verify-email/code=code123';
+      const mockVerificationUrl = 'http://www.example.com/verify-email/code=code123';
 
       // 模擬找不到已存在用戶
       sinon.stub(User, 'findOne').resolves(null);
@@ -286,7 +286,7 @@ describe('auth-services Unit Test', () => {
         password: mockHashedPassword
       });
       // 模擬發送驗證郵件
-      sinon.stub(emailVerification, 'sendVerificationEmail').resolves(mockVerificationLink);
+      sinon.stub(emailVerification, 'sendVerificationEmail').resolves(mockVerificationUrl);
 
       // 模擬產生 token
       sinon.stub(generateJWT, 'getAccessToken').resolves(mockAccessToken);
@@ -295,13 +295,6 @@ describe('auth-services Unit Test', () => {
       const data = await authServices.register(mockReq);
 
       expect(data.success).to.be.true;
-      expect(data.user).to.deep.equal({
-        id: 1,
-        name: mockReq.body.name,
-        phone: mockReq.body.phone,
-        email: mockReq.body.email
-      });
-      expect(data.verificationLink).to.equal(mockVerificationLink);
       expect(data.accessToken).to.equal(mockAccessToken);
       expect(data.refreshToken).to.equal(mockRefreshToken);
       expect(

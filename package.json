@@ -7,7 +7,7 @@
     "start": "node ./bin/www",
     "dev": "nodemon ./bin/www",
     "test": "npx cross-env NODE_ENV=test mocha 'test/unit/**/*.test.js' --exit --recursive --timeout 10000",
-    "test:int": "npx cross-env NODE_ENV=test mocha 'test/integration/**/*.test.js' --exit --recursive --timeout 10000",
+    "test:int": "npx cross-env NODE_ENV=test npm run db-init && npx cross-env NODE_ENV=test npx sequelize db:seed --seeders-path seeders/fakes --seed 20241230073156-create-fake-courses.cjs && npx cross-env NODE_ENV=test mocha 'test/integration/**/*.test.js' --exit --recursive --timeout 15000",
     "prettier": "npx prettier --write .",
     "lint": "npx prettier --write . && npx eslint .",
     "lint:fix": "npx eslint . --fix",

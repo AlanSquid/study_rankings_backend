@@ -119,10 +119,10 @@ const authServices = {
     const refreshToken = generateJWT.getRefreshToken(user);
 
     // 註冊成功寄送email驗證信
-    const verificationLink = await emailVerification.sendVerificationEmail(user.id, email);
+    await emailVerification.sendVerificationEmail(user.id, email);
 
     // accessToken回傳json給前端，refreshToken回傳httpOnly cookie
-    return { success: true, user, verificationLink, accessToken, refreshToken };
+    return { success: true, accessToken, refreshToken };
   }
 };
 

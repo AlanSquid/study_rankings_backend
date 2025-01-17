@@ -20,8 +20,9 @@ const verificationServices = {
     if (!user) throw createError(404, 'User not found');
     if (email !== user.email)
       throw createError(400, 'The provided email does not match the registered email address');
-    const verificationUrl = await emailVerification.sendVerificationEmail(userId, email);
-    return { success: true, verificationUrl };
+    if (user.isEmailVerified) throw createError(400, 'Email already verified');
+    await emailVerification.sendVerificationEmail(userId, email);
+    return { success: true, message: 'Verification email sent' };
   },
   verifyEmail: async (req) => {
     const code = req.body.code;

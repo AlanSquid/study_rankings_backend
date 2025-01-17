@@ -181,12 +181,12 @@ describe('Verification Library Unit Test', () => {
         sinon.stub(emailVerification, 'generateVerificationData').resolves();
         sinon.stub(emailService, 'sendMail').resolves();
 
-        const verificationLink = await emailVerification.sendVerificationEmail(
+        const verificationUrl = await emailVerification.sendVerificationEmail(
           1,
           'test@example.com'
         );
 
-        expect(verificationLink).to.include(mockCode);
+        expect(verificationUrl).to.include(mockCode);
         expect(emailService.sendMail.calledOnce).to.be.true;
       });
     });

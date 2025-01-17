@@ -1,44 +1,36 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 import request from 'supertest';
-import { execSync } from 'child_process';
 import db from '../../models/index.js';
 const { User, Verification } = db;
 import { Op } from 'sequelize';
 import smsService from '../../lib/sms.js';
 import { smsLimiter, smsLimiterMax } from '../../middlewares/rate-limit.js';
+import app from '../../app.js';
+import createError from 'http-errors';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc.js';
 import timezone from 'dayjs/plugin/timezone.js';
-import app from '../../app.js';
-import createError from 'http-errors';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.tz.setDefault('Asia/Taipei');
 
-before(async () => {
-  // 初始化資料庫
-  execSync('npm run db-init', { stdio: 'inherit' });
-  // 執行假資料
-  execSync(
-    'npx sequelize db:seed --seeders-path seeders/fakes --seed 20241230073156-create-fake-courses.cjs',
-    { stdio: 'inherit' }
-  );
-});
-
 // 本地端IP
 const LOCAL_IP = '::ffff:127.0.0.1';
 
 describe('POST /verifications/phone', () => {
+  let user;
   beforeEach(async () => {
     sinon.restore();
+    // 重置速率限制
     smsLimiter.resetKey(LOCAL_IP);
     smsLimiterMax.resetKey(LOCAL_IP);
   });
   afterEach(async () => {
     // 清理資料庫中的資料
     await Verification.destroy({ where: {}, truncate: true });
+    if (user) await user.destroy();
     // 恢復 sinon
     sinon.restore();
   });
@@ -50,7 +42,7 @@ describe('POST /verifications/phone', () => {
       .once()
       .resolves({ code: '00000', text: 'Success', msgid: 123456789 });
 
-    const payload = { phone: '0987002093' };
+    const payload = { phone: '0989889889' };
     const now = dayjs();
 
     // 模擬請求
@@ -138,10 +130,10 @@ describe('POST /verifications/phone', () => {
     // 不應該發送簡訊
     smsServiceMock.expects('postSMS').never();
 
-    const payload = { phone: '0987002093' };
+    const payload = { phone: '0989889889' };
 
     // 建立一筆使用者資料
-    const user = await User.create({
+    user = await User.create({
       name: 'test',
       phone: payload.phone,
       email: 'test@test.com',
@@ -166,7 +158,6 @@ describe('POST /verifications/phone', () => {
         phone: 'Phone number is already registered'
       }
     });
-    await user.destroy();
   });
 
   it('異常情況: 簡訊發送失敗要回傳502', async () => {
@@ -177,7 +168,7 @@ describe('POST /verifications/phone', () => {
       .once()
       .rejects(createError(502, 'SMS service error occurred'));
 
-    const payload = { phone: '0987002093' };
+    const payload = { phone: '0989889889' };
 
     // 模擬請求
     const response = await request(app)
@@ -200,7 +191,7 @@ describe('POST /verifications/phone', () => {
     // 不應該發送簡訊
     smsServiceMock.expects('postSMS').once();
 
-    const payload = { phone: '0987002093' };
+    const payload = { phone: '0989889889' };
 
     // 第一次請求
     await request(app).post('/api/v1/verifications/phone').send(payload).expect(200);
