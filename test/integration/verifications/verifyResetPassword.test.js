@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import request from 'supertest';
 import db from '../../../models/index.js';
 const { User, Verification } = db;
+import { Op } from 'sequelize';
 import app from '../../../app.js';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc.js';
@@ -11,8 +12,8 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.tz.setDefault('Asia/Taipei');
 
-describe('POST /verifications/email/verify', () => {
-  let user;
+describe('POST /verifications/reset-pwd/verify', () => {
+  let user, verification;
   beforeEach(async () => {
     user = await User.create({
       id: 1,
@@ -21,14 +22,14 @@ describe('POST /verifications/email/verify', () => {
       phone: '0989889889',
       password: '12345678',
       isPhoneVerified: true,
-      isEmailVerified: false
+      isEmailVerified: true
     });
-    await Verification.create({
-      type: 'email',
+    verification = await Verification.create({
+      userId: user.id,
+      type: 'reset_pwd',
       target: user.email,
       code: '123456',
-      userId: user.id,
-      expiresAt: dayjs().add(24, 'hour').format()
+      expiresAt: dayjs().add(30, 'minute').toDate()
     });
   });
 
@@ -38,24 +39,24 @@ describe('POST /verifications/email/verify', () => {
     await user.destroy();
   });
 
-  it('正常情況: 驗證email成功，回傳200', async () => {
+  it('正常情況: 驗證reset password成功，回傳200', async () => {
     const payload = { code: '123456' };
 
     // 模擬請求
     const response = await request(app)
-      .post('/api/v1/verifications/email/verify')
+      .post('/api/v1/verifications/reset-pwd/verify')
       .send(payload)
       .expect('Content-Type', /json/)
       .expect(200);
 
-    const updatedUser = await User.findByPk(user.id);
-    const verification = await Verification.findOne({ where: { userId: user.id } });
+    const checkVerification = await Verification.findOne({
+      where: { userId: user.id, expiresAt: { [Op.gt]: dayjs().toDate() } }
+    });
 
-    expect(updatedUser.isEmailVerified).to.be.true;
-    expect(verification).to.be.null;
+    expect(checkVerification).to.not.be.null;
     expect(response.body).to.deep.equal({
       success: true,
-      message: 'Email verification successful'
+      message: 'Reset password verification successful'
     });
   });
 
@@ -64,48 +65,45 @@ describe('POST /verifications/email/verify', () => {
 
     // 模擬請求
     const response = await request(app)
-      .post('/api/v1/verifications/email/verify')
+      .post('/api/v1/verifications/reset-pwd/verify')
       .send(payload)
       .expect('Content-Type', /json/)
       .expect(400);
 
-    const updatedUser = await User.findByPk(user.id);
-    const verification = await Verification.findOne({ where: { userId: user.id } });
+    const checkVerification = await Verification.findOne({
+      where: { userId: user.id, expiresAt: { [Op.gt]: dayjs().toDate() } }
+    });
 
-    expect(updatedUser.isEmailVerified).to.be.false;
-    expect(verification).to.not.be.null;
+    expect(checkVerification).to.not.be.null;
     expect(response.body).to.deep.equal({
       success: false,
-      message: 'Invalid or expired verification code',
-      status: 400
+      status: 400,
+      message: 'Invalid or expired verification code'
     });
   });
 
-  it('異常情況: 驗證碼過期，回傳400', async () => {
-    const payload = { code: '123456' };
+  it('錯誤情況: 驗證碼過期，回傳400', async () => {
+    verification.expiresAt = dayjs().subtract(1, 'minute').toDate();
+    await verification.save();
 
-    // 更新驗證碼的過期時間
-    await Verification.update(
-      { expiresAt: dayjs().subtract(1, 'hour').format() },
-      { where: { userId: user.id } }
-    );
+    const payload = { code: '123456' };
 
     // 模擬請求
     const response = await request(app)
-      .post('/api/v1/verifications/email/verify')
+      .post('/api/v1/verifications/reset-pwd/verify')
       .send(payload)
       .expect('Content-Type', /json/)
       .expect(400);
 
-    const updatedUser = await User.findByPk(user.id);
-    const verification = await Verification.findOne({ where: { userId: user.id } });
+    const checkVerification = await Verification.findOne({
+      where: { userId: user.id, expiresAt: { [Op.gt]: dayjs().toDate() } }
+    });
 
-    expect(updatedUser.isEmailVerified).to.be.false;
-    expect(verification).to.not.be.null;
+    expect(checkVerification).to.be.null;
     expect(response.body).to.deep.equal({
       success: false,
-      message: 'Invalid or expired verification code',
-      status: 400
+      status: 400,
+      message: 'Invalid or expired verification code'
     });
   });
 });

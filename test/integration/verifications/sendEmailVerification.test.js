@@ -19,17 +19,16 @@ const LOCAL_IP = '::ffff:127.0.0.1';
 
 describe('POST /verifications/email', () => {
   let user;
-  const testUser = {
-    id: 1,
-    name: 'test',
-    email: 'test@test.com',
-    phone: '0989889889',
-    password: '12345678',
-    isPhoneVerified: true,
-    isEmailVerified: false
-  };
   beforeEach(async () => {
-    user = await User.create(testUser);
+    user = await User.create({
+      id: 1,
+      name: 'test',
+      email: 'test@test.com',
+      phone: '0989889889',
+      password: '12345678',
+      isPhoneVerified: true,
+      isEmailVerified: false
+    });
     // 重置速率限制
     emailLimiter.resetKey(LOCAL_IP);
   });

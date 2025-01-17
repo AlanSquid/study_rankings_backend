@@ -3,9 +3,7 @@ import request from 'supertest';
 import db from '../../../models/index.js';
 const { User, Verification } = db;
 import { Op } from 'sequelize';
-import { emailLimiter } from '../../../middlewares/rate-limit.js';
 import app from '../../../app.js';
-import generateJWT from '../../../lib/utils/generateJWT.js';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc.js';
 import timezone from 'dayjs/plugin/timezone.js';
@@ -16,17 +14,16 @@ dayjs.tz.setDefault('Asia/Taipei');
 
 describe('POST /verifications/reset-pwd', () => {
   let user;
-  const testUser = {
-    id: 1,
-    name: 'test',
-    email: 'test@test.com',
-    phone: '0989889889',
-    password: '12345678',
-    isPhoneVerified: true,
-    isEmailVerified: false
-  };
   beforeEach(async () => {
-    user = await User.create(testUser);
+    user = await User.create({
+      id: 1,
+      name: 'test',
+      email: 'test@test.com',
+      phone: '0989889889',
+      password: '12345678',
+      isPhoneVerified: true,
+      isEmailVerified: false
+    });
   });
 
   afterEach(async () => {
