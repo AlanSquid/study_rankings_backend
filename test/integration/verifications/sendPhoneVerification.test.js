@@ -1,12 +1,12 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 import request from 'supertest';
-import db from '../../models/index.js';
+import db from '../../../models/index.js';
 const { User, Verification } = db;
 import { Op } from 'sequelize';
-import smsService from '../../lib/sms.js';
-import { smsLimiter, smsLimiterMax } from '../../middlewares/rate-limit.js';
-import app from '../../app.js';
+import smsService from '../../../lib/sms.js';
+import { smsLimiter, smsLimiterMax } from '../../../middlewares/rate-limit.js';
+import app from '../../../app.js';
 import createError from 'http-errors';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc.js';

@@ -1,17 +1,14 @@
 import { expect } from 'chai';
-import sinon from 'sinon';
 import request from 'supertest';
-import db from '../../models/index.js';
+import db from '../../../models/index.js';
 const { User, Verification } = db;
 import { Op } from 'sequelize';
-import { emailLimiter } from '../../middlewares/rate-limit.js';
-import app from '../../app.js';
-import createError from 'http-errors';
-import generateJWT from '../../lib/utils/generateJWT.js';
+import { emailLimiter } from '../../../middlewares/rate-limit.js';
+import app from '../../../app.js';
+import generateJWT from '../../../lib/utils/generateJWT.js';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc.js';
 import timezone from 'dayjs/plugin/timezone.js';
-import e, { response } from 'express';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);

@@ -33,7 +33,7 @@ router.post(
 );
 // 發送重置密碼email
 router.post(
-  '/reset-pwd/',
+  '/reset-pwd',
   formRules.sendResetPasswordEmail,
   validationHandler,
   verificationController.sendResetPasswordEmail
