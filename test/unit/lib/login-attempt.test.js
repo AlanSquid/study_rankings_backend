@@ -76,11 +76,11 @@ describe('LoginAttemptManager', () => {
       expect(result.remainingAttempts).to.equal(3);
     });
 
-    it('應該在第3次失敗時鎖定2分鐘', () => {
+    it('應該在第5次失敗時鎖定2分鐘', () => {
       const ip = '127.0.0.1';
       const phone = '0912345678';
 
-      for (let i = 0; i < 3; i++) {
+      for (let i = 0; i < 5; i++) {
         LoginAttemptManager.recordFailedAttempt(ip, phone);
       }
 
@@ -88,11 +88,23 @@ describe('LoginAttemptManager', () => {
       expect(info.lockUntil.diff(dayjs(), 'minute')).to.equal(2);
     });
 
-    it('應該在第5次失敗時鎖定30分鐘', () => {
+    it('應該在第6次失敗時鎖定5分鐘', () => {
       const ip = '127.0.0.1';
       const phone = '0912345678';
 
-      for (let i = 0; i < 5; i++) {
+      for (let i = 0; i < 6; i++) {
+        LoginAttemptManager.recordFailedAttempt(ip, phone);
+      }
+
+      const info = LoginAttemptManager.getAttemptInfo(ip, phone);
+      expect(info.lockUntil.diff(dayjs(), 'minute')).to.equal(5);
+    });
+
+    it('應該在第7次失敗時鎖定30分鐘', () => {
+      const ip = '127.0.0.1';
+      const phone = '0912345678';
+
+      for (let i = 0; i < 7; i++) {
         LoginAttemptManager.recordFailedAttempt(ip, phone);
       }
 
