@@ -1,8 +1,10 @@
 import { expect } from 'chai';
 import request from 'supertest';
+import sinon from 'sinon';
 import db from '../../../models/index.js';
 const { User, Verification } = db;
 import { Op } from 'sequelize';
+import emailService from '../../../lib/email.js';
 import app from '../../../app.js';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc.js';
@@ -30,11 +32,14 @@ describe('POST /verifications/reset-pwd', () => {
     // 清理資料庫中的資料
     await Verification.destroy({ where: {}, truncate: true });
     await user.destroy();
+    sinon.restore();
   });
 
   it('正常情況: Verification model要建立一筆新資料並回傳200', async () => {
     const payload = { phone: user.phone, email: user.email };
     const now = dayjs();
+
+    sinon.stub(emailService, 'sendMail').resolves();
 
     // 模擬請求
     const response = await request(app)
@@ -64,7 +69,7 @@ describe('POST /verifications/reset-pwd', () => {
     });
   });
 
-  it('異常情況: 未提供email跟pohone，回傳400', async () => {
+  it('異常情況: 未提供email跟phone，回傳400', async () => {
     const payload = {};
 
     // 模擬請求

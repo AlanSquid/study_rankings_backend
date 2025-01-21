@@ -1,11 +1,13 @@
 import { expect } from 'chai';
 import request from 'supertest';
+import sinon from 'sinon';
 import db from '../../../models/index.js';
 const { User, Verification } = db;
 import { Op } from 'sequelize';
 import { emailLimiter } from '../../../middlewares/rate-limit.js';
 import app from '../../../app.js';
 import generateJWT from '../../../lib/utils/generateJWT.js';
+import emailService from '../../../lib/email.js';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc.js';
 import timezone from 'dayjs/plugin/timezone.js';
@@ -37,6 +39,7 @@ describe('POST /verifications/email', () => {
     // 清理資料庫中的資料
     await Verification.destroy({ where: {}, truncate: true });
     await user.destroy();
+    sinon.restore();
   });
 
   it('正常情況: Verification model要建立一筆新資料並回傳200', async () => {
@@ -45,6 +48,9 @@ describe('POST /verifications/email', () => {
 
     // 模擬使用者登入
     const accessToken = await generateJWT.getAccessToken(user);
+
+    const emailServiceMock = sinon.mock(emailService);
+    emailServiceMock.expects('sendMail').once().resolves();
 
     // 模擬請求
     const response = await request(app)
@@ -64,6 +70,8 @@ describe('POST /verifications/email', () => {
       },
       raw: true
     });
+
+    emailServiceMock.verify();
     expect(verification).to.deep.include({
       target: payload.email,
       type: 'email',
@@ -77,6 +85,9 @@ describe('POST /verifications/email', () => {
   it('異常情況: 使用者未登入，應回傳401', async () => {
     const payload = { email: 'test@test.com' };
 
+    const emailServiceMock = sinon.mock(emailService);
+    emailServiceMock.expects('sendMail').never();
+
     // 模擬請求
     const response = await request(app)
       .post('/api/v1/verifications/email')
@@ -84,6 +95,7 @@ describe('POST /verifications/email', () => {
       .expect('Content-Type', /json/)
       .expect(401);
 
+    emailServiceMock.verify();
     expect(response.body).to.deep.equal({ success: false, status: 401, message: 'Unauthorized' });
   });
 
@@ -92,6 +104,8 @@ describe('POST /verifications/email', () => {
     await user.save();
 
     const payload = { email: user.email };
+    const emailServiceMock = sinon.mock(emailService);
+    emailServiceMock.expects('sendMail').never();
 
     // 模擬使用者登入
     const accessToken = await generateJWT.getAccessToken(user);
@@ -104,6 +118,7 @@ describe('POST /verifications/email', () => {
       .expect('Content-Type', /json/)
       .expect(400);
 
+    emailServiceMock.verify();
     expect(await Verification.findOne({ where: { target: payload.email, type: 'email' } })).to.be
       .null;
     expect(response.body).to.deep.equal({
@@ -119,6 +134,9 @@ describe('POST /verifications/email', () => {
     // 模擬使用者登入
     const accessToken = await generateJWT.getAccessToken(user);
 
+    const emailServiceMock = sinon.mock(emailService);
+    emailServiceMock.expects('sendMail').never();
+
     // 模擬請求
     const response = await request(app)
       .post('/api/v1/verifications/email')
@@ -127,6 +145,7 @@ describe('POST /verifications/email', () => {
       .expect('Content-Type', /json/)
       .expect(400);
 
+    emailServiceMock.verify();
     expect(response.body).to.deep.equal({
       success: false,
       status: 400,
@@ -143,6 +162,9 @@ describe('POST /verifications/email', () => {
     // 模擬使用者登入
     const accessToken = await generateJWT.getAccessToken(user);
 
+    const emailServiceMock = sinon.mock(emailService);
+    emailServiceMock.expects('sendMail').never();
+
     // 模擬請求
     const response = await request(app)
       .post('/api/v1/verifications/email')
@@ -151,6 +173,7 @@ describe('POST /verifications/email', () => {
       .expect('Content-Type', /json/)
       .expect(400);
 
+    emailServiceMock.verify();
     expect(response.body).to.deep.equal({
       success: false,
       status: 400,
@@ -167,6 +190,9 @@ describe('POST /verifications/email', () => {
     // 模擬使用者登入
     const accessToken = await generateJWT.getAccessToken(user);
 
+    const emailServiceMock = sinon.mock(emailService);
+    emailServiceMock.expects('sendMail').never();
+
     // 模擬請求
     const response = await request(app)
       .post('/api/v1/verifications/email')
@@ -175,6 +201,7 @@ describe('POST /verifications/email', () => {
       .expect('Content-Type', /json/)
       .expect(400);
 
+    emailServiceMock.verify();
     expect(response.body).to.deep.equal({
       success: false,
       status: 400,
@@ -188,7 +215,10 @@ describe('POST /verifications/email', () => {
     // 模擬使用者登入
     const accessToken = await generateJWT.getAccessToken(user);
 
-    // 模擬請求四次
+    const emailServiceMock = sinon.mock(emailService);
+    emailServiceMock.expects('sendMail').exactly(5);
+
+    // 模擬請求五次
     for (let i = 0; i < 5; i++) {
       await request(app)
         .post('/api/v1/verifications/email')
@@ -197,7 +227,7 @@ describe('POST /verifications/email', () => {
         .expect('Content-Type', /json/)
         .expect(200);
     }
-    // 第五次請求
+    // 第六次請求
     const response = await request(app)
       .post('/api/v1/verifications/email')
       .set('Authorization', `Bearer ${accessToken}`)
@@ -205,6 +235,7 @@ describe('POST /verifications/email', () => {
       .expect('Content-Type', /json/)
       .expect(429);
 
+    emailServiceMock.verify();
     expect(response.body).to.deep.equal({
       success: false,
       status: 429,
