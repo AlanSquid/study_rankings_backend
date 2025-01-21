@@ -1,6 +1,7 @@
 'use strict';
-const { Model } = require('sequelize');
-module.exports = (sequelize, DataTypes) => {
+import { Model } from 'sequelize';
+
+export default (sequelize, DataTypes) => {
   class Course extends Model {
     /**
      * Helper method for defining associations.
@@ -8,15 +9,26 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      Course.belongsTo(models.University, { foreignKey: 'universityId' });
-      Course.belongsTo(models.CourseCategory, { foreignKey: 'courseCategoryId' });
-      Course.belongsTo(models.DegreeLevel, { foreignKey: 'degreeLevelId' });
-      Course.belongsTo(models.Currency, { foreignKey: 'currencyId' });
-      Course.hasMany(models.CourseComparison, { foreignKey: 'courseId' });
+      Course.belongsTo(models.University, { foreignKey: 'universityId', as: 'university' });
+      Course.belongsTo(models.CourseCategory, {
+        foreignKey: 'courseCategoryId',
+        as: 'courseCategory'
+      });
+      Course.belongsTo(models.DegreeLevel, { foreignKey: 'degreeLevelId', as: 'degreeLevel' });
+      Course.belongsTo(models.Currency, { foreignKey: 'currencyId', as: 'currency' });
+      Course.hasMany(models.CourseComparison, { foreignKey: 'courseId', as: 'courseComparison' });
       Course.belongsToMany(models.User, {
         through: models.CourseComparison,
         foreignKey: 'courseId',
-        otherKey: 'userId'
+        otherKey: 'userId',
+        as: 'comparisonUsers'
+      });
+      Course.hasMany(models.CourseFavorite, { foreignKey: 'courseId', as: 'courseFavorite' });
+      Course.belongsToMany(models.User, {
+        through: models.CourseFavorite,
+        foreignKey: 'courseId',
+        otherKey: 'userId',
+        as: 'user'
       });
     }
   }
@@ -29,10 +41,10 @@ module.exports = (sequelize, DataTypes) => {
       currencyId: DataTypes.INTEGER,
       minFee: DataTypes.INTEGER,
       maxFee: DataTypes.INTEGER,
-      engReq: DataTypes.INTEGER,
+      engReq: DataTypes.FLOAT,
       engReqInfo: DataTypes.STRING(50),
       duration: DataTypes.INTEGER,
-      location: DataTypes.STRING(50),
+      campus: DataTypes.STRING(50),
       courseUrl: DataTypes.STRING,
       engReqUrl: DataTypes.STRING,
       acadReqUrl: DataTypes.STRING,

@@ -1,5 +1,5 @@
-const universityServices = require('../services/university-services');
-const { formatResponse } = require('../lib/utils/format-response');
+import universityServices from '../services/university-services.js';
+import formatResponse from '../lib/utils/formatResponse.js';
 
 const universityController = {
   getUniversities: async (req, res, next) => {
@@ -13,14 +13,6 @@ const universityController = {
   getUniversityRanks: async (req, res, next) => {
     try {
       const data = await universityServices.getUniversityRanks(req);
-      res.json(formatResponse(data));
-    } catch (err) {
-      next(err);
-    }
-  },
-  getStatesTerritories: async (req, res, next) => {
-    try {
-      const data = await universityServices.getStatesTerritories(req);
       res.json(formatResponse(data));
     } catch (err) {
       next(err);
@@ -44,4 +36,4 @@ const universityController = {
   }
 };
 
-module.exports = universityController;
+export default universityController;

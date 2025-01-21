@@ -1,5 +1,8 @@
-const { University, UniversityRank, Course, CourseComparison } = require('../models');
-const createError = require('http-errors');
+import db from '../models/index.js';
+const { Course, CourseComparison, University, UniversityRank } = db;
+import addExtraProperty from '../lib/utils/addExtraProperty.js';
+import helper from '../lib/utils/helper.js';
+import createError from 'http-errors';
 
 const comparisonServices = {
   getComparisons: async (req) => {
@@ -13,20 +16,24 @@ const comparisonServices = {
         'engReq',
         'engReqInfo',
         'duration',
-        'location'
+        'campus',
+        'courseUrl'
       ],
       include: [
         {
           model: CourseComparison,
+          as: 'courseComparison',
           where: { userId },
           attributes: []
         },
         {
           model: University,
+          as: 'university',
           attributes: ['name', 'emblemPic'],
           include: [
             {
               model: UniversityRank,
+              as: 'universityRank',
               attributes: ['rank']
             }
           ]
@@ -37,22 +44,26 @@ const comparisonServices = {
     });
     // 簡化巢狀結構，將 UniversityRank 的 rank 放到 University 的屬性中
     const courses = coursesRaw.map((course) => {
-      if (course.University && course.University.UniversityRank) {
-        const { UniversityRank, ...universityWithoutRank } = course.University;
+      if (course.university?.universityRank) {
+        const {
+          universityRank: { rank },
+          ...universityWithoutRank
+        } = course.university;
         return {
           ...course,
-          University: {
+          university: {
             ...universityWithoutRank,
-            rank: UniversityRank.rank
+            rank
           }
         };
       }
       return course;
     });
 
-    const comparisonCount = courses.length;
+    // 有使用者登入的情況下，查詢使用者的比較清單跟收藏清單
+    await addExtraProperty.isFavorited(courses, userId);
 
-    return { success: true, comparisonCount, courses };
+    return { success: true, courses };
   },
   addComparison: async (req) => {
     const userId = req.user.id;
@@ -66,14 +77,19 @@ const comparisonServices = {
     });
     if (comparison) throw createError(409, 'Course already exists in comparison');
 
+    // 比較清單上限為10
+    const comparisonCount = await helper.getComparisonCount(userId);
+    if (comparisonCount >= 10) throw createError(400, 'Comparison limit exceeded');
+
     await CourseComparison.create({
       userId,
       courseId
     });
 
-    const comparisonCount = await CourseComparison.count({ where: { userId } });
-
-    return { success: true, comparisonCount, message: 'Course successfully added to comparison' };
+    return {
+      success: true,
+      message: 'Course successfully added to comparison'
+    };
   },
   removeComparison: async (req) => {
     const userId = req.user.id;
@@ -85,14 +101,12 @@ const comparisonServices = {
     if (!comparison) throw createError(404, 'Course not found in comparison');
 
     await comparison.destroy();
-    const comparisonCount = await CourseComparison.count({ where: { userId } });
 
     return {
       success: true,
-      comparisonCount,
       message: 'Course successfully removed from comparison'
     };
   }
 };
 
-module.exports = comparisonServices;
+export default comparisonServices;

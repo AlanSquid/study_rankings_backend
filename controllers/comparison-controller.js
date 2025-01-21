@@ -1,5 +1,5 @@
-const comparisonServices = require('../services/comparison-services');
-const { formatResponse } = require('../lib/utils/format-response');
+import comparisonServices from '../services/comparison-services.js';
+import formatResponse from '../lib/utils/formatResponse.js';
 
 const comparisonController = {
   getComparisons: async (req, res, next) => {
@@ -28,4 +28,4 @@ const comparisonController = {
   }
 };
 
-module.exports = comparisonController;
+export default comparisonController;

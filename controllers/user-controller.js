@@ -1,5 +1,5 @@
-const userServices = require('../services/user-services');
-const { formatResponse } = require('../lib/utils/format-response');
+import userServices from '../services/user-services.js';
+import formatResponse from '../lib/utils/formatResponse.js';
 
 const userController = {
   getUser: async (req, res, next) => {
@@ -41,7 +41,31 @@ const userController = {
     } catch (err) {
       next(err);
     }
+  },
+  getFavorites: async (req, res, next) => {
+    try {
+      const data = await userServices.getFavorites(req);
+      res.json(formatResponse(data));
+    } catch (err) {
+      next(err);
+    }
+  },
+  addFavorite: async (req, res, next) => {
+    try {
+      const data = await userServices.addFavorite(req);
+      res.json(formatResponse(data));
+    } catch (err) {
+      next(err);
+    }
+  },
+  deleteFavorite: async (req, res, next) => {
+    try {
+      const data = await userServices.deleteFavorite(req);
+      res.json(formatResponse(data));
+    } catch (err) {
+      next(err);
+    }
   }
 };
 
-module.exports = userController;
+export default userController;

@@ -1,5 +1,6 @@
-const authServices = require('../services/auth-services');
-const { formatResponse } = require('../lib/utils/format-response');
+import authServices from '../services/auth-services.js';
+import formatResponse from '../lib/utils/formatResponse.js';
+// import { google } from 'googleapis';
 
 const authController = {
   refresh: async (req, res, next) => {
@@ -50,9 +51,18 @@ const authController = {
       });
       res.json(formatResponse(restData));
     } catch (err) {
+      // 手機驗證碼錯誤特殊處理
+      if (err.status === 400) {
+        return res.status(400).json({
+          success: false,
+          status: 400,
+          message: 'Validation error',
+          errors: { verificationCode: err.message }
+        });
+      }
       next(err);
     }
   }
 };
 
-module.exports = authController;
+export default authController;

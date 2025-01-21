@@ -1,6 +1,7 @@
 'use strict';
-const { Model } = require('sequelize');
-module.exports = (sequelize, DataTypes) => {
+import { Model } from 'sequelize';
+
+export default (sequelize, DataTypes) => {
   class DegreeLevel extends Model {
     /**
      * Helper method for defining associations.
@@ -8,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      DegreeLevel.hasMany(models.Course, { foreignKey: 'degreeLevelId' });
+      DegreeLevel.hasMany(models.Course, { foreignKey: 'degreeLevelId', as: 'course' });
     }
   }
   DegreeLevel.init(

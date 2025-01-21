@@ -1,6 +1,7 @@
 'use strict';
-const { Model } = require('sequelize');
-module.exports = (sequelize, DataTypes) => {
+import { Model } from 'sequelize';
+
+export default (sequelize, DataTypes) => {
   class User extends Model {
     /**
      * Helper method for defining associations.
@@ -10,13 +11,22 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       User.hasMany(models.Verification, {
         foreignKey: 'userId',
-        onDelete: 'SET NULL'
+        onDelete: 'SET NULL',
+        as: 'verification'
       });
-      User.hasMany(models.CourseComparison, { foreignKey: 'userId' });
+      User.hasMany(models.CourseComparison, { foreignKey: 'userId', as: 'courseComparison' });
       User.belongsToMany(models.Course, {
         through: models.CourseComparison,
         foreignKey: 'userId',
-        otherKey: 'courseId'
+        otherKey: 'courseId',
+        as: 'userComparison'
+      });
+      User.hasMany(models.CourseFavorite, { foreignKey: 'userId', as: 'courseFavorite' });
+      User.belongsToMany(models.Course, {
+        through: models.CourseFavorite,
+        foreignKey: 'userId',
+        otherKey: 'courseId',
+        as: 'userFavorites'
       });
     }
   }

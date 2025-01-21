@@ -1,12 +1,12 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
 
-const users = require('./api/v1/users');
-const auth = require('./api/v1/auth');
-const verifications = require('./api/v1/verifications');
-const universities = require('./api/v1/universities');
-const comparisons = require('./api/v1/comparisons');
-const { authenticator } = require('../middlewares/auth-middleware');
+import users from './api/v1/users.js';
+import auth from './api/v1/auth.js';
+import verifications from './api/v1/verifications.js';
+import universities from './api/v1/universities.js';
+import comparisons from './api/v1/comparisons.js';
+import { authenticator } from '../middlewares/auth-middleware.js';
 
 router.use('/api/v1/users', users);
 router.use('/api/v1/auth', auth);
@@ -14,4 +14,4 @@ router.use('/api/v1/verifications', verifications);
 router.use('/api/v1/universities', universities);
 router.use('/api/v1/comparisons', authenticator, comparisons);
 
-module.exports = router;
+export default router;

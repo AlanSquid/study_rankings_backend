@@ -1,8 +1,10 @@
-const { User, Verification } = require('../models');
-const { Op } = require('sequelize');
-const createError = require('http-errors');
-const bcrypt = require('bcryptjs');
-const loginAttemptManager = require('../lib/login-attempt');
+import db from '../models/index.js';
+const { User, Verification, Course, CourseFavorite, University, UniversityRank } = db;
+import { Op } from 'sequelize';
+import createError from 'http-errors';
+import bcrypt from 'bcryptjs';
+import loginAttemptManager from '../lib/login-attempt.js';
+import addExtraProperty from '../lib/utils/addExtraProperty.js';
 
 const userServices = {
   getUser: async (req) => {
@@ -95,7 +97,135 @@ const userServices = {
     await user.save();
 
     return { success: true, message: 'Name updated' };
+  },
+  getFavorites: async (req) => {
+    const userId = req.user.id;
+    const page = req.query.page || 1;
+    const perPage = 20;
+
+    // 計算符合條件的總資料數
+    const totalCount = await CourseFavorite.count({
+      where: { userId }
+    });
+
+    // 計算總頁數
+    const totalPages = Math.ceil(totalCount / perPage);
+
+    // 取得收藏課程
+    const favoritesRaw = await CourseFavorite.findAll({
+      where: { userId },
+      attributes: [],
+      include: [
+        {
+          model: Course,
+          as: 'course',
+          attributes: [
+            'id',
+            'name',
+            'minFee',
+            'maxFee',
+            'engReq',
+            'engReqInfo',
+            'duration',
+            'campus',
+            'courseUrl'
+          ],
+          include: [
+            {
+              model: University,
+              as: 'university',
+              attributes: ['name', 'emblemPic'],
+              include: [
+                {
+                  model: UniversityRank,
+                  as: 'universityRank',
+                  attributes: ['rank']
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      order: [['id', 'DESC']],
+      limit: perPage,
+      offset: page ? (parseInt(page) - 1) * perPage : 0,
+      raw: true,
+      nest: true
+    });
+
+    // 簡化巢狀結構，將 UniversityRank 的 rank 放到 University 的屬性中
+    function formatFavoriteCourse(favoritesRaw) {
+      return favoritesRaw.map(({ course }) => {
+        if (course.university?.universityRank) {
+          const {
+            universityRank: { rank },
+            ...universityWithoutRank
+          } = course.university;
+          return {
+            ...course,
+            university: {
+              ...universityWithoutRank,
+              rank
+            }
+          };
+        }
+        return course;
+      });
+    }
+    const courses = formatFavoriteCourse(favoritesRaw);
+
+    // 標記是否加入收藏
+    await addExtraProperty.isFavorited(courses, userId);
+    // 標記是否加入比較
+    await addExtraProperty.isCompared(courses, userId);
+
+    return { success: true, courses, totalPages };
+  },
+  addFavorite: async (req) => {
+    const userId = req.user.id;
+    const courseId = req.params.courseId;
+
+    // 檢查課程是否存在
+    const course = await Course.findByPk(courseId);
+    if (!course) throw createError(404, 'Course not found');
+
+    // 檢查是否已經加入收藏
+    const favorite = await CourseFavorite.findOne({
+      where: { userId, courseId }
+    });
+    if (favorite) throw createError(409, 'Course already exists in favorite');
+
+    // 檢查是否超過收藏上限
+    const favoriteCount = await CourseFavorite.count({ where: { userId } });
+    if (favoriteCount >= 100) throw createError(400, 'Favorite limit exceeded');
+
+    // 加入收藏
+    await CourseFavorite.create({
+      userId,
+      courseId
+    });
+
+    return {
+      success: true,
+      message: 'Course successfully added to favorite'
+    };
+  },
+  deleteFavorite: async (req) => {
+    const userId = req.user.id;
+    const courseId = req.params.courseId;
+
+    const favorite = await CourseFavorite.findOne({
+      where: { userId, courseId }
+    });
+    if (!favorite) throw createError(404, 'Course not found in favorite');
+
+    await favorite.destroy();
+
+    return {
+      success: true,
+      message: 'Course successfully removed from favorite'
+    };
   }
 };
 
-module.exports = userServices;
+export default userServices;

@@ -1,14 +1,15 @@
-const { User } = require('../models');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
-const passport = require('passport');
-const createError = require('http-errors');
-const { emailVerification } = require('../lib/verification');
-const loginAttemptManager = require('../lib/login-attempt');
-const getJWT = require('../lib/get-jwt');
-const dayjs = require('dayjs');
-const utc = require('dayjs/plugin/utc');
-const timezone = require('dayjs/plugin/timezone');
+import db from '../models/index.js';
+const { User } = db;
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
+import passport from 'passport';
+import createError from 'http-errors';
+import { emailVerification, smsVerification } from '../lib/verification.js';
+import loginAttemptManager from '../lib/login-attempt.js';
+import generateJWT from '../lib/utils/generateJWT.js';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc.js';
+import timezone from 'dayjs/plugin/timezone.js';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -30,7 +31,7 @@ const authServices = {
       });
     });
     // 產生新的 access token
-    const accessToken = await getJWT.accessJwtSign(user);
+    const accessToken = await generateJWT.getAccessToken(user);
 
     return { success: true, accessToken };
   },
@@ -68,14 +69,8 @@ const authServices = {
       })(req);
     });
 
-    // 產生 tokens
-    // const [accessToken, refreshToken] = await Promise.all([
-    //   getJWT.accessJwtSign(user),
-    //   getJWT.refreshJwtSign(user)
-    // ]);
-
-    const accessToken = await getJWT.accessJwtSign(user);
-    const refreshToken = getJWT.refreshJwtSign(user);
+    const accessToken = await generateJWT.getAccessToken(user);
+    const refreshToken = generateJWT.getRefreshToken(user);
 
     // accessToken回傳json給前端，refreshToken回傳httpOnly cookie
     return { success: true, user, accessToken, refreshToken };
@@ -84,7 +79,7 @@ const authServices = {
     return { success: true, message: 'Logged out' };
   },
   register: async (req) => {
-    const { name, phone, email, password } = req.body;
+    const { name, phone, email, password, verificationCode } = req.body;
 
     // 檢查使用者是否已存在
     const existingUser = await User.findOne({
@@ -96,6 +91,9 @@ const authServices = {
     if (existingUser) {
       throw createError(409, 'Phone number already registered');
     }
+
+    // 驗證手機號碼
+    await smsVerification.verifyPhone(phone, verificationCode);
 
     // 密碼雜湊
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -117,21 +115,15 @@ const authServices = {
       email: newUser.email
     };
 
-    // 產生 tokens
-    // const [accessToken, refreshToken] = await Promise.all([
-    //   getJWT.accessJwtSign(user),
-    //   getJWT.refreshJwtSign(user)
-    // ]);
-
-    const accessToken = await getJWT.accessJwtSign(user);
-    const refreshToken = getJWT.refreshJwtSign(user);
+    const accessToken = await generateJWT.getAccessToken(user);
+    const refreshToken = generateJWT.getRefreshToken(user);
 
     // 註冊成功寄送email驗證信
-    const verificationLink = await emailVerification.sendVerificationEmail(user.id, email);
+    await emailVerification.sendVerificationEmail(user.id, email);
 
     // accessToken回傳json給前端，refreshToken回傳httpOnly cookie
-    return { success: true, user, verificationLink, accessToken, refreshToken };
+    return { success: true, accessToken, refreshToken };
   }
 };
 
-module.exports = authServices;
+export default authServices;

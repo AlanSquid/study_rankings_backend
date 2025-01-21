@@ -1,5 +1,5 @@
-const verificationServices = require('../services/verification-services');
-const { formatResponse } = require('../lib/utils/format-response');
+import verificationServices from '../services/verification-services.js';
+import formatResponse from '../lib/utils/formatResponse.js';
 
 const verificationController = {
   sendPhoneVerification: async (req, res, next) => {
@@ -44,4 +44,4 @@ const verificationController = {
   }
 };
 
-module.exports = verificationController;
+export default verificationController;

@@ -1,6 +1,7 @@
 'use strict';
-const { Model } = require('sequelize');
-module.exports = (sequelize, DataTypes) => {
+import { Model } from 'sequelize';
+
+export default (sequelize, DataTypes) => {
   class UniversityGroup extends Model {
     /**
      * Helper method for defining associations.
@@ -9,7 +10,8 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       UniversityGroup.hasMany(models.University, {
-        foreignKey: 'universityGroupId'
+        foreignKey: 'universityGroupId',
+        as: 'university'
       });
     }
   }

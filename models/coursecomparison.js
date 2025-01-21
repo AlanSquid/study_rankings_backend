@@ -1,6 +1,7 @@
 'use strict';
-const { Model } = require('sequelize');
-module.exports = (sequelize, DataTypes) => {
+import { Model } from 'sequelize';
+
+export default (sequelize, DataTypes) => {
   class CourseComparison extends Model {
     /**
      * Helper method for defining associations.
@@ -8,8 +9,8 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      CourseComparison.belongsTo(models.User, { foreignKey: 'userId' });
-      CourseComparison.belongsTo(models.Course, { foreignKey: 'courseId' });
+      CourseComparison.belongsTo(models.User, { foreignKey: 'userId', as: 'user' });
+      CourseComparison.belongsTo(models.Course, { foreignKey: 'courseId', as: 'course' });
     }
   }
   CourseComparison.init(

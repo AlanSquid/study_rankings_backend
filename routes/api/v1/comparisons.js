@@ -1,9 +1,9 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const comparisonController = require('../../../controllers/comparison-controller');
+import comparisonController from '../../../controllers/comparison-controller.js';
 
 router.get('/', comparisonController.getComparisons);
 router.post('/:courseId', comparisonController.addComparison);
 router.delete('/:courseId', comparisonController.removeComparison);
 
-module.exports = router;
+export default router;
