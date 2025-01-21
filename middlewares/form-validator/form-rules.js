@@ -197,6 +197,7 @@ const formRules = {
     body('newEmail')
       .notEmpty()
       .withMessage('Email is required')
+      .bail()
       .isEmail()
       .withMessage('Please enter a valid email')
       .isLength({ max: 50 })

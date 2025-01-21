@@ -570,10 +570,10 @@ describe('user-services Unit Test', () => {
 
       try {
         await userServices.deleteFavorite(req);
-        expect.fail('預期應拋出 404 Course not found in comparison 錯誤，但沒有拋出任何錯誤');
+        expect.fail('預期應拋出 404 Course not found in favorite 錯誤，但沒有拋出任何錯誤');
       } catch (error) {
         expect(error.status).to.equal(404);
-        expect(error.message).to.equal('Course not found in comparison');
+        expect(error.message).to.equal('Course not found in favorite');
       }
     });
   });

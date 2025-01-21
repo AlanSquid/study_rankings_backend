@@ -217,7 +217,7 @@ const userServices = {
     const favorite = await CourseFavorite.findOne({
       where: { userId, courseId }
     });
-    if (!favorite) throw createError(404, 'Course not found in comparison');
+    if (!favorite) throw createError(404, 'Course not found in favorite');
 
     await favorite.destroy();
 
